@@ -2,105 +2,95 @@
  * @fileoverview Firestore Security Rules for EcoCity application.
  *
  * Core Philosophy:
- * This ruleset enforces a strict user-ownership model for user profiles, rewards, and user statistics.
- * Public read access is granted for marketplace listings, recycling centers, and forum posts,
- * but write access to these collections is restricted to authorized users (e.g., the item's seller or the post's author).
+ * This ruleset enforces a strict user-ownership model for user profiles, rewards, and user statistics,
+ * while allowing public read access to products, recycling centers, and forum posts.
  *
  * Data Structure:
  * - /users/{userId}: User profiles, accessible only by the user themselves.
- * - /marketlistings/{marketlistingId}: Marketplace listings, readable by anyone, writable by the seller.
+ * - /products/{productId}: Marketplace product listings, publicly readable, but writable only with valid owner.
  * - /recyclingcenters/{recyclingcenterId}: Recycling center data, publicly readable.
- * - /users/{userId}/rewards/{rewardId}: User-specific rewards, accessible only by the user.
- * - /forumposts/{forumpostId}: Forum posts, publicly readable, writable by the author.
- * - /users/{userId}/userstats/{userstatsId}: User statistics, accessible only by the user.
+ * - /users/{userId}/rewards/{rewardId}: User-specific rewards, accessible only by the user themselves.
+ * - /forumposts/{forumpostId}: Forum posts, publicly readable, but writable only with valid owner.
+ * - /users/{userId}/userstats/{userstatsId}: User statistics, accessible only by the user themselves (1:1 relationship with UserProfile).
  *
  * Key Security Decisions:
- * - Users can only access their own user profile data and associated subcollections (rewards, userstats).
- * - Marketplace listings, recycling centers, and forum posts are publicly readable to facilitate discovery and community engagement.
- * - The rules explicitly prevent listing of user profiles for privacy reasons.
- * - Write access to marketplace listings and forum posts is restricted to the item's seller or the post's author, respectively.
+ * - User listing is disallowed to protect privacy.
+ * - Public read access is granted to products, recycling centers, and forum posts for discoverability.
+ * - Strict ownership is enforced for user profiles, rewards, and user statistics.
+ * - Data validation is limited to authorization-critical fields to enable rapid prototyping.
  *
  * Denormalization for Authorization:
- * - Marketplace listings include a 'sellerId' field to enable direct authorization checks without additional reads.
+ *  - The `sellerId` field in `products` and `authorId` field in `forumposts` are used to enforce ownership without requiring additional `get()` calls.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Defines whether a user is signed in.
-     * @return {boolean} True if request.auth is not null, false otherwise.
+     * @description Protects general read and write access to the entire database.  Useful for testing rules.
+     * @path /databases/{database}/documents
+     * @allow (get): Always disallowed to enforce granular security.
+     * @allow (list): Always disallowed to enforce granular security.
+     * @allow (create): Always disallowed to enforce granular security.
+     * @allow (update): Always disallowed to enforce granular security.
+     * @allow (delete): Always disallowed to enforce granular security.
+     * @principle Enforces granular security.
      */
-    function isSignedIn() {
-      return request.auth != null;
+    match /{document=**} {
+      allow read, write: if false;
     }
 
     /**
-     * @description Checks if the request is made by the owner of the resource.
-     * @param {string} userId - The user ID to compare with the request's auth UID.
-     * @return {boolean} True if the request is authenticated and the user ID matches the auth UID.
-     */
-    function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
-    }
-
-    /**
-     * @description Checks if the request is made by an existing owner of the resource.
-     * @param {string} userId - The user ID to compare with the resource's owner ID.
-     * @return {boolean} True if the resource exists, the request is authenticated, and the user ID matches the resource's owner ID.
-     */
-    function isExistingOwner(userId) {
-      return resource != null && isOwner(userId);
-    }
-    
-    /**
-     * @description Rules for user profiles.
+     * @description Manages access to user profiles.
      * @path /users/{userId}
-     * @allow (create) Signed-in user can create their own profile.
-     * @allow (get) Signed-in user can read their own profile.
-     * @allow (update) Signed-in user can update their own profile.
-     * @deny (create) User tries to create a profile with a different ID.
-     * @deny (get) User tries to read another user's profile.
-     * @deny (update) User tries to update another user's profile.
-     * @deny (delete) User tries to delete another user's profile.
-     * @principle Enforces document ownership for writes.
+     * @allow (get): Allows a user to read their own profile.
+     * @allow (list): Denies listing all users for privacy.
+     * @allow (create): Allows a user to create their own profile (self-registration).
+     * @allow (update): Allows a user to update their own profile.
+     * @allow (delete): Allows a user to delete their own profile.
+     * @deny (get): Denies reading another user's profile.
+     * @deny (create): Denies creating a profile with a mismatched user ID.
+     * @deny (update): Denies updating another user's profile.
+     * @deny (delete): Denies deleting another user's profile.
+     * @principle Enforces document ownership for reads and writes.
      */
     match /users/{userId} {
       allow get: if isOwner(userId);
       allow list: if false;
       allow create: if isOwner(userId) && request.resource.data.id == userId;
       allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
-      allow delete: if false;
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Rules for marketplace listings.
-     * @path /marketlistings/{marketlistingId}
-     * @allow (get) Anyone can read a marketplace listing.
-     * @allow (list) Anyone can list marketplace listings.
-     * @allow (create) Signed-in user can create a marketplace listing with their user ID as sellerId.
-     * @allow (update) Seller can update their marketplace listing.
-     * @deny (create) User tries to create a listing with a mismatched sellerId.
-     * @deny (update) User tries to update a listing they don't own.
-     * @deny (delete) User tries to delete a listing they don't own.
-     * @principle Owner-only writes, public reads, authorization independence.
+     * @description Manages access to marketplace product listings.
+     * @path /products/{productId}
+     * @allow (get): Allows anyone to read product listings.
+     * @allow (list): Allows anyone to list product listings.
+     * @allow (create): Allows a user to create a product listing if they are the seller.
+     * @allow (update): Allows the seller to update their product listing.
+     * @allow (delete): Allows the seller to delete their product listing.
+     * @deny (create): Denies creating a product listing with a mismatched seller ID.
+     * @deny (update): Denies updating a product listing if not the seller.
+     * @deny (delete): Denies deleting a product listing if not the seller.
+     * @principle Enforces document ownership for writes.
      */
-    match /marketlistings/{marketlistingId} {
+    match /products/{productId} {
       allow get, list: if true;
       allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
-      allow update: if isSignedIn() && resource.data.sellerId == request.auth.uid;
-      allow delete: if isSignedIn() && resource.data.sellerId == request.auth.uid;
+      allow update: if isExistingOwner(resource.data.sellerId);
+      allow delete: if isExistingOwner(resource.data.sellerId);
     }
 
     /**
-     * @description Rules for recycling centers.
+     * @description Manages access to recycling center data.
      * @path /recyclingcenters/{recyclingcenterId}
-     * @allow (get) Anyone can read a recycling center.
-     * @allow (list) Anyone can list recycling centers.
-     * @deny (create) No one can create a recycling center (admin only).
-     * @deny (update) No one can update a recycling center (admin only).
-     * @deny (delete) No one can delete a recycling center (admin only).
-     * @principle Public reads, no writes allowed.
+     * @allow (get): Allows anyone to read recycling center data.
+     * @allow (list): Allows anyone to list recycling centers.
+     * @allow (create): if false; // TODO: Add role-based access for admins to create recycling centers.
+     * @allow (update): if false; // TODO: Add role-based access for admins to update recycling centers.
+     * @allow (delete): if false; // TODO: Add role-based access for admins to delete recycling centers.
+     * @principle Grants public read access.
      */
     match /recyclingcenters/{recyclingcenterId} {
       allow get, list: if true;
@@ -108,62 +98,80 @@ service cloud.firestore {
     }
 
     /**
-     * @description Rules for user rewards.
+     * @description Manages access to user-specific rewards.
      * @path /users/{userId}/rewards/{rewardId}
-     * @allow (create) Signed-in user can create their own reward.
-     * @allow (get) Signed-in user can read their own reward.
-     * @allow (update) Signed-in user can update their own reward.
-     * @deny (create) User tries to create a reward for a different user.
-     * @deny (get) User tries to read another user's reward.
-     * @deny (update) User tries to update another user's reward.
-     * @deny (delete) User tries to delete another user's reward.
-     * @principle Enforces document ownership for writes.
+     * @allow (get): Allows a user to read their own rewards.
+     * @allow (list): Allows a user to list their own rewards.
+     * @allow (create): Allows a user to create a reward for themselves.
+     * @allow (update): Allows a user to update their own reward.
+     * @allow (delete): Allows a user to delete their own reward.
+     * @deny (get): Denies reading another user's rewards.
+     * @deny (list): Denies listing another user's rewards.
+     * @deny (create): Denies creating a reward for another user.
+     * @deny (update): Denies updating another user's rewards.
+     * @deny (delete): Denies deleting another user's rewards.
+     * @principle Enforces document ownership for reads and writes.
      */
     match /users/{userId}/rewards/{rewardId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
+      allow get, list: if isOwner(userId);
       allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
-      allow delete: if false;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Rules for forum posts.
+     * @description Manages access to forum posts.
      * @path /forumposts/{forumpostId}
-     * @allow (get) Anyone can read a forum post.
-     * @allow (list) Anyone can list forum posts.
-     * @allow (create) Signed-in user can create a forum post.
-     * @allow (update) Author can update their forum post.
-     * @deny (create) Anonymous user tries to create a forum post.
-     * @deny (update) User tries to update a post they don't own.
-     * @deny (delete) User tries to delete a post they don't own.
-     * @principle Owner-only writes, public reads.
+     * @allow (get): Allows anyone to read forum posts.
+     * @allow (list): Allows anyone to list forum posts.
+     * @allow (create): Allows a user to create a forum post if they are the author.
+     * @allow (update): Allows the author to update their forum post.
+     * @allow (delete): Allows the author to delete their forum post.
+     * @deny (create): Denies creating a forum post with a mismatched author ID.
+     * @deny (update): Denies updating a forum post if not the author.
+     * @deny (delete): Denies deleting a forum post if not the author.
+     * @principle Enforces document ownership for writes.
      */
     match /forumposts/{forumpostId} {
       allow get, list: if true;
       allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
-      allow update: if isSignedIn() && resource.data.authorId == request.auth.uid;
-      allow delete: if isSignedIn() && resource.data.authorId == request.auth.uid;
+      allow update: if isExistingOwner(resource.data.authorId);
+      allow delete: if isExistingOwner(resource.data.authorId);
     }
 
     /**
-     * @description Rules for user statistics.
+     * @description Manages access to user statistics.
      * @path /users/{userId}/userstats/{userstatsId}
-     * @allow (create) Signed-in user can create their own user statistics.
-     * @allow (get) Signed-in user can read their own user statistics.
-     * @allow (update) Signed-in user can update their own user statistics.
-     * @deny (create) User tries to create statistics for a different user.
-     * @deny (get) User tries to read another user's statistics.
-     * @deny (update) User tries to update another user's statistics.
-     * @deny (delete) User tries to delete another user's statistics.
-     * @principle Enforces document ownership for writes.
+     * @allow (get): Allows a user to read their own statistics.
+     * @allow (list): Allows a user to list their own statistics.
+     * @allow (create): Allows a user to create statistics for themselves.
+     * @allow (update): Allows a user to update their own statistics.
+     * @allow (delete): Allows a user to delete their own statistics.
+     * @deny (get): Denies reading another user's statistics.
+     * @deny (list): Denies listing another user's statistics.
+     * @deny (create): Denies creating statistics for another user.
+     * @deny (update): Denies updating another user's statistics.
+     * @deny (delete): Denies deleting another user's statistics.
+     * @principle Enforces document ownership for reads and writes.
      */
     match /users/{userId}/userstats/{userstatsId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
+      allow get, list: if isOwner(userId);
       allow create: if isOwner(userId) && request.resource.data.id == userId;
       allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
-      allow delete: if false;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function isExistingOwner(userId) {
+      return isSignedIn() && isOwner(userId) && resource != null;
     }
   }
 }
