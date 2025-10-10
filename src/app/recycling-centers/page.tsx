@@ -104,11 +104,6 @@ export default function RecyclingCentersPage() {
                       className="object-cover"
                       data-ai-hint="map satellite"
                     />
-                    <div className="absolute inset-0 bg-black/30"></div>
-                     <div className="relative text-center text-white p-4">
-                       <h3 className="font-headline text-2xl">Map View Coming Soon</h3>
-                       <p>Interactive map will be available here.</p>
-                     </div>
                </CardContent>
             </Card>
           </div>
