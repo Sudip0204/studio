@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
 import { Menu, User, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EcoCityLogo } from "../icons";
@@ -123,6 +123,7 @@ export function Header() {
             </Button>
           </SheetTrigger>
           <SheetContent side="right">
+            <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
             <nav className="grid gap-6 text-lg font-medium">
               <Link
                 href="/"
