@@ -4,7 +4,7 @@ import { useState, useRef } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload, Loader2, Info, Search, Pin, Camera } from "lucide-react";
+import { Upload, Loader2, Info, Search, Pin, Camera, Recycle, Trash2 } from "lucide-react";
 import { aiWasteClassification, AiWasteClassificationOutput } from '@/ai/flows/ai-waste-classification';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -122,10 +122,27 @@ export default function AiIdentifierPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {classificationResult.isWaste ? (
-                    <>
+                    <div className="space-y-6">
                       <div>
                         <h3 className="font-semibold text-lg text-primary">{classificationResult.wasteType}</h3>
-                        <p className="text-muted-foreground mt-1">{classificationResult.disposalInstructions}</p>
+                        <p className="text-muted-foreground mt-1">{classificationResult.description}</p>
+                      </div>
+                      <Separator />
+                      <div className="space-y-4">
+                        <div className="flex gap-4 items-start">
+                          <Trash2 className="h-5 w-5 text-destructive mt-1 flex-shrink-0" />
+                          <div>
+                            <h4 className="font-semibold">Disposal Instructions</h4>
+                            <p className="text-muted-foreground">{classificationResult.disposalInstructions}</p>
+                          </div>
+                        </div>
+                        <div className="flex gap-4 items-start">
+                          <Recycle className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                          <div>
+                            <h4 className="font-semibold">Recycling & Reuse</h4>
+                            <p className="text-muted-foreground">{classificationResult.recyclingInfo}</p>
+                          </div>
+                        </div>
                       </div>
                       <Separator />
                       <div className="flex flex-col sm:flex-row gap-4">
@@ -140,13 +157,13 @@ export default function AiIdentifierPage() {
                           </Link>
                         </Button>
                       </div>
-                    </>
+                    </div>
                   ) : (
                      <Alert>
                         <Info className="h-4 w-4" />
                         <AlertTitle>Not a Waste Product</AlertTitle>
                         <AlertDescription>
-                           {classificationResult.disposalInstructions}
+                           {classificationResult.description}
                         </AlertDescription>
                     </Alert>
                   )}

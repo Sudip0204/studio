@@ -15,7 +15,7 @@ const AiWasteClassificationInputSchema = z.object({
   photoDataUri: z
     .string()
     .describe(
-      'A photo of the waste, as a data URI that must include a MIME type and use Base64 encoding. Expected format: \'data:<mimetype>;base64,<encoded_data>\'.'
+      "A photo of the waste, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
 });
 export type AiWasteClassificationInput = z.infer<typeof AiWasteClassificationInputSchema>;
@@ -23,10 +23,12 @@ export type AiWasteClassificationInput = z.infer<typeof AiWasteClassificationInp
 const AiWasteClassificationOutputSchema = z.object({
   isWaste: z.boolean().describe('Whether the image contains a recognizable waste product.'),
   wasteType: z.string().describe('The classified type of waste. If not a waste product, this should be "Not a waste product".'),
-  disposalInstructions:
-    z.string().describe('Instructions on how to properly dispose of the waste. If not a waste product, explain why.'),
+  description: z.string().describe('A brief description of the waste material.'),
+  disposalInstructions: z.string().describe('Instructions on how to properly dispose of the waste.'),
+  recyclingInfo: z.string().describe('Information on how to recycle or reuse the item.'),
 });
 export type AiWasteClassificationOutput = z.infer<typeof AiWasteClassificationOutputSchema>;
+
 
 export async function aiWasteClassification(
   input: AiWasteClassificationInput
@@ -45,12 +47,16 @@ const prompt = ai.definePrompt({
   If it is a waste product:
   1. Set 'isWaste' to true.
   2. Classify the 'wasteType' (e.g., 'Plastic Bottle', 'Cardboard Box', 'Aluminum Can').
-  3. Provide clear and concise 'disposalInstructions'. Mention local recycling guidelines if applicable.
+  3. Provide a brief 'description' of the waste material.
+  4. Provide clear and concise 'disposalInstructions'.
+  5. Provide 'recyclingInfo' on how to recycle or reuse the item. Mention local recycling guidelines if applicable.
 
   If it is NOT a waste product (e.g., a person, an animal, a landscape):
   1. Set 'isWaste' to false.
   2. Set 'wasteType' to "Not a waste product".
-  3 dashboards. Set 'disposalInstructions' to a brief explanation of what is in the image and why it is not considered waste.
+  3. Set 'description' to a brief explanation of what is in the image.
+  4. Set 'disposalInstructions' to "Not applicable."
+  5. Set 'recyclingInfo' to "Not applicable."
 
   Photo: {{media url=photoDataUri}}
   `,
