@@ -21,9 +21,10 @@ const AiWasteClassificationInputSchema = z.object({
 export type AiWasteClassificationInput = z.infer<typeof AiWasteClassificationInputSchema>;
 
 const AiWasteClassificationOutputSchema = z.object({
-  wasteType: z.string().describe('The classified type of waste.'),
+  isWaste: z.boolean().describe('Whether the image contains a recognizable waste product.'),
+  wasteType: z.string().describe('The classified type of waste. If not a waste product, this should be "Not a waste product".'),
   disposalInstructions:
-    z.string().describe('Instructions on how to properly dispose of the waste.'),
+    z.string().describe('Instructions on how to properly dispose of the waste. If not a waste product, explain why.'),
 });
 export type AiWasteClassificationOutput = z.infer<typeof AiWasteClassificationOutputSchema>;
 
@@ -39,9 +40,17 @@ const prompt = ai.definePrompt({
   output: {schema: AiWasteClassificationOutputSchema},
   prompt: `You are an AI assistant specializing in waste classification and disposal methods.
 
-  Analyze the image of the waste provided and classify the waste type. Provide clear and concise instructions on how to properly dispose of the identified waste.
+  Analyze the image provided. Determine if it's a waste product.
 
-  Consider local recycling guidelines and regulations when providing disposal instructions.
+  If it is a waste product:
+  1. Set 'isWaste' to true.
+  2. Classify the 'wasteType' (e.g., 'Plastic Bottle', 'Cardboard Box', 'Aluminum Can').
+  3. Provide clear and concise 'disposalInstructions'. Mention local recycling guidelines if applicable.
+
+  If it is NOT a waste product (e.g., a person, an animal, a landscape):
+  1. Set 'isWaste' to false.
+  2. Set 'wasteType' to "Not a waste product".
+  3 dashboards. Set 'disposalInstructions' to a brief explanation of what is in the image and why it is not considered waste.
 
   Photo: {{media url=photoDataUri}}
   `,
