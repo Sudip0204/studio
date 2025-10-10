@@ -1,5 +1,62 @@
+
 {
   "entities": {
+    "Product": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Product",
+      "type": "object",
+      "description": "Represents a product listing in the marketplace.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the product."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the product."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the product."
+        },
+        "price": {
+          "type": "number",
+          "description": "Price of the product."
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the product."
+        },
+        "condition": {
+          "type": "string",
+          "description": "Condition of the product (e.g., New, Used, Refurbished)."
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL of the product image."
+        },
+        "sellerId": {
+          "type": "string",
+          "description": "ID of the user selling the product."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp when the product was listed."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "price",
+        "category",
+        "condition",
+        "imageUrl",
+        "sellerId",
+        "createdAt"
+      ]
+    },
     "UserProfile": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "UserProfile",
@@ -40,11 +97,8 @@
         }
       },
       "required": [
-        "id",
         "name",
-        "email",
-        "ecoPoints",
-        "level"
+        "email"
       ]
     },
     "MarketplaceListing": {
@@ -250,8 +304,7 @@
   },
   "auth": {
     "providers": [
-      "password",
-      "anonymous"
+      "password"
     ]
   },
   "firestore": {
@@ -273,17 +326,17 @@
         }
       },
       {
-        "path": "/marketlistings/{marketlistingId}",
+        "path": "/products/{productId}",
         "definition": {
-          "entityName": "MarketplaceListing",
+          "entityName": "Product",
           "schema": {
-            "$ref": "#/backend/entities/MarketplaceListing"
+            "$ref": "#/backend/entities/Product"
           },
-          "description": "Collection for storing marketplace listings. Includes denormalized 'sellerId' for authorization independence.",
+          "description": "Collection for storing marketplace product listings.",
           "params": [
             {
-              "name": "marketlistingId",
-              "description": "The unique identifier of the marketplace listing."
+              "name": "productId",
+              "description": "The unique identifier of the product."
             }
           ]
         }
