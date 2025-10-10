@@ -1,215 +1,177 @@
 /**
- * @file Firestore Security Rules for EcoCity Marketplace.
+ * @fileoverview Firestore Security Rules for EcoCity application.
  *
- * @core_philosophy This ruleset enforces a strict user-ownership model for user profiles, rewards, and user statistics.
- *   Marketplace listings are secured based on the sellerId field. Recycling centers and forum posts are publicly readable,
- *   but only owners can create, update, or delete them.
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for user profiles and their associated data (rewards, stats).
+ * Marketplace listings are secured using denormalized `sellerId` fields.
+ * Public read access is granted to recycling centers and forum posts.
  *
- * @data_structure
- *   - `/users/{userId}`: User profiles, accessible only by the owning user.
- *   - `/marketlistings/{marketlistingId}`: Marketplace listings, publicly readable, writable only by the seller.
- *   - `/recyclingcenters/{recyclingcenterId}`: Recycling center data, publicly readable, owner-writeable.
- *   - `/users/{userId}/rewards/{rewardId}`: User rewards, accessible only by the owning user.
- *   - `/forumposts/{forumpostId}`: Forum posts, publicly readable, owner-writeable.
- *   - `/users/{userId}/userstats/{userstatsId}`: User stats, accessible only by the owning user.
+ * Data Structure:
+ * - /users/{userId}: User profiles, owned by the user.
+ * - /users/{userId}/rewards/{rewardId}: Rewards associated with a user.
+ * - /users/{userId}/userstats/{userstatsId}: Statistics for a user (1:1 with UserProfile).
+ * - /marketlistings/{marketlistingId}: Marketplace listings, owned by the seller (denormalized `sellerId`).
+ * - /recyclingcenters/{recyclingcenterId}: Recycling center data, publicly readable.
+ * - /forumposts/{forumpostId}: Forum posts, publicly readable, owner-writeable.
  *
- * @key_security_decisions
- *   - Users can only access their own profile data and associated subcollections.
- *   - Marketplace listings can be created by any authenticated user, but only modified/deleted by the seller.
- *   - Recycling center data is publicly readable to encourage community engagement.
- *   - Forum posts are publicly readable but only the author can modify/delete them.
- *   - Listing of user-owned subcollections is allowed only to the owner.
- *   - Data shape is not strictly validated to allow for rapid prototyping.
+ * Key Security Decisions:
+ * - Users can only read and write their own profile data and associated subcollections.
+ * - Marketplace listings can be created by any authenticated user, but only the seller can update or delete them.
+ * - Recycling center data and forum posts are publicly readable but only the owner can modify.
+ * - Listing of user documents is allowed only for the owner.
  *
- * @denormalization_for_authorization The `MarketplaceListing` entity includes the `sellerId` field, which is used to authorize
- *   updates and deletes. This avoids the need to perform additional reads to determine ownership.
- *
- * @structural_segregation User-owned data is stored in user-specific subcollections to ensure that only the owning user
- *   can access it.
+ * Denormalization for Authorization:
+ * - Marketplace listings include the `sellerId` to allow direct authorization checks without additional reads.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Controls access to user profile data.
+     * @description Grants access to user profiles based on ownership.
      * @path /users/{userId}
-     * @allow (create) User 'testUID' can create their own profile if request.auth.uid == userId
-     * @allow (get, list) User 'testUID' can read their own profile data if request.auth.uid == userId
-     * @allow (update, delete) User 'testUID' can update/delete their own profile data if request.auth.uid == userId
-     * @deny (create) User 'testUID' cannot create another user's profile (request.auth.uid != userId)
-     * @deny (get, list) User 'otherUID' cannot read user 'testUID' profile data (request.auth.uid != userId)
-     * @deny (update, delete) User 'otherUID' cannot update/delete user 'testUID' profile data (request.auth.uid != userId)
-     * @principle Enforces document ownership for user profiles.
+     * @allow (create) User with UID "test_user" can create their profile if userId == auth.uid.
+     * @allow (get) User with UID "test_user" can read their profile if userId == auth.uid.
+     * @allow (update) User with UID "test_user" can update their profile if userId == auth.uid and the document exists.
+     * @allow (delete) User with UID "test_user" can delete their profile if userId == auth.uid and the document exists.
+     * @deny (create) User with UID "other_user" cannot create a profile with userId == "test_user".
+     * @deny (update) User with UID "other_user" cannot update profile with userId == "test_user".
+     * @deny (delete) User with UID "other_user" cannot delete profile with userId == "test_user".
+     * @principle Enforces document ownership for writes.
      */
     match /users/{userId} {
-      // Verifies that the request is authenticated.
-      function isSignedIn() {
-        return request.auth != null;
-      }
-
-      // Verifies that the userId matches the authenticated user's UID.
       function isOwner(userId) {
-        return request.auth.uid == userId;
+        return request.auth != null && request.auth.uid == userId;
       }
-
-      // Combines ownership and existence check.
       function isExistingOwner(userId) {
         return isOwner(userId) && resource != null;
       }
 
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.id == request.auth.uid;
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
       allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Controls access to marketplace listings.
+     * @description Grants access to marketplace listings based on seller ownership.
      * @path /marketlistings/{marketlistingId}
-     * @allow (get, list) Any user can view marketplace listings.
-     * @allow (create) User 'testUID' can create a listing if request.auth.uid matches the listing's sellerId.
-     * @allow (update, delete) User 'testUID' can update/delete a listing if request.auth.uid matches the listing's sellerId.
-     * @deny (create) User 'testUID' cannot create a listing with a sellerId that doesn't match their own UID.
-     * @deny (update, delete) User 'otherUID' cannot update/delete listing created by user 'testUID'.
-     * @principle Allows public read access with owner-only writes, enforced by the `sellerId` field.
+     * @allow (create) User with UID "test_user" can create a listing. The 'sellerId' field must equal the auth.uid.
+     * @allow (get) Any user can read any listing.
+     * @allow (list) Any user can list all listings.
+     * @allow (update) User with UID "test_user" can update a listing if they are the seller (sellerId == auth.uid) and the document exists.
+     * @allow (delete) User with UID "test_user" can delete a listing if they are the seller (sellerId == auth.uid) and the document exists.
+     * @deny (create) User with UID "test_user" cannot create a listing if the sellerId in the data does not match the auth.uid.
+     * @deny (update) User with UID "other_user" cannot update listing with sellerId == "test_user".
+     * @deny (delete) User with UID "other_user" cannot delete listing with sellerId == "test_user".
+     * @principle Enforces document ownership for writes; public read access.
      */
     match /marketlistings/{marketlistingId} {
-      // Verifies that the request is authenticated.
-      function isSignedIn() {
-        return request.auth != null;
-      }
-
-      // Verifies that the sellerId matches the authenticated user's UID.
       function isOwner(sellerId) {
-        return request.auth.uid == sellerId;
+        return request.auth != null && request.auth.uid == sellerId;
       }
-
-      // Combines ownership and existence check.
-      function isExistingOwner(sellerId) {
+       function isExistingOwner(sellerId) {
         return isOwner(sellerId) && resource != null;
       }
 
-      allow get: if true;
-      allow list: if true;
-      allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
+      allow get, list: if true;
+      allow create: if request.auth != null && request.resource.data.sellerId == request.auth.uid;
       allow update: if isExistingOwner(resource.data.sellerId);
       allow delete: if isExistingOwner(resource.data.sellerId);
     }
 
     /**
-     * @description Controls access to recycling center data.
+     * @description Grants public read access to recycling center data.
      * @path /recyclingcenters/{recyclingcenterId}
-     * @allow (get, list) Any user can view recycling center data.
-     * @deny (create, update, delete) No one can create, update, or delete recycling center data.
-     * @principle Allows public read access but denies all write access.
+     * @allow (get) Any user can read recycling center data.
+     * @allow (list) Any user can list recycling center data.
+     * @deny (create) No user can create recycling center data.
+     * @deny (update) No user can update recycling center data.
+     * @deny (delete) No user can delete recycling center data.
+     * @principle Public read access only.
      */
     match /recyclingcenters/{recyclingcenterId} {
-      allow get: if true;
-      allow list: if true;
-      allow create: if false;
-      allow update: if false;
-      allow delete: if false;
+      allow get, list: if true;
+      allow create, update, delete: if false;
     }
 
     /**
-     * @description Controls access to user-specific reward data.
+     * @description Grants access to user rewards based on ownership.
      * @path /users/{userId}/rewards/{rewardId}
-     * @allow (create) User 'testUID' can create their own reward if request.auth.uid == userId
-     * @allow (get, list) User 'testUID' can read their own reward data if request.auth.uid == userId
-     * @allow (update, delete) User 'testUID' can update/delete their own reward data if request.auth.uid == userId
-     * @deny (create) User 'testUID' cannot create another user's reward (request.auth.uid != userId)
-     * @deny (get, list) User 'otherUID' cannot read user 'testUID' reward data (request.auth.uid != userId)
-     * @deny (update, delete) User 'otherUID' cannot update/delete user 'testUID' reward data (request.auth.uid != userId)
-     * @principle Enforces document ownership for user rewards.
+     * @allow (create) User with UID "test_user" can create a reward if userId == auth.uid.
+     * @allow (get) User with UID "test_user" can read their reward if userId == auth.uid.
+     * @allow (update) User with UID "test_user" can update their reward if userId == auth.uid and the document exists.
+     * @allow (delete) User with UID "test_user" can delete their reward if userId == auth.uid and the document exists.
+     * @deny (create) User with UID "other_user" cannot create a reward with userId == "test_user".
+     * @deny (update) User with UID "other_user" cannot update reward with userId == "test_user".
+     * @deny (delete) User with UID "other_user" cannot delete reward with userId == "test_user".
+     * @principle Enforces document ownership for writes.
      */
     match /users/{userId}/rewards/{rewardId} {
-      // Verifies that the request is authenticated.
-      function isSignedIn() {
-        return request.auth != null;
-      }
-
-      // Verifies that the userId matches the authenticated user's UID.
       function isOwner(userId) {
-        return request.auth.uid == userId;
+        return request.auth != null && request.auth.uid == userId;
       }
-
-      // Combines ownership and existence check.
-      function isExistingOwner(userId) {
+       function isExistingOwner(userId) {
         return isOwner(userId) && resource != null;
       }
 
       allow get: if isOwner(userId);
       allow list: if isOwner(userId);
-      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
       allow delete: if isExistingOwner(userId);
     }
 
-    /**
-     * @description Controls access to forum posts.
-     * @path /forumposts/{forumpostId}
-     * @allow (get, list) Any user can view forum posts.
-     * @allow (create) User 'testUID' can create a forum post with their ID as authorId.
-     * @allow (update, delete) User 'testUID' can update/delete their own forum post (authorId matches).
-     * @deny (create) User 'testUID' cannot create a forum post with an authorId that doesn't match their UID.
-     * @deny (update, delete) User 'otherUID' cannot update/delete forum post created by user 'testUID'.
-     * @principle Allows public read access with owner-only writes, enforced by the `authorId` field.
-     */
+     /**
+      * @description Grants public read access to forum posts. Owner can modify.
+      * @path /forumposts/{forumpostId}
+      * @allow (get) Any user can read a forum post.
+      * @allow (list) Any user can list forum posts.
+      * @allow (create) Authenticated user can create a forum post where authorId matches user id
+      * @allow (update) Authenticated user can update a forum post where authorId matches user id
+      * @allow (delete) Authenticated user can delete a forum post where authorId matches user id
+      * @deny (create) User with UID "test_user" cannot create a forum post if the authorId in the data does not match the auth.uid.
+      * @deny (update) User with UID "other_user" cannot update a forumpost where authorId == "test_user".
+      * @deny (delete) User with UID "other_user" cannot delete a forumpost where authorId == "test_user".
+      * @principle Public read access; owner-only writes.
+      */
     match /forumposts/{forumpostId} {
-      // Verifies that the request is authenticated.
-      function isSignedIn() {
-        return request.auth != null;
-      }
-
-      // Verifies that the authorId matches the authenticated user's UID.
       function isOwner(authorId) {
-        return request.auth.uid == authorId;
+          return request.auth != null && request.auth.uid == authorId;
       }
-
-      // Combines ownership and existence check.
       function isExistingOwner(authorId) {
         return isOwner(authorId) && resource != null;
       }
-
-      allow get: if true;
-      allow list: if true;
-      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+      allow get, list: if true;
+      allow create: if request.auth != null && request.resource.data.authorId == request.auth.uid;
       allow update: if isExistingOwner(resource.data.authorId);
       allow delete: if isExistingOwner(resource.data.authorId);
     }
 
     /**
-     * @description Controls access to user-specific statistics data.
+     * @description Grants access to user statistics based on ownership.
      * @path /users/{userId}/userstats/{userstatsId}
-     * @allow (create) User 'testUID' can create their own stats if request.auth.uid == userId
-     * @allow (get, list) User 'testUID' can read their own stats data if request.auth.uid == userId
-     * @allow (update, delete) User 'testUID' can update/delete their own stats data if request.auth.uid == userId
-     * @deny (create) User 'testUID' cannot create another user's stats (request.auth.uid != userId)
-     * @deny (get, list) User 'otherUID' cannot read user 'testUID' stats data (request.auth.uid != userId)
-     * @deny (update, delete) User 'otherUID' cannot update/delete user 'testUID' stats data (request.auth.uid != userId)
-     * @principle Enforces document ownership for user stats.
+     * @allow (create) User with UID "test_user" can create userstats if userId == auth.uid.
+     * @allow (get) User with UID "test_user" can read their userstats if userId == auth.uid.
+     * @allow (update) User with UID "test_user" can update their userstats if userId == auth.uid and the document exists.
+     * @allow (delete) User with UID "test_user" can delete their userstats if userId == auth.uid and the document exists.
+     * @deny (create) User with UID "other_user" cannot create userstats with userId == "test_user".
+     * @deny (update) User with UID "other_user" cannot update userstats with userId == "test_user".
+     * @deny (delete) User with UID "other_user" cannot delete userstats with userId == "test_user".
+     * @principle Enforces document ownership for writes.
      */
     match /users/{userId}/userstats/{userstatsId} {
-      // Verifies that the request is authenticated.
-      function isSignedIn() {
-        return request.auth != null;
-      }
-
-      // Verifies that the userId matches the authenticated user's UID.
       function isOwner(userId) {
-        return request.auth.uid == userId;
+        return request.auth != null && request.auth.uid == userId;
       }
-
-      // Combines ownership and existence check.
       function isExistingOwner(userId) {
         return isOwner(userId) && resource != null;
       }
 
       allow get: if isOwner(userId);
       allow list: if isOwner(userId);
-      allow create: if isSignedIn() && isOwner(userId);
+      allow create: if isOwner(userId);
       allow update: if isExistingOwner(userId);
       allow delete: if isExistingOwner(userId);
     }
