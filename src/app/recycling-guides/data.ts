@@ -160,7 +160,7 @@ export const wasteCategories: WasteCategory[] = [
     description: "Waste generated from building, renovation, and demolition projects.",
     details: [
       { title: "Examples", content: ["Concrete, bricks, tiles", "Wood and lumber", "Metals (rebar, pipes)", "Insulation materials", "Drywall"] },
-      { title:al Methods", content: ["C&D recycling facilities", "Salvage yards for reusable materials", "Landfills as a last resort"] },
+      { title: "Disposal Methods", content: ["C&D recycling facilities", "Salvage yards for reusable materials", "Landfills as a last resort"] },
       { title: "Recycling Process", content: "Materials are sorted and processed for reuse. Concrete can be crushed for aggregate, wood can be chipped for mulch, and metals are recycled." },
       { title: "Reuse Opportunities", content: "Architectural salvage yards are great places to find unique items like doors, windows, and fixtures for reuse in other projects." },
       { title: "External Resources", content: ["Resources on green building practices"] },

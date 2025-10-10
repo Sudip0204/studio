@@ -1,9 +1,9 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Recycle, Redo, Reduce } from "lucide-react";
+import { Recycle, Redo, TrendingDown } from "lucide-react";
 
 const threeRs = [
   {
-    icon: <Reduce className="h-10 w-10 text-primary" />,
+    icon: <TrendingDown className="h-10 w-10 text-primary" />,
     title: "Reduce",
     description: "Minimize the amount of waste we create in the first place. Choose products with less packaging and say no to single-use items."
   },
