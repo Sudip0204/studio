@@ -9,6 +9,7 @@ import { MapPin, Search, Star, Clock, Phone, Heart, Globe, Home } from "lucide-r
 import { recyclingCenters, RecyclingCenter } from './data';
 import Image from 'next/image';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 export default function RecyclingCentersPage() {
   const [favorites, setFavorites] = useState<string[]>([]);
