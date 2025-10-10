@@ -1,3 +1,94 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-background",
+      "description": "A high-quality image of a clean, green environment, suitable for a hero banner.",
+      "imageUrl": "https://picsum.photos/seed/hero/1920/1080",
+      "imageHint": "clean environment"
+    },
+    {
+      "id": "about-mission",
+      "description": "An image representing our mission, perhaps showing people working together on an environmental project.",
+      "imageUrl": "https://picsum.photos/seed/mission/800/600",
+      "imageHint": "community environment"
+    },
+    {
+      "id": "impact-map",
+      "description": "A stylized world map to show user participation.",
+      "imageUrl": "https://picsum.photos/seed/worldmap/1200/600",
+      "imageHint": "world map"
+    },
+    {
+      "id": "testimonial-1",
+      "description": "Portrait of a smiling user for a testimonial.",
+      "imageUrl": "https://picsum.photos/seed/user1/100/100",
+      "imageHint": "person smiling"
+    },
+    {
+      "id": "testimonial-2",
+      "description": "Portrait of another smiling user for a testimonial.",
+      "imageUrl": "https://picsum.photos/seed/user2/100/100",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "recycling-guide-hero",
+      "description": "An inspiring image about recycling for the guide page hero.",
+      "imageUrl": "https://picsum.photos/seed/guidehero/1600/600",
+      "imageHint": "recycling items"
+    },
+    {
+      "id": "organic-waste",
+      "description": "Image of organic waste like fruit peels and food scraps.",
+      "imageUrl": "https://picsum.photos/seed/organic/400/300",
+      "imageHint": "compost pile"
+    },
+    {
+      "id": "plastic-waste",
+      "description": "Image of various plastic bottles and containers.",
+      "imageUrl": "https://picsum.photos/seed/plastic/400/300",
+      "imageHint": "plastic bottles"
+    },
+    {
+      "id": "paper-waste",
+      "description": "Image of stacked newspapers and cardboard.",
+      "imageUrl": "https://picsum.photos/seed/paper/400/300",
+      "imageHint": "stacked paper"
+    },
+    {
+      "id": "glass-waste",
+      "description": "Image of colorful glass bottles and jars.",
+      "imageUrl": "https://picsum.photos/seed/glass/400/300",
+      "imageHint": "glass bottles"
+    },
+    {
+      "id": "metal-waste",
+      "description": "Image of aluminum cans and metal scraps.",
+      "imageUrl": "https://picsum.photos/seed/metal/400/300",
+      "imageHint": "metal cans"
+    },
+    {
+      "id": "ewaste",
+      "description": "Image of old electronic devices like phones and laptops.",
+      "imageUrl": "https://picsum.photos/seed/ewaste/400/300",
+      "imageHint": "electronic waste"
+    },
+    {
+      "id": "hazardous-waste",
+      "description": "Image of containers with hazard symbols.",
+      "imageUrl": "https://picsum.photos/seed/hazardous/400/300",
+      "imageHint": "chemical containers"
+    },
+    {
+      "id": "textile-waste",
+      "description": "Image of a pile of old clothes and fabrics.",
+      "imageUrl": "https://picsum.photos/seed/textile/400/300",
+      "imageHint": "fabric pile"
+    },
+    {
+      "id": "construction-waste",
+      "description": "Image of construction debris like bricks and wood.",
+      "imageUrl": "https://picsum.photos/seed/construction/400/300",
+      "imageHint": "construction debris"
+    }
+  ]
 }
