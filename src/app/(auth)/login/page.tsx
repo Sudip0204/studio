@@ -6,15 +6,14 @@ import * as z from "zod";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useAuth } from "@/firebase";
-import { initiateEmailSignIn } from "@/firebase/non-blocking-login";
+import { useAuth, useUser } from "@/firebase";
+import { signInWithEmailAndPassword } from "firebase/auth";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const loginSchema = z.object({
   email: z.string().email({ message: "Invalid email address." }),
@@ -23,9 +22,16 @@ const loginSchema = z.object({
 
 export default function LoginPage() {
   const auth = useAuth();
+  const { user } = useUser();
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      router.push("/");
+    }
+  }, [user, router]);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -38,21 +44,21 @@ export default function LoginPage() {
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     setIsSubmitting(true);
     try {
-      await initiateEmailSignIn(auth, values.email, values.password);
-      toast({
-        title: "Login Successful",
-        description: "Welcome back!",
-      });
-      router.push("/");
+      await signInWithEmailAndPassword(auth, values.email, values.password);
+      // The onAuthStateChanged listener in the provider will handle the redirect
     } catch (error: any) {
-      console.error("Login Error: ", error);
+      let description = "An unexpected error occurred. Please try again.";
+      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+        description = "Invalid email or password. Please try again.";
+      } else if (error.message) {
+        description = error.message;
+      }
       toast({
         variant: "destructive",
         title: "Login Failed",
-        description: error.message || "An unexpected error occurred. Please try again.",
+        description: description,
       });
-    } finally {
-        setIsSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 

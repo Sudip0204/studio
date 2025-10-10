@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useForm } from "react-hook-form";
@@ -7,16 +6,13 @@ import * as z from "zod";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { useAuth, useFirestore } from "@/firebase";
-import { initiateEmailSignUp } from "@/firebase/non-blocking-login";
-import { setDocumentNonBlocking } from "@/firebase/non-blocking-updates";
+import { useAuth, useFirestore, setDocumentNonBlocking, useUser } from "@/firebase";
 import { doc, serverTimestamp } from "firebase/firestore";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { createUserWithEmailAndPassword } from "firebase/auth";
 
@@ -29,9 +25,16 @@ const signupSchema = z.object({
 export default function SignupPage() {
   const auth = useAuth();
   const firestore = useFirestore();
+  const { user } = useUser();
   const router = useRouter();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      router.push("/");
+    }
+  }, [user, router]);
 
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
@@ -57,16 +60,12 @@ export default function SignupPage() {
           level: "Seedling",
           createdAt: serverTimestamp(),
         };
+        // This is a non-blocking write, so we don't await it.
+        // The user will be redirected while this happens in the background.
         setDocumentNonBlocking(userProfileRef, userProfileData, { merge: true });
-
-        toast({
-          title: "Account Created!",
-          description: "Welcome to EcoCity! You are now logged in.",
-        });
-        router.push("/");
       }
+       // The onAuthStateChanged listener in the provider will handle the redirect
     } catch (error: any) {
-      console.error("Signup Error: ", error);
       let description = "An unexpected error occurred. Please try again.";
       if (error.code === 'auth/email-already-in-use') {
         description = "This email is already in use. Please try logging in or use a different email.";
@@ -79,8 +78,7 @@ export default function SignupPage() {
         title: "Sign Up Failed",
         description: description,
       });
-    } finally {
-        setIsSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
