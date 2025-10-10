@@ -1,0 +1,366 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user profile in the EcoCity application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user profile."
+        },
+        "name": {
+          "type": "string",
+          "description": "User's full name."
+        },
+        "email": {
+          "type": "string",
+          "description": "User's email address.",
+          "format": "email"
+        },
+        "ecoPoints": {
+          "type": "number",
+          "description": "Number of eco-points the user has earned."
+        },
+        "level": {
+          "type": "string",
+          "description": "User's level in the EcoCity rewards program."
+        },
+        "activities": {
+          "type": "array",
+          "description": "Activities of the user.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "stats": {
+          "type": "string",
+          "description": "Reference to UserStats. (Relationship: UserProfile 1:1 UserStats)"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "email",
+        "ecoPoints",
+        "level"
+      ]
+    },
+    "MarketplaceListing": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "MarketplaceListing",
+      "type": "object",
+      "description": "Represents a listing in the EcoCity marketplace.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the marketplace listing."
+        },
+        "details": {
+          "type": "string",
+          "description": "Details of product."
+        },
+        "sellerId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N MarketplaceListing)"
+        },
+        "images": {
+          "type": "array",
+          "description": "URLs of images for the product.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "category": {
+          "type": "string",
+          "description": "Category of the product."
+        },
+        "title": {
+          "type": "string",
+          "description": "Title of the product."
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of product."
+        },
+        "price": {
+          "type": "number",
+          "description": "Price of product."
+        },
+        "condition": {
+          "type": "string",
+          "description": "Condition of the product."
+        }
+      },
+      "required": [
+        "id",
+        "sellerId",
+        "category",
+        "title",
+        "description",
+        "price",
+        "condition"
+      ]
+    },
+    "RecyclingCenter": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "RecyclingCenter",
+      "type": "object",
+      "description": "Represents a recycling center in the EcoCity application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the recycling center."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the recycling center."
+        },
+        "address": {
+          "type": "string",
+          "description": "Address of the recycling center."
+        },
+        "coordinates": {
+          "type": "string",
+          "description": "Coordinates of the recycling center."
+        },
+        "acceptedWasteTypes": {
+          "type": "array",
+          "description": "Types of waste accepted at the recycling center.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "operatingHours": {
+          "type": "string",
+          "description": "Operating hours of the recycling center."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "address",
+        "coordinates",
+        "acceptedWasteTypes",
+        "operatingHours"
+      ]
+    },
+    "Reward": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Reward",
+      "type": "object",
+      "description": "Represents a reward in the EcoCity rewards program.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the reward."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N Reward)"
+        },
+        "ecoPointsBalance": {
+          "type": "number",
+          "description": "Eco-points balance of the user."
+        },
+        "transactionHistory": {
+          "type": "array",
+          "description": "Transaction history of the user.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "leaderboardRank": {
+          "type": "number",
+          "description": "Leaderboard rank of the user."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "ecoPointsBalance",
+        "transactionHistory",
+        "leaderboardRank"
+      ]
+    },
+    "ForumPost": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ForumPost",
+      "type": "object",
+      "description": "Represents a post in the EcoCity forum.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the forum post."
+        },
+        "content": {
+          "type": "string",
+          "description": "Content of the forum post."
+        },
+        "authorId": {
+          "type": "string",
+          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N ForumPost)"
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of the forum post.",
+          "format": "date-time"
+        },
+        "comments": {
+          "type": "array",
+          "description": "Comments on the forum post.",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "content",
+        "authorId",
+        "timestamp"
+      ]
+    },
+    "UserStats": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserStats",
+      "type": "object",
+      "description": "Represents user statistics in the EcoCity application.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user stats."
+        },
+        "wasteClassified": {
+          "type": "number",
+          "description": "Number of waste items classified by the user."
+        },
+        "itemsRecycled": {
+          "type": "number",
+          "description": "Number of items recycled by the user."
+        }
+      },
+      "required": [
+        "id",
+        "wasteClassified",
+        "itemsRecycled"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Collection for storing user profiles. Path-based ownership for private user data.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/marketlistings/{marketlistingId}",
+        "definition": {
+          "entityName": "MarketplaceListing",
+          "schema": {
+            "$ref": "#/backend/entities/MarketplaceListing"
+          },
+          "description": "Collection for storing marketplace listings. Includes denormalized 'sellerId' for authorization independence.",
+          "params": [
+            {
+              "name": "marketlistingId",
+              "description": "The unique identifier of the marketplace listing."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/recyclingcenters/{recyclingcenterId}",
+        "definition": {
+          "entityName": "RecyclingCenter",
+          "schema": {
+            "$ref": "#/backend/entities/RecyclingCenter"
+          },
+          "description": "Collection for storing recycling center data.",
+          "params": [
+            {
+              "name": "recyclingcenterId",
+              "description": "The unique identifier of the recycling center."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/rewards/{rewardId}",
+        "definition": {
+          "entityName": "Reward",
+          "schema": {
+            "$ref": "#/backend/entities/Reward"
+          },
+          "description": "Subcollection for storing user rewards. Path-based ownership.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "rewardId",
+              "description": "The unique identifier of the reward."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/forumposts/{forumpostId}",
+        "definition": {
+          "entityName": "ForumPost",
+          "schema": {
+            "$ref": "#/backend/entities/ForumPost"
+          },
+          "description": "Collection for storing forum posts.",
+          "params": [
+            {
+              "name": "forumpostId",
+              "description": "The unique identifier of the forum post."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}/userstats/{userstatsId}",
+        "definition": {
+          "entityName": "UserStats",
+          "schema": {
+            "$ref": "#/backend/entities/UserStats"
+          },
+          "description": "Subcollection for storing user statistics. Path-based ownership (1:1 relationship with UserProfile)",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user."
+            },
+            {
+              "name": "userstatsId",
+              "description": "The unique identifier of the userstats."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure is designed to be secure, scalable, and easily debuggable, following the principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters). Authorization Independence is achieved through denormalization of user information into the MarketplaceListing collection, eliminating the need for `get()` calls in security rules and enabling atomic operations. Structural Segregation is applied by using dedicated collections for each entity, ensuring homogeneous security postures. The structure uses hierarchical paths for User-Owned Data (`/users/{userId}/rewards/{rewardId}`) and leverages the Membership Map pattern (not explicitly used in this structure, but ready to be applied if collaborative features are added in the future)."
+  }
+}
