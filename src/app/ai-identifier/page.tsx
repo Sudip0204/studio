@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef } from 'react';
+import Image from 'next/image';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Camera, Loader2, Info, Search, Pin } from "lucide-react";
+import { Upload, Loader2, Info, Search, Pin, Camera } from "lucide-react";
 import { aiWasteClassification, AiWasteClassificationOutput } from '@/ai/flows/ai-waste-classification';
 import { useToast } from "@/hooks/use-toast";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -11,70 +12,39 @@ import Link from 'next/link';
 import { Separator } from '@/components/ui/separator';
 
 export default function AiIdentifierPage() {
-  const [hasCameraPermission, setHasCameraPermission] = useState<boolean | null>(null);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [isClassifying, setIsClassifying] = useState(false);
   const [classificationResult, setClassificationResult] = useState<AiWasteClassificationOutput | null>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    const getCameraPermission = async () => {
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        console.error('Camera API is not supported in this browser.');
-        setHasCameraPermission(false);
-        toast({
-          variant: 'destructive',
-          title: 'Unsupported Browser',
-          description: 'Your browser does not support camera access.',
-        });
-        return;
-      }
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        setHasCameraPermission(true);
-
-        if (videoRef.current) {
-          videoRef.current.srcObject = stream;
-        }
-      } catch (error) {
-        console.error('Error accessing camera:', error);
-        setHasCameraPermission(false);
-        toast({
-          variant: 'destructive',
-          title: 'Camera Access Denied',
-          description: 'Please enable camera permissions in your browser settings to use this feature.',
-        });
-      }
-    };
-
-    getCameraPermission();
-    
-    return () => {
-      if (videoRef.current && videoRef.current.srcObject) {
-        const stream = videoRef.current.srcObject as MediaStream;
-        stream.getTracks().forEach(track => track.stop());
-      }
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setSelectedImage(reader.result as string);
+        setClassificationResult(null);
+      };
+      reader.readAsDataURL(file);
     }
-  }, [toast]);
+  };
 
-  const captureImage = async () => {
-    if (!videoRef.current || !canvasRef.current) return;
+  const handleClassify = async () => {
+    if (!selectedImage) {
+      toast({
+        variant: "destructive",
+        title: "No Image Selected",
+        description: "Please upload an image to classify."
+      });
+      return;
+    }
 
     setIsClassifying(true);
     setClassificationResult(null);
 
-    const video = videoRef.current;
-    const canvas = canvasRef.current;
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
-    const context = canvas.getContext('2d');
-    context?.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-    const photoDataUri = canvas.toDataURL('image/jpeg');
-
     try {
-      const result = await aiWasteClassification({ photoDataUri });
+      const result = await aiWasteClassification({ photoDataUri: selectedImage });
       setClassificationResult(result);
     } catch (error) {
       console.error("AI Classification Error:", error);
@@ -91,7 +61,6 @@ export default function AiIdentifierPage() {
   const googleSearchUrl = classificationResult?.isWaste ? 
     `https://www.google.com/search?q=${encodeURIComponent(classificationResult.wasteType)}&tbm=isch` : null;
 
-
   return (
     <div className="container mx-auto py-12 px-4">
       <div className="max-w-4xl mx-auto">
@@ -102,29 +71,36 @@ export default function AiIdentifierPage() {
             </div>
             <CardTitle className="font-headline text-3xl">AI Waste Identifier</CardTitle>
             <CardDescription className="text-lg">
-              Snap a photo of a waste item, and our AI will classify it and tell you how to dispose of it properly.
+              Upload a photo of a waste item, and our AI will classify it and tell you how to dispose of it properly.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
-            <div className="bg-muted rounded-lg p-4">
-              <div className="relative aspect-video w-full overflow-hidden rounded-md border">
-                <video ref={videoRef} className="w-full h-full object-cover" autoPlay muted playsInline />
-                {hasCameraPermission === false && (
-                    <div className="absolute inset-0 flex items-center justify-center bg-black/50">
-                        <Alert variant="destructive" className="w-auto">
-                            <AlertTitle>Camera Access Required</AlertTitle>
-                            <AlertDescription>
-                                Please allow camera access to use this feature.
-                            </AlertDescription>
-                        </Alert>
-                    </div>
+            <div 
+              className="bg-muted rounded-lg p-4 border-2 border-dashed border-muted-foreground/30 hover:border-primary transition-colors cursor-pointer"
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <div className="relative aspect-video w-full overflow-hidden rounded-md flex items-center justify-center">
+                {selectedImage ? (
+                  <Image src={selectedImage} alt="Selected waste item" layout="fill" objectFit="contain" />
+                ) : (
+                  <div className="text-center text-muted-foreground">
+                    <Upload className="mx-auto h-12 w-12" />
+                    <p className="mt-2 font-semibold">Click to upload an image</p>
+                    <p className="text-sm">or drag and drop</p>
+                  </div>
                 )}
               </div>
-              <canvas ref={canvasRef} style={{ display: 'none' }} />
+              <input 
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="hidden" 
+              />
             </div>
             
             <div className="flex justify-center">
-              <Button onClick={captureImage} disabled={isClassifying || !hasCameraPermission} size="lg">
+              <Button onClick={handleClassify} disabled={isClassifying || !selectedImage} size="lg">
                 {isClassifying ? (
                   <>
                     <Loader2 className="mr-2 h-5 w-5 animate-spin" />
