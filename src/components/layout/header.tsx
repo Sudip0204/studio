@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -105,14 +106,9 @@ export function Header() {
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
-            <>
-              <Button variant="ghost" asChild>
-                <Link href="/login">Login</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/signup">Sign Up</Link>
-              </Button>
-            </>
+            <Button asChild>
+              <Link href="/login">Login / Sign Up</Link>
+            </Button>
           )}
         </div>
         <Sheet>
@@ -123,7 +119,7 @@ export function Header() {
             </Button>
           </SheetTrigger>
           <SheetContent side="right">
-            <SheetTitle className="sr-only">Mobile Menu</SheetTitle>
+            <SheetTitle>Mobile Menu</SheetTitle>
             <nav className="grid gap-6 text-lg font-medium">
               <Link
                 href="/"
@@ -152,14 +148,9 @@ export function Header() {
                  {user ? (
                    <Button onClick={handleLogout} variant="outline">Logout</Button>
                  ) : (
-                   <>
-                    <Button variant="ghost" asChild>
-                        <Link href="/login">Login</Link>
-                    </Button>
                     <Button asChild>
-                        <Link href="/signup">Sign Up</Link>
+                        <Link href="/login">Login / Sign Up</Link>
                     </Button>
-                   </>
                  )}
               </div>
             </nav>
