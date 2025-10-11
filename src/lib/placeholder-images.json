@@ -89,6 +89,78 @@
       "description": "Image of construction debris like bricks and wood.",
       "imageUrl": "https://picsum.photos/seed/construction/400/300",
       "imageHint": "construction debris"
+    },
+    {
+      "id": "quiz-pizza-box",
+      "description": "Image of a greasy pizza box",
+      "imageUrl": "https://picsum.photos/seed/pizzabox/400/225",
+      "imageHint": "pizza box"
+    },
+    {
+      "id": "quiz-batteries",
+      "description": "Image of used AA batteries",
+      "imageUrl": "https://picsum.photos/seed/batteries/400/225",
+      "imageHint": "batteries pile"
+    },
+    {
+      "id": "quiz-plastic-1",
+      "description": "Image of a plastic water bottle with a #1 symbol",
+      "imageUrl": "https://picsum.photos/seed/petebottle/400/225",
+      "imageHint": "plastic bottle"
+    },
+    {
+      "id": "quiz-coffee-cup",
+      "description": "Image of a disposable coffee cup",
+      "imageUrl": "https://picsum.photos/seed/coffeecup/400/225",
+      "imageHint": "paper coffee cup"
+    },
+    {
+      "id": "quiz-textiles",
+      "description": "Image of old, torn clothes",
+      "imageUrl": "https://picsum.photos/seed/oldclothes/400/225",
+      "imageHint": "clothes pile"
+    },
+    {
+      "id": "symbol-pet",
+      "description": "Recycling symbol 1 for PET",
+      "imageUrl": "https://picsum.photos/seed/symbol1/100/100",
+      "imageHint": "recycling symbol"
+    },
+    {
+      "id": "symbol-hdpe",
+      "description": "Recycling symbol 2 for HDPE",
+      "imageUrl": "https://picsum.photos/seed/symbol2/100/100",
+      "imageHint": "recycling symbol"
+    },
+    {
+      "id": "symbol-pvc",
+      "description": "Recycling symbol 3 for PVC",
+      "imageUrl": "https://picsum.photos/seed/symbol3/100/100",
+      "imageHint": "recycling symbol"
+    },
+    {
+      "id": "symbol-ldpe",
+      "description": "Recycling symbol 4 for LDPE",
+      "imageUrl": "https://picsum.photos/seed/symbol4/100/100",
+      "imageHint": "recycling symbol"
+    },
+    {
+      "id": "symbol-pp",
+      "description": "Recycling symbol 5 for PP",
+      "imageUrl": "https://picsum.photos/seed/symbol5/100/100",
+      "imageHint": "recycling symbol"
+    },
+    {
+      "id": "symbol-ps",
+      "description": "Recycling symbol 6 for PS",
+      "imageUrl": "https://picsum.photos/seed/symbol6/100/100",
+      "imageHint": "recycling symbol"
+    },
+    {
+      "id": "symbol-other",
+      "description": "Recycling symbol 7 for Other",
+      "imageUrl": "https://picsum.photos/seed/symbol7/100/100",
+      "imageHint": "recycling symbol"
     }
   ]
 }
