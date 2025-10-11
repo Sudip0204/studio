@@ -19,8 +19,9 @@ const navLinks = [
   { href: "/ai-identifier", label: "AI Identifier" },
   { href: "/recycling-centers", label: "Recycling Centers" },
   { href: "/marketplace", label: "Marketplace" },
-  { href: "/rewards", label: "Rewards" },
+  { href: "/forum", label: "Community Forum" },
   { href: "/gamification", label: "Gamification" },
+  { href: "/profile", label: "Profile" },
 ];
 
 export function Header() {
@@ -58,19 +59,25 @@ export function Header() {
           </span>
         </Link>
         <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "transition-colors hover:text-primary",
-                pathname === link.href ? "text-primary" : "text-foreground/70"
-              )}
-              prefetch={false}
-            >
-              {link.label}
-            </Link>
-          ))}
+          {navLinks.map((link) => {
+            // Hide Profile link from main nav if user is not logged in
+            if (link.href === '/profile' && !user) {
+              return null;
+            }
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  "transition-colors hover:text-primary",
+                  pathname === link.href ? "text-primary" : "text-foreground/70"
+                )}
+                prefetch={false}
+              >
+                {link.label}
+              </Link>
+            )
+          })}
         </nav>
         <div className="hidden items-center gap-4 md:flex">
           {isUserLoading ? (
@@ -95,10 +102,19 @@ export function Header() {
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <User className="mr-2 h-4 w-4" />
-                  <span>Profile</span>
+                <DropdownMenuItem asChild>
+                  <Link href="/profile">
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profile</span>
+                  </Link>
                 </DropdownMenuItem>
+                 <DropdownMenuItem asChild>
+                  <Link href="/profile/rewards">
+                    <Trophy className="mr-2 h-4 w-4" />
+                    <span>Rewards</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Log out</span>
@@ -129,21 +145,26 @@ export function Header() {
                 <EcoCityLogo className="h-6 w-6 text-primary" />
                 <span className="font-headline">EcoCity</span>
               </Link>
-              {navLinks.map((link) => (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={cn(
-                    "transition-colors hover:text-primary",
-                    pathname === link.href
-                      ? "text-foreground"
-                      : "text-muted-foreground"
-                  )}
-                  prefetch={false}
-                >
-                  {link.label}
-                </Link>
-              ))}
+              {navLinks.map((link) => {
+                if (link.href === '/profile' && !user) {
+                  return null;
+                }
+                return (
+                   <Link
+                    key={link.href}
+                    href={link.href}
+                    className={cn(
+                      "transition-colors hover:text-primary",
+                      pathname === link.href
+                        ? "text-foreground"
+                        : "text-muted-foreground"
+                    )}
+                    prefetch={false}
+                  >
+                    {link.label}
+                  </Link>
+                )
+              })}
               <div className="mt-6 flex flex-col gap-4">
                  {user ? (
                    <Button onClick={handleLogout} variant="outline">Logout</Button>
