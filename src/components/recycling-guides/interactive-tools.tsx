@@ -10,12 +10,6 @@ const tools = [
     href: "#",
   },
   {
-    icon: <Calculator className="h-8 w-8 text-primary" />,
-    title: "Waste Calculator",
-    description: "Calculate how much waste you generate and find ways to reduce it.",
-    href: "#",
-  },
-  {
     icon: <FileText className="h-8 w-8 text-primary" />,
     title: "Recycling Symbol Guide",
     description: "A quick guide to decode all the different recycling symbols on packaging.",
@@ -42,7 +36,7 @@ export function InteractiveTools() {
             Engage with our tools to make learning about sustainability fun and practical.
           </p>
         </div>
-        <div className="mx-auto grid grid-cols-1 gap-6 pt-12 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto grid grid-cols-1 gap-6 pt-12 sm:grid-cols-2 lg:grid-cols-3">
           {tools.map((tool) => (
             <Link href={tool.href} key={tool.title} className="group">
               <Card className="h-full transform transition-transform duration-300 group-hover:-translate-y-2 group-hover:shadow-xl">
