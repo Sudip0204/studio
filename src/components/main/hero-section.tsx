@@ -29,9 +29,6 @@ export function HeroSection() {
               Making Waste Management Easy and Rewarding
             </p>
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
-              <Button asChild size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                <Link href="/signup">Get Started</Link>
-              </Button>
               <Button asChild size="lg" variant="secondary">
                 <Link href="/recycling-guides">Learn More</Link>
               </Button>
