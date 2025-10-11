@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { Menu, User, LogOut } from "lucide-react";
+import { Menu, User, LogOut, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EcoCityLogo } from "../icons";
 import { useUser, useAuth } from "@/firebase";
@@ -20,7 +20,7 @@ const navLinks = [
   { href: "/recycling-centers", label: "Recycling Centers" },
   { href: "/marketplace", label: "Marketplace" },
   { href: "/rewards", label: "Rewards" },
-  { href: "/carbon-calculator", label: "Carbon Calculator" },
+  { href: "/gamification", label: "Gamification" },
 ];
 
 export function Header() {

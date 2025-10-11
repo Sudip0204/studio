@@ -6,7 +6,7 @@ import {
   MapPin,
   ShoppingCart,
   Award,
-  Calculator,
+  Trophy,
   Users,
 } from "lucide-react";
 
@@ -42,10 +42,10 @@ const features = [
     href: "/rewards",
   },
   {
-    icon: <Calculator className="h-8 w-8 text-primary" />,
-    title: "Carbon Calculator",
-    description: "Track your environmental impact.",
-    href: "/carbon-calculator",
+    icon: <Trophy className="h-8 w-8 text-primary" />,
+    title: "Gamification",
+    description: "Engage in challenges and earn badges.",
+    href: "/gamification",
   },
   {
     icon: <Users className="h-8 w-8 text-primary" />,
