@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from 'react';
-import { quizQuestions, QuizQuestion } from '@/app/recycling-guides/quiz-data';
+import { quizQuestions } from '@/app/recycling-guides/quiz-data';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -50,7 +50,7 @@ export function WasteSortingQuiz() {
     setQuizFinished(false);
   };
   
-  const progressPercentage = ((currentQuestionIndex + 1) / quizQuestions.length) * 100;
+  const progressPercentage = ((currentQuestionIndex + (isAnswered ? 1 : 0)) / quizQuestions.length) * 100;
 
   if (quizFinished) {
     return (
@@ -136,7 +136,7 @@ export function WasteSortingQuiz() {
 
           <div className="mt-6 flex justify-end">
             <Button onClick={handleNext} disabled={!selectedAnswer}>
-              {isAnswered ? 'Next' : 'Check Answer'}
+              {isAnswered ? (currentQuestionIndex === quizQuestions.length - 1 ? 'Finish Quiz' : 'Next Question') : 'Check Answer'}
             </Button>
           </div>
         </CardContent>

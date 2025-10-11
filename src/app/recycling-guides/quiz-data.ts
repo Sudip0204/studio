@@ -50,3 +50,4 @@ export const quizQuestions: QuizQuestion[] = [
     explanation: "Even torn or old textiles can be recycled. They are shredded and used for things like insulation, carpet padding, or cleaning rags. Look for a local textile recycling program.",
   },
 ];
+
