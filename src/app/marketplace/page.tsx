@@ -238,7 +238,7 @@ export default function MarketplacePage() {
                         <div className="flex justify-between items-center mt-4">
                           <p className="font-bold text-xl text-primary">₹{product.price}</p>
                            <Button variant="default" size="sm" onClick={() => user ? alert('This will be added to cart!') : alert('Please log in to add items to your cart.')}>
-                            Request Item
+                            Add to cart
                           </Button>
                         </div>
                       </CardContent>
