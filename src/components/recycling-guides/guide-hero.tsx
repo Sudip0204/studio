@@ -23,16 +23,6 @@ export function GuideHero() {
           <p className="mt-6 text-lg text-muted-foreground md:text-xl">
             Everything you need to know about waste management, disposal, and recycling.
           </p>
-          <div className="mt-8 mx-auto max-w-lg">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search for a waste type (e.g., 'plastic bottles')"
-                className="w-full rounded-full bg-background py-6 pl-12 pr-4 shadow-md"
-              />
-            </div>
-          </div>
         </div>
       </div>
     </section>
