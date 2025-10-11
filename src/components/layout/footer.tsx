@@ -32,16 +32,16 @@ export function Footer() {
               <li><Link href="/recycling-guides" className="hover:text-primary">Recycling Guides</Link></li>
               <li><Link href="/recycling-centers" className="hover:text-primary">Find Centers</Link></li>
               <li><Link href="/marketplace" className="hover:text-primary">Marketplace</Link></li>
-              <li><Link href="/rewards" className="hover:text-primary">Rewards</Link></li>
+              <li><Link href="/profile/rewards" className="hover:text-primary">Rewards</Link></li>
             </ul>
           </div>
           <div>
             <h3 className="font-headline text-sm font-semibold uppercase tracking-wider text-foreground">About</h3>
             <ul className="mt-4 space-y-2 text-sm">
-              <li><Link href="#" className="hover:text-primary">Our Mission</Link></li>
-              <li><Link href="#" className="hover:text-primary">Contact Us</Link></li>
-              <li><Link href="#" className="hover:text-primary">Partners</Link></li>
-              <li><Link href="#" className="hover:text-primary">Privacy Policy</Link></li>
+              <li><Link href="/about/mission" className="hover:text-primary">Our Mission</Link></li>
+              <li><Link href="/about/contact" className="hover:text-primary">Contact Us</Link></li>
+              <li><Link href="/about/partners" className="hover:text-primary">Partners</Link></li>
+              <li><Link href="/about/privacy" className="hover:text-primary">Privacy Policy</Link></li>
             </ul>
           </div>
           <div>
