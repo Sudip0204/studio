@@ -2,7 +2,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ShoppingCart, PlusCircle, User } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,12 +10,12 @@ import { useUser } from "@/firebase";
 
 // Placeholder data for products
 const products = [
-  { id: 1, name: "Upcycled Denim Jacket", price: 45, image: "https://picsum.photos/seed/product1/300/300", seller: "GreenThreads", dataAiHint: "denim jacket" },
-  { id: 2, name: "Recycled Glass Vases", price: 25, image: "https://picsum.photos/seed/product2/300/300", seller: "EcoDecor", dataAiHint: "glass vase" },
-  { id: 3, name: "Handmade Wooden Bowl", price: 30, image: "https://picsum.photos/seed/product3/300/300", seller: "ArtisanWood", dataAiHint: "wooden bowl" },
-  { id: 4, name: "Vintage Leather Bag", price: 60, image: "https://picsum.photos/seed/product4/300/300", seller: "RetroFinds", dataAiHint: "leather bag" },
-  { id: 5, name: "Bamboo Toothbrush Set", price: 12, image: "https://picsum.photos/seed/product5/300/300", seller: "EcoEssentials", dataAiHint: "bamboo toothbrush" },
-  { id: 6, name: "Second-hand Novel Set", price: 18, image: "https://picsum.photos/seed/product6/300/300", seller: "BookCycle", dataAiHint: "books pile" },
+  { id: 1, name: "Upcycled Denim Jacket", price: 3600, description: "A stylish jacket made from reclaimed denim.", image: "https://picsum.photos/seed/product1/300/300", seller: "GreenThreads", dataAiHint: "denim jacket" },
+  { id: 2, name: "Recycled Glass Vases", price: 2000, description: "Beautiful vases crafted from recycled glass.", image: "https://picsum.photos/seed/product2/300/300", seller: "EcoDecor", dataAiHint: "glass vase" },
+  { id: 3, name: "Handmade Wooden Bowl", price: 2400, description: "A unique bowl carved from sustainable wood.", image: "https://picsum.photos/seed/product3/300/300", seller: "ArtisanWood", dataAiHint: "wooden bowl" },
+  { id: 4, name: "Vintage Leather Bag", price: 4800, description: "A classic leather bag with a timeless design.", image: "https://picsum.photos/seed/product4/300/300", seller: "RetroFinds", dataAiHint: "leather bag" },
+  { id: 5, name: "Bamboo Toothbrush Set", price: 960, description: "An eco-friendly alternative to plastic toothbrushes.", image: "https://picsum.photos/seed/product5/300/300", seller: "EcoEssentials", dataAiHint: "bamboo toothbrush" },
+  { id: 6, name: "Second-hand Novel Set", price: 1440, description: "A collection of pre-loved novels for your reading pleasure.", image: "https://picsum.photos/seed/product6/300/300", seller: "BookCycle", dataAiHint: "books pile" },
 ];
 
 export default function MarketplacePage() {
@@ -56,9 +56,10 @@ export default function MarketplacePage() {
               </CardHeader>
               <CardContent className="p-4">
                 <h3 className="font-semibold truncate">{product.name}</h3>
-                <p className="text-sm text-muted-foreground flex items-center gap-1"><User className="h-3 w-3"/>{product.seller}</p>
+                <p className="text-sm text-muted-foreground line-clamp-2 h-[40px]">{product.description}</p>
+                <p className="text-sm text-muted-foreground flex items-center gap-1 mt-2"><User className="h-3 w-3"/>{product.seller}</p>
                 <div className="flex justify-between items-center mt-4">
-                  <p className="font-bold text-lg text-primary">${product.price}</p>
+                  <p className="font-bold text-lg text-primary">₹{product.price}</p>
                   <Button variant="outline" size="sm" onClick={() => alert('This will be added to cart!')}>Add to Cart</Button>
                 </div>
               </CardContent>
