@@ -1,176 +1,160 @@
 /**
- * @fileoverview Firestore Security Rules for EcoCity application.
- *
- * Core Philosophy:
- * This ruleset enforces a strict user-ownership model for user profiles, rewards, and user statistics,
- * while allowing public read access to products, recycling centers, and forum posts.
+ * @file Firestore Security Rules
+ * @description This ruleset enforces a strict user-ownership model for user profiles and their associated data (rewards, userstats).
+ * Public read access is granted to marketplace listings, recycling centers, and forum posts.
  *
  * Data Structure:
- * - /users/{userId}: Stores user profile data, accessible only to the user themselves.
- * - /products/{productId}: Stores product listings, publicly readable but writable only with correct ownership.
- * - /recyclingcenters/{recyclingcenterId}: Stores recycling center data, publicly readable.
- * - /users/{userId}/rewards/{rewardId}: Stores user-specific reward data, accessible only to the user.
- * - /forumposts/{forumpostId}: Stores forum posts, publicly readable but writable only with correct ownership.
- * - /users/{userId}/userstats/{userstatsId}: Stores user statistics, accessible only to the user.
+ * - /users/{userId}: Stores user profiles.
+ * - /users/{userId}/rewards/{rewardId}: Stores rewards associated with a specific user.
+ * - /users/{userId}/userstats/{userstatsId}: Stores user statistics for a specific user.
+ * - /products/{productId}: Stores marketplace product listings.
+ * - /recyclingcenters/{recyclingcenterId}: Stores recycling center data.
+ * - /forumposts/{forumpostId}: Stores forum posts.
  *
  * Key Security Decisions:
- * - Users can only read and write their own profile data, rewards, and statistics.
- * - Products and forum posts should have an authorId, which the rules validate on creation.
- * - Products and forum posts can be publicly read, but only the owner can modify/delete them.
- * - Listing of user-owned subcollections (rewards, userstats) is allowed to the owner.
- * - Recycling centers are publicly readable.
- *
- * Denormalization for Authorization:
- * - Products and ForumPosts MUST contain a `sellerId` or `authorId` field, respectively, to enable
- *   owner-based access control. This avoids the need for costly `get()` calls to a separate `/users/{userId}`
- *   document.
- *
- * Structural Segregation:
- * - Private user data (profile, rewards, stats) is stored under the `/users/{userId}` path,
- *   while public data (products, recycling centers, forum posts) is stored in top-level collections.
+ * - User listing is disallowed.
+ * - User profiles and associated data (rewards, userstats) are strictly owner-only for writes and listing.
+ * - Marketplace listings, recycling centers, and forum posts are publicly readable.
+ * - Owner-only writes for products and forum posts are based on an ownership field within the document.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Allows users to read and write their own user profile data.
+     * @description Protects user profile data, allowing only the owner to read and write.
      * @path /users/{userId}
-     * @allow (create) User with UID 'SGTncN9eWZUYemyiBQVTSVfZcKP2' can create a profile with id 'SGTncN9eWZUYemyiBQVTSVfZcKP2'.
-     * @deny (create) User with UID 'OTHER_UID' cannot create a profile with id 'SGTncN9eWZUYemyiBQVTSVfZcKP2'.
-     * @allow (get, list) User with UID 'SGTncN9eWZUYemyiBQVTSVfZcKP2' can read their own profile.
-     * @deny (get, list) User with UID 'OTHER_UID' cannot read user 'SGTncN9eWZUYemyiBQVTSVfZcKP2' profile.
-     * @allow (update, delete) User with UID 'SGTncN9eWZUYemyiBQVTSVfZcKP2' can update/delete their own profile.
-     * @deny (update, delete) User with UID 'OTHER_UID' cannot update/delete user 'SGTncN9eWZUYemyiBQVTSVfZcKP2' profile.
-     * @principle Enforces document ownership for writes.
+     * @allow (create) User with UID 'mtSSOgocCvM06h6Px60Op3pLKLE2' can create their profile at /users/mtSSOgocCvM06h6Px60Op3pLKLE2.
+     * @allow (get, update, delete) User with UID 'mtSSOgocCvM06h6Px60Op3pLKLE2' can get, update, and delete their profile at /users/mtSSOgocCvM06h6Px60Op3pLKLE2.
+     * @deny (create) User with UID 'anotherUser' cannot create a profile at /users/mtSSOgocCvM06h6Px60Op3pLKLE2.
+     * @deny (get, update, delete) User with UID 'anotherUser' cannot get, update, or delete the profile at /users/mtSSOgocCvM06h6Px60Op3pLKLE2.
+     * @principle Enforces document ownership for all operations.
      */
     match /users/{userId} {
-      function isOwner(userId) {
-        return request.auth.uid == userId;
-      }
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
-      }
-
-      allow get: if isOwner(userId);
-      allow list: if false; // Disable listing of all users
-
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
-      allow delete: if isExistingOwner(userId);
+      // Allow a user to read their own profile.
+      allow get: if isSignedIn() && isOwner(userId);
+      // Allow a user to list all profiles --> NONE SHALL PASS
+      allow list: if false;
+      // Allow a user to create their own profile, enforcing that the userId matches the authenticated user's ID.
+      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.id == userId;
+      // Allow a user to update their own profile.  Enforce immutability of the userId
+      allow update: if isSignedIn() && isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      // Allow a user to delete their own profile.
+      allow delete: if isSignedIn() && isExistingOwner(userId);
     }
 
     /**
-     * @description Allows anyone to read product listings, but only the seller can modify or delete their own listings.
+     * @description Protects user reward data, allowing only the owner to read and write.
+     * @path /users/{userId}/rewards/{rewardId}
+     * @allow (create) User with UID 'mtSSOgocCvM06h6Px60Op3pLKLE2' can create a reward at /users/mtSSOgocCvM06h6Px60Op3pLKLE2/rewards/someRewardId.
+     * @allow (get, update, delete) User with UID 'mtSSOgocCvM06h6Px60Op3pLKLE2' can get, update, and delete their reward at /users/mtSSOgocCvM06h6Px60Op3pLKLE2/rewards/someRewardId.
+     * @deny (create) User with UID 'anotherUser' cannot create a reward at /users/mtSSOgocCvM06h6Px60Op3pLKLE2/rewards/someRewardId.
+     * @deny (get, update, delete) User with UID 'anotherUser' cannot get, update, or delete the reward at /users/mtSSOgocCvM06h6Px60Op3pLKLE2/rewards/someRewardId.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/rewards/{rewardId} {
+      // Allow a user to read their own reward.
+      allow get: if isSignedIn() && isOwner(userId);
+      // Allow a user to list their own rewards.
+      allow list: if isSignedIn() && isOwner(userId);
+      // Allow a user to create their own reward.
+      allow create: if isSignedIn() && isOwner(userId);
+      // Allow a user to update their own reward.
+      allow update: if isSignedIn() && isExistingOwner(userId);
+      // Allow a user to delete their own reward.
+      allow delete: if isSignedIn() && isExistingOwner(userId);
+    }
+
+    /**
+     * @description Protects user stats data, allowing only the owner to read and write.
+     * @path /users/{userId}/userstats/{userstatsId}
+     * @allow (create) User with UID 'mtSSOgocCvM06h6Px60Op3pLKLE2' can create userstats at /users/mtSSOgocCvM06h6Px60Op3pLKLE2/userstats/someUserStatsId.
+     * @allow (get, update, delete) User with UID 'mtSSOgocCvM06h6Px60Op3pLKLE2' can get, update, and delete their userstats at /users/mtSSOgocCvM06h6Px60Op3pLKLE2/userstats/someUserStatsId.
+     * @deny (create) User with UID 'anotherUser' cannot create userstats at /users/mtSSOgocCvM06h6Px60Op3pLKLE2/userstats/someUserStatsId.
+     * @deny (get, update, delete) User with UID 'anotherUser' cannot get, update, or delete the userstats at /users/mtSSOgocCvM06h6Px60Op3pLKLE2/userstats/someUserStatsId.
+     * @principle Enforces document ownership for all operations.
+     */
+    match /users/{userId}/userstats/{userstatsId} {
+      // Allow a user to read their own userstats.
+      allow get: if isSignedIn() && isOwner(userId);
+      // Allow a user to list their own userstats.
+      allow list: if isSignedIn() && isOwner(userId);
+      // Allow a user to create their own userstats.
+      allow create: if isSignedIn() && isOwner(userId);
+      // Allow a user to update their own userstats.
+      allow update: if isSignedIn() && isExistingOwner(userId);
+      // Allow a user to delete their own userstats.
+      allow delete: if isSignedIn() && isExistingOwner(userId);
+    }
+
+    /**
+     * @description Allows public read access to product listings while restricting write access to owners.
      * @path /products/{productId}
      * @allow (get, list) Any user can read product listings.
-     * @deny (create) User cannot create a product listing without being authenticated.
-     * @allow (create) Authenticated user can create a product listing with sellerId equal to their uid.
-     * @deny (update, delete) Non-owner user cannot update/delete the product.
-     * @principle Public read access with owner-only writes.
+     * @allow (create) User with UID 'mtSSOgocCvM06h6Px60Op3pLKLE2' can create a product if sellerId is correct.
+     * @allow (update, delete) User with UID 'mtSSOgocCvM06h6Px60Op3pLKLE2' can update or delete their own product listing.
+     * @deny (create) User with UID 'anotherUser' cannot create a product with 'sellerId' set to another user's ID.
+     * @deny (update, delete) User with UID 'anotherUser' cannot update or delete a product listing they don't own.
+     * @principle Public read access with owner-only writes, validated by the 'sellerId' field.
      */
     match /products/{productId} {
-      function isOwner(sellerId) {
-        return request.auth.uid == sellerId;
-      }
-     function isExistingOwner(sellerId) {
-        return isOwner(sellerId) && resource != null;
-      }
-
+      // Allow anyone to read product listings.
       allow get, list: if true;
 
+      // Allow a user to create a product listing, validating that they are the seller.
       allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
-      allow update: if isExistingOwner(resource.data.sellerId);
-      allow delete: if isExistingOwner(resource.data.sellerId);
+
+      // Allow a user to update or delete their own product listing.
+      allow update, delete: if isSignedIn() && resource.data.sellerId == request.auth.uid && resource != null;
     }
 
     /**
-     * @description Allows anyone to read recycling center data.
+     * @description Allows public read access to recycling centers, restricting write access.
      * @path /recyclingcenters/{recyclingcenterId}
      * @allow (get, list) Any user can read recycling center data.
-     * @deny (create, update, delete) No one can create, update, or delete recycling center data.
-     * @principle Public read access, no write access.
+     * @deny (create, update, delete) No user can create, update or delete recycling center data via client SDK.
+     * @principle Public read access, no client-side writes allowed.
      */
     match /recyclingcenters/{recyclingcenterId} {
+      // Allow anyone to read recycling center data.
       allow get, list: if true;
+
+      // Prevent anyone from creating, updating, or deleting recycling center data.
       allow create, update, delete: if false;
     }
 
     /**
-     * @description Allows users to manage their own rewards.
-     * @path /users/{userId}/rewards/{rewardId}
-     * @allow (create) User with UID 'SGTncN9eWZUYemyiBQVTSVfZcKP2' can create a reward with userId 'SGTncN9eWZUYemyiBQVTSVfZcKP2'.
-     * @deny (create) User with UID 'OTHER_UID' cannot create a reward with userId 'SGTncN9eWZUYemyiBQVTSVfZcKP2'.
-     * @allow (get, list) User with UID 'SGTncN9eWZUYemyiBQVTSVfZcKP2' can read their own rewards.
-     * @deny (get, list) User with UID 'OTHER_UID' cannot read user 'SGTncN9eWZUYemyiBQVTSVfZcKP2' rewards.
-     * @allow (update, delete) User with UID 'SGTncN9eWZUYemyiBQVTSVfZcKP2' can update/delete their own rewards.
-     * @deny (update, delete) User with UID 'OTHER_UID' cannot update/delete user 'SGTncN9eWZUYemyiBQVTSVfZcKP2' rewards.
-     * @principle Enforces document ownership for writes.
-     */
-    match /users/{userId}/rewards/{rewardId} {
-      function isOwner(userId) {
-        return request.auth.uid == userId;
-      }
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
-      }
-
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.userId == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.userId == resource.data.userId;
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Allows anyone to read forum posts, but only the author can modify or delete them.
+     * @description Allows public read access to forum posts while restricting write access to owners.
      * @path /forumposts/{forumpostId}
      * @allow (get, list) Any user can read forum posts.
-     * @deny (create) User cannot create a forum post without being authenticated.
-     * @allow (create) Authenticated user can create a forum post with authorId equal to their uid.
-     * @deny (update, delete) Non-owner user cannot update/delete the forum post.
-     * @principle Public read access with owner-only writes.
+     * @allow (create) User with UID 'mtSSOgocCvM06h6Px60Op3pLKLE2' can create a forum post if authorId is correct.
+     * @allow (update, delete) User with UID 'mtSSOgocCvM06h6Px60Op3pLKLE2' can update or delete their own forum post.
+     * @deny (create) User with UID 'anotherUser' cannot create a forum post with 'authorId' set to another user's ID.
+     * @deny (update, delete) User with UID 'anotherUser' cannot update or delete a forum post they don't own.
+     * @principle Public read access with owner-only writes, validated by the 'authorId' field.
      */
     match /forumposts/{forumpostId} {
-      function isOwner(authorId) {
-        return request.auth.uid == authorId;
-      }
-           function isExistingOwner(authorId) {
-        return isOwner(authorId) && resource != null;
-      }
-
+      // Allow anyone to read forum posts.
       allow get, list: if true;
 
+      // Allow a user to create a forum post, validating that they are the author.
       allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
-      allow update: if isExistingOwner(resource.data.authorId);
-      allow delete: if isExistingOwner(resource.data.authorId);
+
+      // Allow a user to update or delete their own forum post.
+      allow update, delete: if isSignedIn() && resource.data.authorId == request.auth.uid && resource != null;
     }
 
-    /**
-     * @description Allows users to manage their own user statistics.
-     * @path /users/{userId}/userstats/{userstatsId}
-     * @allow (create) User with UID 'SGTncN9eWZUYemyiBQVTSVfZcKP2' can create userstats with userId 'SGTncN9eWZUYemyiBQVTSVfZcKP2'.
-     * @deny (create) User with UID 'OTHER_UID' cannot create userstats with userId 'SGTncN9eWZUYemyiBQVTSVfZcKP2'.
-     * @allow (get, list) User with UID 'SGTncN9eWZUYemyiBQVTSVfZcKP2' can read their own userstats.
-     * @deny (get, list) User with UID 'OTHER_UID' cannot read user 'SGTncN9eWZUYemyiBQVTSVfZcKP2' userstats.
-     * @allow (update, delete) User with UID 'SGTncN9eWZUYemyiBQVTSVfZcKP2' can update/delete their own userstats.
-     * @deny (update, delete) User with UID 'OTHER_UID' cannot update/delete user 'SGTncN9eWZUYemyiBQVTSVfZcKP2' userstats.
-     * @principle Enforces document ownership for writes.
-     */
-    match /users/{userId}/userstats/{userstatsId} {
-      function isOwner(userId) {
-        return request.auth.uid == userId;
-      }
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
-      }
-      allow get, list: if isOwner(userId);
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
-      allow delete: if isExistingOwner(userId);
-    }
-
+    // Helper functions
     function isSignedIn() {
       return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    function isExistingOwner(userId) {
+      return isSignedIn() && isOwner(userId) && resource != null;
     }
   }
 }
