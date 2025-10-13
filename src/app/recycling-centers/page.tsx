@@ -1,25 +1,83 @@
+
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { MapPin, Search, Star, Clock, Phone, Heart, Globe, Home } from "lucide-react";
+import { MapPin, Search, Star, Clock, Phone, Heart, Globe, Home, Loader2 } from "lucide-react";
 import { recyclingCenters, RecyclingCenter } from './data';
 import Image from 'next/image';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
 
 export default function RecyclingCentersPage() {
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [userAddress, setUserAddress] = useState("New York, NY 10001");
+  const [userAddress, setUserAddress] = useState("");
+  const [isLocating, setIsLocating] = useState(false);
+  const { toast } = useToast();
 
   const toggleFavorite = (id: string) => {
     setFavorites(prev => 
       prev.includes(id) ? prev.filter(favId => favId !== id) : [...prev, id]
     );
   };
+  
+  const handleFetchLocation = () => {
+    if (!navigator.geolocation) {
+      toast({
+        variant: 'destructive',
+        title: 'Geolocation Not Supported',
+        description: 'Your browser does not support geolocation.',
+      });
+      return;
+    }
+
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          // Using a free, public reverse geocoding API (OpenStreetMap)
+          const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`);
+          const data = await response.json();
+          if (data.display_name) {
+            setUserAddress(data.display_name);
+          } else {
+             setUserAddress(`${latitude.toFixed(4)}, ${longitude.toFixed(4)}`);
+             toast({
+                title: "Location Found",
+                description: "Could not find a street address for your coordinates.",
+             });
+          }
+        } catch (error) {
+          toast({
+            variant: 'destructive',
+            title: 'Could Not Fetch Address',
+            description: 'There was a problem converting your location to an address.',
+          });
+        } finally {
+            setIsLocating(false);
+        }
+      },
+      (error) => {
+        toast({
+            variant: 'destructive',
+            title: 'Location Access Denied',
+            description: 'Please enable location permissions in your browser to use this feature.',
+        });
+        setIsLocating(false);
+      }
+    );
+  };
+  
+  useEffect(() => {
+    // Automatically try to fetch location on initial load
+    handleFetchLocation();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="bg-background">
@@ -51,13 +109,14 @@ export default function RecyclingCentersPage() {
                   <Input 
                     value={userAddress}
                     onChange={(e) => setUserAddress(e.target.value)}
-                    placeholder="Enter your address or zip code"
+                    placeholder="Enter address or find me..."
+                    disabled={isLocating}
                   />
-                  <Button variant="outline" size="icon">
-                    <Globe />
+                  <Button variant="outline" size="icon" onClick={handleFetchLocation} disabled={isLocating}>
+                    {isLocating ? <Loader2 className="animate-spin" /> : <Globe />}
                   </Button>
                 </div>
-                <p className="text-xs text-muted-foreground mt-2">Set your home address for quick access.</p>
+                <p className="text-xs text-muted-foreground mt-2">Allow location access or enter your address manually.</p>
               </CardContent>
             </Card>
 
