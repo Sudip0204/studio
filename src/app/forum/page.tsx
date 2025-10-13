@@ -44,6 +44,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogTrigger,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
@@ -452,7 +453,6 @@ export default function ForumPage() {
         
         {!isLoading && combinedPosts.length === 0 && (
             <div className="space-y-6">
-                <p className="text-center py-4 text-muted-foreground">No posts yet. Be the first to share your story!</p>
                 <ExamplePost icon={<Users/>} name="EcoChampion" handle="@gogreen" time="3h" imageUrl="https://picsum.photos/seed/communityevent/800/450" imageHint="people cleaning park">
                     <p>Had an amazing time at the community cleanup event today! 🌳 It's so inspiring to see everyone working together for a cleaner neighborhood. We collected over 20 bags of trash and recyclables. #EcoCity #CommunityAction</p>
                 </ExamplePost>
