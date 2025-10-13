@@ -133,8 +133,10 @@ function PostCard({ post, isCurrentUser, author }: { post: ForumPost & { id: str
   const [formattedDate, setFormattedDate] = useState('');
 
   useEffect(() => {
-    const postDate = post.createdAt instanceof Timestamp ? post.createdAt.toDate() : new Date();
-    setFormattedDate(postDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    if (post.createdAt) {
+      const postDate = post.createdAt instanceof Timestamp ? post.createdAt.toDate() : new Date();
+      setFormattedDate(postDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    }
   }, [post.createdAt]);
 
   return (
@@ -204,23 +206,26 @@ function MessageComposer() {
     if ((!content.trim() && !imageFile) || !user) return;
 
     setIsSubmitting(true);
-    let imageUrl: string | undefined = undefined;
-
+    
     try {
+      let imageUrl: string | undefined = undefined;
       if (imageFile) {
-        // In a real application, you would upload to Firebase Storage here.
-        // For now, we'll just use a placeholder.
         imageUrl = await uploadImageMock(imageFile);
       }
 
-      await addDoc(collection(firestore, 'forumposts'), {
+      const postData: any = {
         authorId: user.uid,
         content: content,
-        imageUrl: imageUrl,
         createdAt: serverTimestamp(),
         likeCount: 0,
         commentCount: 0,
-      });
+      };
+
+      if (imageUrl) {
+        postData.imageUrl = imageUrl;
+      }
+
+      await addDoc(collection(firestore, 'forumposts'), postData);
 
       setContent('');
       setImageFile(null);
