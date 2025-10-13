@@ -18,6 +18,7 @@ import {
   deleteDoc,
   doc,
   increment,
+  onSnapshot,
   orderBy,
   query,
   serverTimestamp,
@@ -33,6 +34,8 @@ import {
   Loader2,
   Trash2,
   Image as ImageIcon,
+  Users,
+  Lightbulb,
 } from 'lucide-react';
 import type { UserProfile, ForumPost, PostLike } from '@/lib/types';
 import { Textarea } from '@/components/ui/textarea';
@@ -41,8 +44,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-  DialogClose,
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
@@ -321,7 +322,7 @@ function CreatePostForm({ onPostCreated }: { onPostCreated: () => void }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <Textarea
-        placeholder="Share your recycling story..."
+        placeholder="What's on your mind, eco-warrior?"
         value={content}
         onChange={(e) => setContent(e.target.value)}
         rows={4}
@@ -351,6 +352,46 @@ function CreatePostForm({ onPostCreated }: { onPostCreated: () => void }) {
     </form>
   );
 }
+
+function ExamplePost({ icon, name, handle, time, children, imageUrl, imageHint }: { icon: React.ReactNode, name: string, handle: string, time: string, children: React.ReactNode, imageUrl?: string, imageHint?: string }) {
+  return (
+    <Card className="w-full bg-muted/50">
+      <CardContent className="p-6">
+        <div className="flex gap-4">
+           <Avatar>
+              <AvatarFallback>{icon}</AvatarFallback>
+          </Avatar>
+          <div className="w-full">
+            <div className="flex items-center gap-2">
+                <p className="font-semibold">{name}</p>
+                <p className="text-xs text-muted-foreground">{handle} · {time}</p>
+            </div>
+            <div className="mt-2 text-sm space-y-2">{children}</div>
+            {imageUrl && (
+              <div className="mt-4 relative aspect-video rounded-lg overflow-hidden border">
+                <Image src={imageUrl} alt="Example post image" layout="fill" objectFit="cover" data-ai-hint={imageHint}/>
+              </div>
+            )}
+          </div>
+        </div>
+      </CardContent>
+      <CardFooter className="flex justify-around p-2 border-t">
+        <Button variant="ghost" className="flex items-center gap-2 text-muted-foreground">
+          <MessageCircle className="h-5 w-5" />
+          <span className="text-xs">12</span>
+        </Button>
+        <Button variant="ghost" className="flex items-center gap-2 text-muted-foreground">
+          <Heart className="h-5 w-5" />
+          <span className="text-xs">45</span>
+        </Button>
+        <Button variant="ghost" className="flex items-center gap-2 text-muted-foreground">
+          <Share2 className="h-5 w-5" />
+        </Button>
+      </CardFooter>
+    </Card>
+  );
+}
+
 
 export default function ForumPage() {
   const { user, isUserLoading } = useUser();
@@ -410,8 +451,14 @@ export default function ForumPage() {
         )}
         
         {!isLoading && combinedPosts.length === 0 && (
-            <div className="text-center py-10">
-                <p className="text-muted-foreground">No posts yet. Be the first to share!</p>
+            <div className="space-y-6">
+                <p className="text-center py-4 text-muted-foreground">No posts yet. Be the first to share your story!</p>
+                <ExamplePost icon={<Users/>} name="EcoChampion" handle="@gogreen" time="3h" imageUrl="https://picsum.photos/seed/communityevent/800/450" imageHint="people cleaning park">
+                    <p>Had an amazing time at the community cleanup event today! 🌳 It's so inspiring to see everyone working together for a cleaner neighborhood. We collected over 20 bags of trash and recyclables. #EcoCity #CommunityAction</p>
+                </ExamplePost>
+                 <ExamplePost icon={<Lightbulb/>} name="RecyclePro" handle="@circulareconomy" time="1d">
+                   <p>Recycling Tip! ✨ Did you know you can recycle plastic bottle caps? Just make sure to screw them back onto the empty bottle before tossing it in the bin. This prevents them from getting lost in the machinery. #RecyclingHacks #SmallChanges</p>
+                </ExamplePost>
             </div>
         )}
 
@@ -441,5 +488,3 @@ export default function ForumPage() {
     </div>
   );
 }
-
-    
