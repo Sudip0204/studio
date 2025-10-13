@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "Product": {
@@ -62,10 +63,6 @@
       "type": "object",
       "description": "Represents a user profile in the EcoCity application, including game stats.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the user profile, matching Firebase Auth UID."
-        },
         "name": {
           "type": "string",
           "description": "User's full name."
@@ -472,3 +469,5 @@
     ]
   }
 }
+
+    
