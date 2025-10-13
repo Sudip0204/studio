@@ -273,6 +273,11 @@
           "type": "string",
           "description": "The text content of the forum post."
         },
+        "imageUrl": {
+          "type": "string",
+          "format": "uri",
+          "description": "An optional URL for an image attached to the post."
+        },
         "mediaUrl": {
           "type": "string",
           "format": "uri",
@@ -469,5 +474,3 @@
     ]
   }
 }
-
-    
