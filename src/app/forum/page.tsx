@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useRef, useEffect, useMemo } from 'react';
@@ -9,14 +8,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Send, Image as ImageIcon, X, Heart, MessageSquare } from 'lucide-react';
+import { Loader2, Send, Image as ImageIcon, X, Heart, MessageSquare, Shield } from 'lucide-react';
 import { collection, query, orderBy, limit, serverTimestamp, doc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import type { ForumPost, UserProfile } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 
-// This component fetches the author's data based on authorId
 function PostAuthor({ authorId }: { authorId: string }) {
     const firestore = useFirestore();
     const authorRef = useMemoFirebase(() => doc(firestore, 'users', authorId), [firestore, authorId]);
@@ -33,7 +31,6 @@ function PostAuthor({ authorId }: { authorId: string }) {
     );
 }
 
-
 function PostCard({ post, isCurrentUser }: { post: ForumPost; isCurrentUser: boolean; }) {
   const [formattedDate, setFormattedDate] = useState('');
   const firestore = useFirestore();
@@ -41,7 +38,6 @@ function PostCard({ post, isCurrentUser }: { post: ForumPost; isCurrentUser: boo
 
   useEffect(() => {
     if (post.createdAt) {
-      // 'as any' is used here because serverTimestamp() can return a token before the date is set.
       const date = (post.createdAt as any).toDate ? (post.createdAt as any).toDate() : new Date();
       setFormattedDate(formatDistanceToNow(date, { addSuffix: true }));
     }
@@ -49,7 +45,7 @@ function PostCard({ post, isCurrentUser }: { post: ForumPost; isCurrentUser: boo
 
   const handleLike = () => {
     if (!user) return;
-    const postRef = doc(firestore, 'forumposts', post.id);
+    const postRef = doc(firestore, 'communityPosts', post.id);
     const isLiked = post.likes?.includes(user.uid);
 
     updateDocumentNonBlocking(postRef, {
@@ -61,7 +57,7 @@ function PostCard({ post, isCurrentUser }: { post: ForumPost; isCurrentUser: boo
 
   return (
     <div className={`flex items-start gap-3 my-4 ${isCurrentUser ? 'flex-row-reverse' : ''}`}>
-       {isCurrentUser ? (
+       {isCurrentUser && user ? (
          <Avatar className="h-10 w-10">
             <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || ''} />
             <AvatarFallback>{user?.displayName?.[0].toUpperCase() || 'U'}</AvatarFallback>
@@ -94,7 +90,6 @@ function PostCard({ post, isCurrentUser }: { post: ForumPost; isCurrentUser: boo
     </div>
   );
 }
-
 
 function MessageComposer() {
   const { user } = useUser();
@@ -135,7 +130,6 @@ function MessageComposer() {
     let imageUrl = '';
     // This is a placeholder for image upload. In a real app, you would upload to Firebase Storage.
     if (imageFile) {
-        // Simulate upload delay and get a placeholder URL
         await new Promise(res => setTimeout(res, 1000));
         imageUrl = imagePreview!; // In a real app, this would be the URL from Firebase Storage
         toast({
@@ -144,7 +138,7 @@ function MessageComposer() {
         });
     }
 
-    const postsCollection = collection(firestore, 'forumposts');
+    const postsCollection = collection(firestore, 'communityPosts');
     const postData: Omit<ForumPost, 'id' | 'createdAt'> = {
       authorId: user.uid,
       content: message,
@@ -157,7 +151,6 @@ function MessageComposer() {
         postData.imageUrl = imageUrl;
     }
 
-    // We don't await this to keep the UI responsive.
     addDocumentNonBlocking(postsCollection, {
       ...postData,
       createdAt: serverTimestamp(),
@@ -167,16 +160,6 @@ function MessageComposer() {
     removeImage();
     setIsSubmitting(false);
   };
-
-  if (!user) {
-    return (
-      <div className="p-4 border-t text-center">
-        <p className="text-muted-foreground">
-          <Link href="/login" className="text-primary font-semibold hover:underline">Log in</Link> to join the conversation.
-        </p>
-      </div>
-    );
-  }
 
   return (
     <form onSubmit={handleSubmit} className="p-4 border-t bg-background">
@@ -209,62 +192,53 @@ function MessageComposer() {
   );
 }
 
-const samplePosts: ForumPost[] = [
-    {
-        id: 'sample1',
-        authorId: 'user1',
-        content: 'Just organized a weekend cleanup drive at our local park. We collected over 50kg of plastic waste! Small steps make a big difference. Who wants to join the next one?',
-        createdAt: new Date(Date.now() - 1000 * 60 * 30),
-        likeCount: 15,
-        likes: [],
-        commentCount: 4,
-    },
-    {
-        id: 'sample2',
-        authorId: 'user2',
-        content: 'My compost bin is finally producing rich fertilizer! Any tips for using it effectively in a small apartment garden?',
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2),
-        likeCount: 22,
-        likes: [],
-        commentCount: 8,
-    },
-    {
-        id: 'sample3',
-        authorId: 'user3',
-        content: "Blog Post: '5 Creative Ways to Upcycle Your Glass Jars'. Check it out and share your own ideas! I've turned mine into herb planters and candle holders.",
-        imageUrl: 'https://picsum.photos/seed/glassjars/600/400',
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
-        likeCount: 45,
-        likes: [],
-        commentCount: 12,
-    },
-     {
-        id: 'sample4',
-        authorId: 'user4',
-        content: "Let's start a campaign to get local cafes to offer discounts for reusable cups! Who's with me? #BringYourOwnCup",
-        createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48),
-        likeCount: 78,
-        likes: [],
-        commentCount: 25,
-    },
-];
 
 export default function ForumPage() {
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const postsQuery = useMemoFirebase(
-    () => query(collection(firestore, 'forumposts'), orderBy('createdAt', 'asc'), limit(50)),
-    [firestore]
+    () => user ? query(collection(firestore, 'communityPosts'), orderBy('createdAt', 'asc'), limit(50)) : null,
+    [firestore, user]
   );
-  const { data: posts, isLoading } = useCollection<ForumPost>(postsQuery);
+  const { data: posts, isLoading: isPostsLoading } = useCollection<ForumPost>(postsQuery);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    if (posts) {
+      messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
   }, [posts]);
   
-  const displayPosts = (posts && posts.length > 0) ? posts : samplePosts;
+  const displayPosts = (posts && posts.length > 0) ? posts : [];
+
+  const isLoading = isUserLoading || isPostsLoading;
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto py-12 px-4 flex justify-center">
+        <Card className="w-full max-w-4xl flex flex-col h-[80vh] items-center justify-center">
+           <Loader2 className="h-12 w-12 animate-spin text-primary" />
+           <p className="mt-4 text-muted-foreground">Loading Forum...</p>
+        </Card>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="container mx-auto py-12 px-4 flex justify-center">
+        <Card className="w-full max-w-4xl flex flex-col h-[80vh] items-center justify-center text-center p-8">
+            <Shield className="h-16 w-16 text-primary mb-4" />
+            <CardTitle className="font-headline text-2xl">Access Denied</CardTitle>
+            <CardDescription className="mb-6 mt-2">The Community Forum is available for members only.</CardDescription>
+            <Button asChild>
+                <Link href="/login">Login or Sign Up to Join</Link>
+            </Button>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto py-12 px-4 flex justify-center">
@@ -274,17 +248,19 @@ export default function ForumPage() {
           <CardDescription>Share, learn, and connect with fellow eco-warriors.</CardDescription>
         </CardHeader>
         <div className="flex-1 overflow-y-auto p-4">
-          {isLoading && !posts ? (
-            <div className="flex justify-center items-center h-full">
-              <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
-          ) : (
+          {displayPosts.length > 0 ? (
             <>
               {displayPosts.map(post => (
                 <PostCard key={post.id} post={post} isCurrentUser={user?.uid === post.authorId} />
               ))}
               <div ref={messagesEndRef} />
             </>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full text-center text-muted-foreground">
+                <MessageSquare className="h-12 w-12 mb-4" />
+                <p className="font-semibold">It's quiet in here...</p>
+                <p>Be the first to share something with the community!</p>
+            </div>
           )}
         </div>
         <MessageComposer />
