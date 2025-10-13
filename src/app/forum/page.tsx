@@ -19,9 +19,9 @@ const samplePosts: (ForumPost & { id: string, author: UserProfile })[] = [
     id: 'sample1',
     authorId: 'user1',
     content: "Just finished our weekend beach cleanup drive at Juhu Beach! We collected over 50kg of plastic waste. It was tiring but so rewarding. Huge thanks to everyone who joined. Let's plan the next one for Bandra Bandstand!",
-    createdAt: new Timestamp(Math.floor(Date.now() / 1000) - 3600, 0), // 1 hour ago
-    likeCount: 15,
-    commentCount: 4,
+    createdAt: new Timestamp(Math.floor(Date.now() / 1000) - 7200, 0),
+    likeCount: 25,
+    commentCount: 7,
     imageUrl: 'https://picsum.photos/seed/beachcleanup/600/400',
     author: {
         id: 'user1',
@@ -33,10 +33,10 @@ const samplePosts: (ForumPost & { id: string, author: UserProfile })[] = [
   {
     id: 'sample2',
     authorId: 'user2',
-    content: "Quick question for the community: I've been collecting all my plastic bags, but my local recycling center doesn't accept them. Any ideas for upcycling or proper disposal in the Mumbai area?",
-    createdAt: new Timestamp(Math.floor(Date.now() / 1000) - 1800, 0), // 30 mins ago
-    likeCount: 8,
-    commentCount: 6,
+    content: "Quick question: I've been collecting all my plastic bags, but my local recycling center doesn't accept them. Any ideas for upcycling or proper disposal in the Mumbai area?",
+    createdAt: new Timestamp(Math.floor(Date.now() / 1000) - 5400, 0),
+    likeCount: 12,
+    commentCount: 8,
     author: {
         id: 'user2',
         name: 'Recycle Rohan',
@@ -47,15 +47,43 @@ const samplePosts: (ForumPost & { id: string, author: UserProfile })[] = [
   {
     id: 'sample3',
     authorId: 'user3',
-    content: "Blog Post: My Journey to a Zero-Waste Kitchen! Hey everyone, I wrote a short blog about the simple swaps I made to drastically reduce waste in my kitchen. From composting to reusable wraps, it's been a game-changer. Hope it inspires some of you! You can read it here: [link-to-blog]",
-    createdAt: new Timestamp(Math.floor(Date.now() / 1000) - 600, 0), // 10 mins ago
-    likeCount: 22,
-    commentCount: 9,
+    content: "Blog Post: My Journey to a Zero-Waste Kitchen! Hey everyone, I wrote a short blog about the simple swaps I made to drastically reduce waste in my kitchen. From composting to reusable wraps, it's been a game-changer. Hope it inspires some of you! [link-to-blog]",
+    createdAt: new Timestamp(Math.floor(Date.now() / 1000) - 3600, 0),
+    likeCount: 38,
+    commentCount: 12,
     author: {
         id: 'user3',
         name: 'Sustainable Sarah',
         email: 'sarah@example.com',
         photoURL: 'https://i.pravatar.cc/40?u=user3',
+    }
+  },
+  {
+    id: 'sample4',
+    authorId: 'user4',
+    content: "Composting workshop this Sunday at the community garden! We'll cover the basics of setting up your own compost bin. Limited spots available, DM me to register. #composting #organicwaste",
+    createdAt: new Timestamp(Math.floor(Date.now() / 1000) - 1800, 0),
+    likeCount: 18,
+    commentCount: 5,
+    author: {
+        id: 'user4',
+        name: 'EcoAnand',
+        email: 'anand@example.com',
+        photoURL: 'https://i.pravatar.cc/40?u=user4',
+    }
+  },
+  {
+    id: 'sample5',
+    authorId: 'user5',
+    content: "I have so many glass jars! Any creative ideas on how to reuse them around the house, other than for storage?",
+    createdAt: new Timestamp(Math.floor(Date.now() / 1000) - 600, 0),
+    likeCount: 9,
+    commentCount: 11,
+    author: {
+        id: 'user5',
+        name: 'CreativeMeena',
+        email: 'meena@example.com',
+        photoURL: 'https://i.pravatar.cc/40?u=user5',
     }
   }
 ];
