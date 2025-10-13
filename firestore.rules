@@ -1,59 +1,89 @@
+/**
+ * @file Firestore Security Rules for EcoCity application.
+ *
+ * @core_philosophy This ruleset prioritizes user-owned data with public read access for some collections like forum posts.
+ *  Write access is strictly controlled based on user authentication and document ownership. Data consistency is enforced where necessary,
+ *  especially for user-specific data.
+ * @data_structure The data is organized into top-level collections for global data (products, recycling centers, forum posts, leaderboard)
+ *  and user-scoped subcollections for private user data (user profiles, rewards).
+ * @key_security_decisions
+ *  - Public read access is granted to the forum post and products collection to facilitate discovery, but writes are restricted to authenticated users.
+ *  - User profiles and rewards are protected with owner-only access.
+ *  - Listing all users is disallowed for privacy.
+ *  - Deleting and updating documents is only allowed if they exist to prevent accidental removal of data.
+ * @denormalization To simplify security rules, the `PostLike` document uses the user ID as the document ID.
+ */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Controls access to user profiles.
+     * @description Checks if the request is made by an authenticated user.
+     * @return {bool} True if the user is signed in, false otherwise.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the authenticated user's ID matches the provided user ID.
+     * @param {string} userId The user ID to compare against the authenticated user's ID.
+     * @return {bool} True if the user is the owner, false otherwise.
+     */
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    /**
+     * @description Checks if the authenticated user's ID matches the provided user ID and the document exists
+     * @param {string} userId The user ID to compare against the authenticated user's ID.
+     * @return {bool} True if the user is the owner, false otherwise.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Rules for the /users/{userId} collection.
      * @path /users/{userId}
-     * @allow (create) Authenticated user can create their own profile.
-     * @allow (get, list, update, delete) Authenticated user can only access their own profile.
-     * @deny (create) if the created user id does not match the authenticated user id.
-     * @deny (update, delete) if the user does not own the profile.
-     * @principle Enforces document ownership for all operations.
+     * @allow (create) - Authenticated user can create their own profile if the userId matches their auth.uid.
+     * @allow (get, update, delete) - Authenticated user can read, update, or delete their own profile.
+     * @deny (create) - An unauthenticated user cannot create a profile.
+     * @deny (update, delete) - An unauthenticated user cannot update or delete a profile.
+     * @deny (create) - Authenticated user can not create profile if the userId does not match their auth.uid.
+     * @principle Enforces user-ownership for profile data.
      */
     match /users/{userId} {
-      function isOwner(userId) {
-        return request.auth.uid == userId;
-      }
-      function isSignedIn() {
-        return request.auth != null;
-      }
-      allow get: if isSignedIn() && isOwner(userId);
-      allow list: if isSignedIn() && isOwner(userId);
-      allow create: if isSignedIn() && request.auth.uid == userId;
-      allow update: if isSignedIn() && isOwner(userId);
-      allow delete: if isSignedIn() && isOwner(userId);
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId) ;
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Controls access to product listings.
+     * @description Rules for the /products/{productId} collection.
      * @path /products/{productId}
-     * @allow (get, list) Public read access to all product listings.
-     * @allow (create) Authenticated users can create product listings with their sellerId.
-     * @allow (update, delete) Only the seller can modify or delete their product listings.
-     * @deny (create) if the sellerId doesn't match the authenticated user.
-     * @deny (update, delete) if the user does not own the product.
-     * @principle Allows public read access but enforces document ownership for writes.
+     * @allow (get, list) - Any user can read or list products.
+     * @allow (create) - Authenticated users can create products, if the sellerId matches their auth.uid.
+     * @allow (update, delete) - Only the seller can update or delete their own products.
+     * @deny (create) - An unauthenticated user cannot create a product.
+     * @deny (update, delete) - An unauthenticated user cannot update or delete products they don't own.
+     * @principle Allows public read access, enforces ownership for writes.
      */
     match /products/{productId} {
-      function isOwner() {
-        return request.resource.data.sellerId == request.auth.uid;
-      }
-      function isSignedIn() {
-        return request.auth != null;
-      }
       allow get, list: if true;
       allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
-      allow update: if isSignedIn() && resource.data.sellerId == request.auth.uid;
-      allow delete: if isSignedIn() && resource.data.sellerId == request.auth.uid;
+      allow update: if isSignedIn() && isExistingOwner(resource.data.sellerId);
+      allow delete: if isSignedIn() && isExistingOwner(resource.data.sellerId);
     }
 
     /**
-     * @description Controls access to recycling center data.
+     * @description Rules for the /recyclingcenters/{recyclingcenterId} collection.
      * @path /recyclingcenters/{recyclingcenterId}
-     * @allow (get, list) Public read access to all recycling centers.
-     * @deny (create, update, delete) No user writes allowed.
-     * @principle Public read-only access.
+     * @allow (get, list) - Any user can read or list recycling centers.
+     * @deny (create, update, delete) - No user can create, update, or delete recycling centers.
+     * @principle Public read-only access for recycling center data.
      */
     match /recyclingcenters/{recyclingcenterId} {
       allow get, list: if true;
@@ -61,110 +91,86 @@ service cloud.firestore {
     }
 
     /**
-     * @description Controls access to user-specific rewards.
+     * @description Rules for the /users/{userId}/rewards/{rewardId} collection.
      * @path /users/{userId}/rewards/{rewardId}
-     * @allow (get, list, create, update, delete) Authenticated user can only access their own rewards.
-     * @deny (create, update, delete) if the user does not own the reward.
-     * @principle Enforces document ownership for all operations.
+     * @allow (get, list) - Authenticated user can read or list their own rewards.
+     * @allow (create) - Authenticated user can create rewards in their own profile.
+     * @allow (update, delete) - Authenticated user can update or delete their own rewards.
+     * @deny (create) - An unauthenticated user cannot create a reward.
+     * @deny (update, delete) - An unauthenticated user cannot update or delete rewards they don't own.
+     * @principle Enforces user-ownership for reward data.
      */
     match /users/{userId}/rewards/{rewardId} {
-      function isOwner(userId) {
-        return request.auth.uid == userId;
-      }
-      function isSignedIn() {
-        return request.auth != null;
-      }
-      allow get: if isSignedIn() && request.auth.uid == userId;
-      allow list: if isSignedIn() && request.auth.uid == userId;
-      allow create: if isSignedIn() && request.auth.uid == userId;
-      allow update: if isSignedIn() && request.auth.uid == userId;
-      allow delete: if isSignedIn() && request.auth.uid == userId;
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Controls access to forum posts.
+     * @description Rules for the /forumposts/{postId} collection.
      * @path /forumposts/{postId}
-     * @allow (get, list) Public read access to all forum posts.
-     * @allow (create) Authenticated users can create forum posts.
-     * @allow (update, delete) Only the author can modify or delete their forum posts.
-     * @deny (create) if the authorId doesn't match the authenticated user.
-     * @deny (update, delete) if the user does not own the post.
-     * @principle Allows public read access but enforces document ownership for writes.
+     * @allow (get, list) - Any user can read or list forum posts.
+     * @allow (create) - Authenticated users can create forum posts.
+     * @allow (update, delete) - Only the author can update or delete their own posts.
+     * @deny (create) - An unauthenticated user cannot create a forum post.
+     * @deny (update, delete) - An unauthenticated user cannot update or delete forum posts they don't own.
+     * @principle Public read access, enforces ownership for writes.
      */
     match /forumposts/{postId} {
-      function isOwner() {
-        return resource.data.authorId == request.auth.uid;
-      }
-      function isSignedIn() {
-        return request.auth != null;
-      }
       allow get, list: if true;
       allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
-      allow update: if isSignedIn() && resource.data.authorId == request.auth.uid;
-      allow delete: if isSignedIn() && resource.data.authorId == request.auth.uid;
+      allow update: if isSignedIn() && isExistingOwner(resource.data.authorId);
+      allow delete: if isSignedIn() && isExistingOwner(resource.data.authorId);
     }
 
     /**
-     * @description Controls access to comments on forum posts.
+     * @description Rules for the /forumposts/{postId}/comments/{commentId} collection.
      * @path /forumposts/{postId}/comments/{commentId}
-     * @allow (get, list) Public read access to all comments.
-     * @allow (create) Authenticated users can create comments.
-     * @allow (update, delete) Only the author can modify or delete their comments.
-     * @deny (create) if the authorId doesn't match the authenticated user.
-     * @deny (update, delete) if the user does not own the comment.
-     * @principle Allows public read access but enforces document ownership for writes.
+     * @allow (get, list) - Any user can read or list comments on a forum post.
+     * @allow (create) - Authenticated users can create comments.
+     * @allow (update, delete) - Only the author can update or delete their own comments.
+     * @deny (create) - An unauthenticated user cannot create a comment.
+     * @deny (update, delete) - An unauthenticated user cannot update or delete comments they don't own.
+     * @principle Public read access, enforces ownership for writes.
      */
     match /forumposts/{postId}/comments/{commentId} {
-      function isOwner() {
-        return resource.data.authorId == request.auth.uid;
-      }
-      function isSignedIn() {
-        return request.auth != null;
-      }
       allow get, list: if true;
       allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
-      allow update: if isSignedIn() && resource.data.authorId == request.auth.uid;
-      allow delete: if isSignedIn() && resource.data.authorId == request.auth.uid;
+      allow update: if isSignedIn() && isExistingOwner(resource.data.authorId);
+      allow delete: if isSignedIn() && isExistingOwner(resource.data.authorId);
     }
 
     /**
-     * @description Controls access to likes on forum posts.
+     * @description Rules for the /forumposts/{postId}/likes/{userId} collection.
      * @path /forumposts/{postId}/likes/{userId}
-     * @allow (get, list) Public read access to all likes.
-     * @allow (create) Authenticated users can like a post (create a like document).
-     * @deny (create) if the userId doesn't match the authenticated user.
-     * @deny (update, delete)  Likes are managed through creation and deletion, so updates are disallowed. Deletion is only permitted by the liking user.
-     * @principle  Likes are created and deleted; updates are not supported.
+     * @allow (get) - Any user can read the like on a forum post.
+     * @allow (create) - Authenticated users can create likes.
+     * @allow (delete) - Only the user who liked the post can delete their like.
+     * @allow (list) - Any user can list likes on a post
+     * @deny (create) - An unauthenticated user cannot create a like.
+     * @deny (delete) - An unauthenticated user cannot delete a like they don't own.
+     * @principle Authenticated users can like posts.
      */
     match /forumposts/{postId}/likes/{userId} {
-      function isOwner(userId) {
-        return request.auth.uid == userId;
-      }
-      function isSignedIn() {
-        return request.auth != null;
-      }
-      allow get, list: if true;
+      allow get: if true;
+      allow list: if true;
       allow create: if isSignedIn() && request.auth.uid == userId;
+      allow delete: if isSignedIn() && request.auth.uid == userId && resource != null;
       allow update: if false;
-      allow delete: if isSignedIn() && request.auth.uid == userId;
     }
 
     /**
-     * @description Controls access to leaderboard entries.
+     * @description Rules for the /leaderboard/{scoreId} collection.
      * @path /leaderboard/{scoreId}
-     * @allow (get, list) Public read access to the leaderboard.
-     * @allow (create) Authenticated users can submit their scores.
-     * @deny (create) if the userId doesn't match the authenticated user.
-     * @deny (update, delete) No user writes allowed - admin only.
-     * @principle Allows public read access and user-submitted scores, but restricts modifications.
+     * @allow (get, list) - Any user can read or list leaderboard entries.
+     * @allow (create) - Authenticated users can create leaderboard entries.
+     * @deny (create) - An unauthenticated user cannot create a leaderboard entry.
+     * @deny (update, delete) - No user can update or delete leaderboard entries.
+     * @principle Public read access for leaderboard data, authenticated writes.
      */
     match /leaderboard/{scoreId} {
-      function isOwner() {
-        return resource.data.userId == request.auth.uid;
-      }
-      function isSignedIn() {
-        return request.auth != null;
-      }
       allow get, list: if true;
       allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
       allow update, delete: if false;

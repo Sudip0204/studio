@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from "@/components/ui/sheet";
-import { Menu, User, LogOut, Trophy } from "lucide-react";
+import { Menu, User, LogOut, Trophy, Users } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { EcoCityLogo } from "../icons";
 import { useUser, useAuth } from "@/firebase";
@@ -112,6 +112,12 @@ export function Header() {
                   <Link href="/profile/rewards">
                     <Trophy className="mr-2 h-4 w-4" />
                     <span>Rewards</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="/forum">
+                    <Users className="mr-2 h-4 w-4" />
+                    <span>Community Forum</span>
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
