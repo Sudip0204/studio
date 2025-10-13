@@ -21,7 +21,6 @@ const navLinks = [
   { href: "/marketplace", label: "Marketplace" },
   { href: "/forum", label: "Community Forum" },
   { href: "/gamification", label: "Gamification" },
-  { href: "/profile", label: "Profile" },
 ];
 
 export function Header() {
@@ -59,12 +58,7 @@ export function Header() {
           </span>
         </Link>
         <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
-          {navLinks.map((link) => {
-            // Hide Profile link from main nav if user is not logged in
-            if (link.href === '/profile' && !user) {
-              return null;
-            }
-            return (
+          {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -76,8 +70,7 @@ export function Header() {
               >
                 {link.label}
               </Link>
-            )
-          })}
+          ))}
         </nav>
         <div className="hidden items-center gap-4 md:flex">
           {isUserLoading ? (
@@ -151,11 +144,7 @@ export function Header() {
                 <EcoCityLogo className="h-6 w-6 text-primary" />
                 <span className="font-headline">EcoCity</span>
               </Link>
-              {navLinks.map((link) => {
-                if (link.href === '/profile' && !user) {
-                  return null;
-                }
-                return (
+              {navLinks.map((link) => (
                    <Link
                     key={link.href}
                     href={link.href}
@@ -169,8 +158,7 @@ export function Header() {
                   >
                     {link.label}
                   </Link>
-                )
-              })}
+              ))}
               <div className="mt-6 flex flex-col gap-4">
                  {user ? (
                    <Button onClick={handleLogout} variant="outline">Logout</Button>
