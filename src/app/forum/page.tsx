@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter } from '@/components/ui/card';
-import { useUser, useCollection, useFirestore, useMemoFirebase } from '@/firebase';
+import { useUser, useCollection, useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import {
   addDoc,
   collection,
@@ -48,28 +48,51 @@ import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 
-type PostWithAuthor = ForumPost & {
+type PostWithDetails = ForumPost & {
   id: string;
-  author: UserProfile | null;
   likedByUser: boolean;
 };
 
-// Hook to get all users and map them by ID
-function useUsersMap() {
-  const firestore = useFirestore();
-  const usersCollection = useMemoFirebase(() => collection(firestore, 'users'), [firestore]);
-  const { data: users, isLoading } = useCollection<UserProfile>(usersCollection);
+// New component to fetch and display a single post's author information
+function PostAuthor({ authorId }: { authorId: string }) {
+    const firestore = useFirestore();
+    const userDocRef = useMemoFirebase(() => doc(firestore, 'users', authorId), [firestore, authorId]);
+    const { data: author, isLoading } = useDoc<UserProfile>(userDocRef);
 
-  const usersMap = useMemo(() => {
-    if (!users) return new Map();
-    return users.reduce((acc, user) => {
-      acc.set(user.id, user);
-      return acc;
-    }, new Map<string, UserProfile>());
-  }, [users]);
+    const timeAgo = 'Just now'; // Fallback, will be replaced by post time in PostCard
 
-  return { usersMap, isLoadingUsers: isLoading };
+    if (isLoading || !author) {
+        return (
+            <div className="flex items-center gap-2">
+                <div className="h-10 w-10 rounded-full bg-muted animate-pulse" />
+                <div className="space-y-1">
+                    <div className="h-4 w-24 rounded-md bg-muted animate-pulse" />
+                    <div className="h-3 w-16 rounded-md bg-muted animate-pulse" />
+                </div>
+            </div>
+        );
+    }
+    
+    return (
+        <div className="flex items-center gap-4">
+             <Avatar>
+                <AvatarImage
+                src={author?.photoURL || undefined}
+                alt={author?.name}
+                />
+                <AvatarFallback>
+                {author?.name?.[0]?.toUpperCase() || 'U'}
+                </AvatarFallback>
+            </Avatar>
+            <div>
+                 <p className="font-semibold">{author?.name || 'Anonymous'}</p>
+                 {/* This will be replaced by the actual post time passed to the parent */}
+                 <p className="text-xs text-muted-foreground">{timeAgo}</p>
+            </div>
+        </div>
+    );
 }
+
 
 // Hook to get all posts
 function useForumPosts() {
@@ -87,7 +110,7 @@ function useAllLikes(postIds: string[], userId?: string) {
 
     const memoizedPostIds = useMemo(() => postIds.join(','), [postIds]);
 
-    useMemo(() => {
+    useEffect(() => {
         if (!userId || postIds.length === 0) {
             setIsLoading(false);
             setLikesMap(new Map());
@@ -96,46 +119,39 @@ function useAllLikes(postIds: string[], userId?: string) {
 
         setIsLoading(true);
         const newLikesMap = new Map<string, boolean>();
-        const promises = postIds.map(postId => {
-            const likesCollection = collection(firestore, 'forumposts', postId, 'likes');
-            const { data: likesData } = useCollection<PostLike>(likesCollection);
-            
-            // This is not ideal inside a hook, but useCollection is also a hook
-            // A better approach would be a single query if possible, or batch reads.
-            // For now, we will work with the tools we have.
-            return new Promise<void>(resolve => {
-                if(likesData) {
-                    const liked = likesData.some(like => like.id === userId);
-                    newLikesMap.set(postId, liked);
-                    resolve();
-                } else if(likesData === null) {
-                    // This means the data is loaded and is null
-                     newLikesMap.set(postId, false);
-                     resolve();
-                }
-                // if likesData is undefined, we are still loading, so we don't resolve.
+        const unsubs: (()=>void)[] = [];
+
+        postIds.forEach(postId => {
+            const likeRef = doc(firestore, 'forumposts', postId, 'likes', userId);
+            const unsub = onSnapshot(likeRef, (doc) => {
+                newLikesMap.set(postId, doc.exists());
+                 // This is a bit inefficient, cloning the map on every snapshot
+                setLikesMap(new Map(newLikesMap));
             });
-        });
-        
-        // This is a simplified example. In a real app, you would want to handle how the
-        // `useCollection` hook's async nature interacts here more robustly.
-        // For now, we assume `useCollection` provides a snapshot.
-        Promise.all(promises).then(() => {
-            setLikesMap(newLikesMap);
-            setIsLoading(false);
+            unsubs.push(unsub);
         });
 
-    }, [firestore, memoizedPostIds, userId]); // Dependency on stringified post IDs
+        // Simplified loading state.
+        setIsLoading(false);
+        
+        return () => {
+            unsubs.forEach(unsub => unsub());
+        }
+
+    }, [firestore, memoizedPostIds, userId]);
 
     return { likesMap, isLoadingLikes: isLoading };
 }
 
 
-function PostCard({ post, onDelete }: { post: PostWithAuthor; onDelete: (postId: string) => Promise<void> }) {
+function PostCard({ post, onDelete }: { post: PostWithDetails; onDelete: (postId: string) => Promise<void> }) {
   const firestore = useFirestore();
   const { user } = useUser();
   const { toast } = useToast();
   const [isDeleting, setIsDeleting] = useState(false);
+  
+  const userDocRef = useMemoFirebase(() => doc(firestore, 'users', post.authorId), [firestore, post.authorId]);
+  const { data: author } = useDoc<UserProfile>(userDocRef);
 
   const timeAgo = post.createdAt
     ? formatDistanceToNow(new Date(post.createdAt.seconds * 1000), {
@@ -182,19 +198,19 @@ function PostCard({ post, onDelete }: { post: PostWithAuthor; onDelete: (postId:
     <Card className="w-full">
       <CardContent className="p-6">
         <div className="flex gap-4">
-          <Avatar>
+           <Avatar>
             <AvatarImage
-              src={post.author?.photoURL || undefined}
-              alt={post.author?.name}
+              src={author?.photoURL || undefined}
+              alt={author?.name}
             />
             <AvatarFallback>
-              {post.author?.name?.[0]?.toUpperCase() || 'U'}
+              {author?.name?.[0]?.toUpperCase() || 'U'}
             </AvatarFallback>
           </Avatar>
           <div className="w-full">
             <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                    <p className="font-semibold">{post.author?.name || 'Anonymous'}</p>
+                    <p className="font-semibold">{author?.name || 'Anonymous'}</p>
                     <p className="text-xs text-muted-foreground">{timeAgo}</p>
                 </div>
                  {user?.uid === post.authorId && (
@@ -348,20 +364,18 @@ export default function ForumPage() {
     }
   }, [user, isUserLoading, router]);
 
-  const { usersMap, isLoadingUsers } = useUsersMap();
   const { posts, isLoadingPosts } = useForumPosts();
   
   const postIds = useMemo(() => posts?.map(p => p.id) || [], [posts]);
   const { likesMap, isLoadingLikes } = useAllLikes(postIds, user?.uid);
 
-  const combinedPosts: PostWithAuthor[] = useMemo(() => {
-    if (!posts || !usersMap) return [];
+  const combinedPosts: PostWithDetails[] = useMemo(() => {
+    if (!posts) return [];
     return posts.map(post => ({
       ...post,
-      author: usersMap.get(post.authorId) || null,
       likedByUser: likesMap.get(post.id) || false,
     }));
-  }, [posts, usersMap, likesMap]);
+  }, [posts, likesMap]);
 
   const handleDeletePost = async (postId: string) => {
     // This is a simplified delete. A real app would use a batch to also delete
@@ -370,7 +384,7 @@ export default function ForumPage() {
   };
 
 
-  const isLoading = isLoadingUsers || isLoadingPosts || isLoadingLikes || isUserLoading;
+  const isLoading = isLoadingPosts || isLoadingLikes || isUserLoading;
 
   if (isLoading || !user) {
     return (
@@ -427,3 +441,5 @@ export default function ForumPage() {
     </div>
   );
 }
+
+    
