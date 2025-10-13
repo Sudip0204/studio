@@ -76,6 +76,11 @@
           "description": "User's email address.",
           "format": "email"
         },
+        "photoURL": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL of the user's profile picture."
+        },
         "ecoPoints": {
           "type": "number",
           "description": "Number of eco-points the user has earned."
@@ -83,17 +88,6 @@
         "level": {
           "type": "string",
           "description": "User's level in the EcoCity rewards program."
-        },
-        "activities": {
-          "type": "array",
-          "description": "Activities of the user.",
-          "items": {
-            "type": "string"
-          }
-        },
-        "stats": {
-          "type": "string",
-          "description": "Reference to UserStats. (Relationship: UserProfile 1:1 UserStats)"
         }
       },
       "required": [
@@ -244,61 +238,83 @@
       "type": "object",
       "description": "Represents a post in the EcoCity forum.",
       "properties": {
-        "id": {
+        "authorId": {
           "type": "string",
-          "description": "Unique identifier for the forum post."
+          "description": "The ID of the user who created the post. (Relationship: UserProfile 1:N ForumPost)"
         },
         "content": {
           "type": "string",
-          "description": "Content of the forum post."
+          "description": "The text content of the forum post."
         },
-        "authorId": {
+        "mediaUrl": {
           "type": "string",
-          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N ForumPost)"
+          "format": "uri",
+          "description": "An optional URL for an image or video attached to the post."
         },
-        "timestamp": {
+        "mediaType": {
           "type": "string",
-          "description": "Timestamp of the forum post.",
-          "format": "date-time"
+          "enum": ["image", "video"],
+          "description": "The type of media attached, if any."
         },
-        "comments": {
-          "type": "array",
-          "description": "Comments on the forum post.",
-          "items": {
-            "type": "string"
-          }
+        "likeCount": {
+          "type": "number",
+          "description": "The number of likes the post has received."
+        },
+        "commentCount": {
+          "type": "number",
+          "description": "The number of comments the post has received."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the post was created."
         }
       },
       "required": [
-        "id",
-        "content",
         "authorId",
-        "timestamp"
+        "content",
+        "createdAt"
       ]
     },
-    "UserStats": {
+    "PostComment": {
       "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "UserStats",
+      "title": "PostComment",
       "type": "object",
-      "description": "Represents user statistics in the EcoCity application.",
+      "description": "Represents a comment on a forum post.",
       "properties": {
-        "id": {
+        "authorId": {
           "type": "string",
-          "description": "Unique identifier for the user stats."
+          "description": "The ID of the user who wrote the comment. (Relationship: UserProfile 1:N PostComment)"
         },
-        "wasteClassified": {
-          "type": "number",
-          "description": "Number of waste items classified by the user."
+        "content": {
+          "type": "string",
+          "description": "The text content of the comment."
         },
-        "itemsRecycled": {
-          "type": "number",
-          "description": "Number of items recycled by the user."
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "The timestamp when the comment was created."
         }
       },
       "required": [
-        "id",
-        "wasteClassified",
-        "itemsRecycled"
+        "authorId",
+        "content",
+        "createdAt"
+      ]
+    },
+    "PostLike": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "PostLike",
+      "type": "object",
+      "description": "Represents a like on a forum post. The existence of a document signifies a like.",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The ID of the user who liked the post."
+        }
+      },
+      "required": [
+        "userId"
       ]
     }
   },
@@ -316,13 +332,7 @@
           "schema": {
             "$ref": "#/backend/entities/UserProfile"
           },
-          "description": "Collection for storing user profiles. Path-based ownership for private user data.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            }
-          ]
+          "description": "Collection for storing user profiles."
         }
       },
       {
@@ -332,13 +342,7 @@
           "schema": {
             "$ref": "#/backend/entities/Product"
           },
-          "description": "Collection for storing marketplace product listings.",
-          "params": [
-            {
-              "name": "productId",
-              "description": "The unique identifier of the product."
-            }
-          ]
+          "description": "Collection for storing marketplace product listings."
         }
       },
       {
@@ -348,13 +352,7 @@
           "schema": {
             "$ref": "#/backend/entities/RecyclingCenter"
           },
-          "description": "Collection for storing recycling center data.",
-          "params": [
-            {
-              "name": "recyclingcenterId",
-              "description": "The unique identifier of the recycling center."
-            }
-          ]
+          "description": "Collection for storing recycling center data."
         }
       },
       {
@@ -364,56 +362,41 @@
           "schema": {
             "$ref": "#/backend/entities/Reward"
           },
-          "description": "Subcollection for storing user rewards. Path-based ownership.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            },
-            {
-              "name": "rewardId",
-              "description": "The unique identifier of the reward."
-            }
-          ]
+          "description": "Subcollection for storing user rewards."
         }
       },
       {
-        "path": "/forumposts/{forumpostId}",
+        "path": "/forumposts/{postId}",
         "definition": {
           "entityName": "ForumPost",
           "schema": {
             "$ref": "#/backend/entities/ForumPost"
           },
-          "description": "Collection for storing forum posts.",
-          "params": [
-            {
-              "name": "forumpostId",
-              "description": "The unique identifier of the forum post."
-            }
-          ]
+          "description": "Collection for storing all forum posts."
         }
       },
       {
-        "path": "/users/{userId}/userstats/{userstatsId}",
+        "path": "/forumposts/{postId}/comments/{commentId}",
         "definition": {
-          "entityName": "UserStats",
+          "entityName": "PostComment",
           "schema": {
-            "$ref": "#/backend/entities/UserStats"
+            "$ref": "#/backend/entities/PostComment"
           },
-          "description": "Subcollection for storing user statistics. Path-based ownership (1:1 relationship with UserProfile)",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            },
-            {
-              "name": "userstatsId",
-              "description": "The unique identifier of the userstats."
-            }
-          ]
+          "description": "Subcollection for storing comments on a specific forum post."
+        }
+      },
+      {
+        "path": "/forumposts/{postId}/likes/{userId}",
+        "definition": {
+          "entityName": "PostLike",
+          "schema": {
+            "$ref": "#/backend/entities/PostLike"
+          },
+          "description": "Subcollection for storing likes on a post. The document ID is the ID of the user who liked it."
         }
       }
-    ],
-    "reasoning": "The Firestore structure is designed to be secure, scalable, and easily debuggable, following the principles of Authorization Independence, Clarity of Intent, DBAC (Database-Based Access Control), and QAPs (Rules are not Filters). Authorization Independence is achieved through denormalization of user information into the MarketplaceListing collection, eliminating the need for `get()` calls in security rules and enabling atomic operations. Structural Segregation is applied by using dedicated collections for each entity, ensuring homogeneous security postures. The structure uses hierarchical paths for User-Owned Data (`/users/{userId}/rewards/{rewardId}`) and leverages the Membership Map pattern (not explicitly used in this structure, but ready to be applied if collaborative features are added in the future)."
+    ]
   }
 }
+
+    
