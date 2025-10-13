@@ -130,8 +130,12 @@ function PostAuthor({ authorId, preloadedAuthor }: { authorId: string, preloaded
 
 // Component for a single post card
 function PostCard({ post, isCurrentUser, author }: { post: ForumPost & { id: string }, isCurrentUser: boolean, author?: UserProfile }) {
-  
-  const postDate = post.createdAt instanceof Timestamp ? post.createdAt.toDate() : new Date();
+  const [formattedDate, setFormattedDate] = useState('');
+
+  useEffect(() => {
+    const postDate = post.createdAt instanceof Timestamp ? post.createdAt.toDate() : new Date();
+    setFormattedDate(postDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+  }, [post.createdAt]);
 
   return (
     <div className={`flex items-end gap-2 ${isCurrentUser ? 'justify-end' : 'justify-start'}`}>
@@ -149,9 +153,11 @@ function PostCard({ post, isCurrentUser, author }: { post: ForumPost & { id: str
               </div>
             )}
             <p className="text-sm mt-1 whitespace-pre-wrap">{post.content}</p>
-            <p className="text-xs opacity-70 mt-2 text-right">
-                {postDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </p>
+            {formattedDate && (
+              <p className="text-xs opacity-70 mt-2 text-right">
+                  {formattedDate}
+              </p>
+            )}
         </div>
     </div>
   );
