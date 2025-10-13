@@ -1,70 +1,117 @@
 /**
- * @file Firebase Security Rules for EcoCity.
+ * @fileoverview Firestore Security Rules for EcoCity application.
  *
- * @description This ruleset enforces a user-ownership model for user profiles and rewards,
- * allows public read access to products and recycling centers, and implements ownership for forum posts and comments.
+ * Core Philosophy:
+ * This ruleset prioritizes user data ownership and restricts access to specific user-related data. Public data such as forum posts is readable by anyone, but write access is controlled.
  *
- * @dataStructure
- * - /users/{userId}: User profiles, owned by the corresponding user.
- * - /products/{productId}: Marketplace product listings, publicly readable but owner-writable.
- * - /recyclingcenters/{recyclingcenterId}: Recycling center data, publicly readable.
- * - /users/{userId}/rewards/{rewardId}: User-specific rewards, owned by the corresponding user.
- * - /forumposts/{postId}: Forum posts, owner-writable by the author.
- * - /forumposts/{postId}/comments/{commentId}: Comments on forum posts, owner-writable by the comment's author.
- * - /forumposts/{postId}/likes/{userId}: Likes on forum posts. A document exists if a user likes a post.
+ * Data Structure:
+ * - /users/{userId}: User profiles, accessible only by the user themselves.
+ * - /products/{productId}: Marketplace product listings, publicly readable, writable only by the seller.
+ * - /recyclingcenters/{recyclingcenterId}: Recycling center data, publicly readable and not writable by users.
+ * - /users/{userId}/rewards/{rewardId}: User-specific rewards, accessible only by the user.
+ * - /forumposts/{postId}: Forum posts, publicly readable, writable only by authenticated users and only if the authorId field matches their UID.
+ * - /forumposts/{postId}/comments/{commentId}: Comments on forum posts, writable by authenticated users if the authorId field matches their UID.
+ * - /forumposts/{postId}/likes/{userId}: Likes on a forum post, writable only by the user liking the post (userId matches auth.uid).
  *
- * @keySecurityDecisions
- * - User profiles are strictly private and only accessible to the owning user.
- * - Products and recycling centers are publicly readable to encourage discovery.
- * - Listing of the /users collection is denied to prevent unauthorized access to user data.
- * - Forum posts are publicly listable, but modification is restricted to the author.
- * - Forum post likes are controlled via document creation/deletion, where the existence of the like document indicates a like by the user.
+ * Key Security Decisions:
+ * - User listing is disallowed.
+ * - Public read access to marketplace listings and recycling center data.
+ * - Strict ownership model for user profiles and rewards.
+ * - Forum posts are publicly readable but require authentication and authorId match for writes.
  *
- * @denormalizationForAuthorization
- * - Forum posts require an `authorId` field to easily determine ownership for updates and deletes.
+ * Denormalization for Authorization:
+ * - Forum posts include an `authorId` field to simplify ownership checks.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Protects user profiles, allowing only the owner to read and write.
+     * @description Checks if the request is authenticated.
+     * @return {boolean} True if the request is authenticated, false otherwise.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the request is made by the owner of the resource.
+     * @param {string} userId The user ID to compare against the request's auth UID.
+     * @return {boolean} True if the request is made by the owner, false otherwise.
+     */
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    /**
+     * @description Checks if the request is made by the existing owner of the resource.
+     * @param {string} userId The user ID to compare against the resource's data.
+     * @return {boolean} True if the request is made by the existing owner, false otherwise.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Rule for user profiles.
      * @path /users/{userId}
-     * @allow (create) - User 'user_abc' can create their profile if request.auth.uid == 'user_abc'.
-     * @allow (get, update, delete) - User 'user_abc' can get, update, or delete their profile.
-     * @deny (create) - User 'user_xyz' cannot create a profile with ID 'user_abc'.
-     * @principle Enforces document ownership for writes.
+     * @allow (create) User with ID 'user123' creates their own profile.
+     *   - request.auth.uid: 'user123'
+     *   - request.resource.data.id: 'user123'
+     * @allow (get) User with ID 'user123' reads their own profile.
+     *   - request.auth.uid: 'user123'
+     * @allow (update) User with ID 'user123' updates their own profile.
+     *   - request.auth.uid: 'user123'
+     * @deny (create) User with ID 'user123' tries to create profile for 'user456'.
+     *   - request.auth.uid: 'user123'
+     *   - request.resource.data.id: 'user456'
+     * @deny (delete) User with ID 'user123' tries to delete profile for 'user456'.
+     *   - request.auth.uid: 'user123'
+     * @principle Enforces document ownership for writes and reads.
      */
     match /users/{userId} {
       allow get: if isOwner(userId);
       allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.id == request.auth.uid;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Allows public read access to product listings, but restricts writes to the seller.
+     * @description Rule for marketplace product listings.
      * @path /products/{productId}
-     * @allow (get, list) - Any user can read product listings.
-     * @allow (create) - User 'user_abc' can create a product listing if request.resource.data.sellerId == request.auth.uid.
-     * @allow (update, delete) - User 'user_abc' can update or delete their product listing.
-     * @deny (create) - User 'user_xyz' cannot create a product listing for seller 'user_abc'.
-     * @principle Allows public read with owner-only writes.
+     * @allow (get) Any user can read a product listing.
+     * @allow (list) Any user can list product listings.
+     * @allow (create) User with ID 'user123' creates a product listing with sellerId 'user123'.
+     *   - request.auth.uid: 'user123'
+     *   - request.resource.data.sellerId: 'user123'
+     * @allow (update) User with ID 'user123' updates a product listing where they are the seller.
+     *   - request.auth.uid: 'user123'
+     *   - resource.data.sellerId: 'user123'
+     * @deny (create) User with ID 'user123' creates a product listing with sellerId 'user456'.
+     *   - request.auth.uid: 'user123'
+     *   - request.resource.data.sellerId: 'user456'
+     * @deny (delete) User with ID 'user123' tries to delete product listing they don't own.
+     *   - request.auth.uid: 'user123'
+     *   - resource.data.sellerId: 'user456'
+     * @principle Allows public read access but enforces ownership for writes.
      */
     match /products/{productId} {
       allow get, list: if true;
-      allow create: if request.resource.data.sellerId == request.auth.uid;
-      allow update: if isExistingOwner(resource.data.sellerId);
-      allow delete: if isExistingOwner(resource.data.sellerId);
+      allow create: if isSignedIn() && request.resource.data.sellerId == request.auth.uid;
+      allow update: if isSignedIn() && resource != null && resource.data.sellerId == request.auth.uid;
+      allow delete: if isSignedIn() && resource != null && resource.data.sellerId == request.auth.uid;
     }
 
     /**
-     * @description Allows public read access to recycling center data.
+     * @description Rule for recycling center data.
      * @path /recyclingcenters/{recyclingcenterId}
-     * @allow (get, list) - Any user can read recycling center data.
-     * @deny (create, update, delete) - No user can create, update, or delete recycling center data through the client.
-     * @principle Provides public information with no client-side write access.
+     * @allow (get) Any user can read recycling center data.
+     * @allow (list) Any user can list recycling centers.
+     * @deny (create) No user can create recycling center data.
+     * @deny (update) No user can update recycling center data.
+     * @deny (delete) No user can delete recycling center data.
+     * @principle Allows public read access but prohibits all writes.
      */
     match /recyclingcenters/{recyclingcenterId} {
       allow get, list: if true;
@@ -72,82 +119,101 @@ service cloud.firestore {
     }
 
     /**
-     * @description Protects user-specific rewards, allowing only the owner to read and write.
+     * @description Rule for user-specific rewards.
      * @path /users/{userId}/rewards/{rewardId}
-     * @allow (get, list, create, update, delete) - User 'user_abc' can manage their own rewards.
-     * @deny (get, list, create, update, delete) - User 'user_xyz' cannot access rewards for user 'user_abc'.
-     * @principle Restricts access to a user's own data tree.
+     * @allow (create) User with ID 'user123' creates a reward for themselves.
+     *   - request.auth.uid: 'user123'
+     *   - request.resource.data.userId: 'user123'
+     * @allow (get) User with ID 'user123' reads their own reward.
+     *   - request.auth.uid: 'user123'
+     * @allow (update) User with ID 'user123' updates their own reward.
+     *   - request.auth.uid: 'user123'
+     * @deny (create) User with ID 'user123' tries to create a reward for 'user456'.
+     *   - request.auth.uid: 'user123'
+     *   - request.resource.data.userId: 'user456'
+     * @deny (delete) User with ID 'user123' tries to delete a reward for 'user456'.
+     *   - request.auth.uid: 'user123'
+     * @principle Enforces strict ownership for user-specific rewards.
      */
     match /users/{userId}/rewards/{rewardId} {
       allow get: if isOwner(userId);
       allow list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.userId == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.userId == userId;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Allows anyone to read forum posts, but only the author can modify or delete them.
+     * @description Rule for forum posts.
      * @path /forumposts/{postId}
-     * @allow (get, list) - Any user can read forum posts.
-     * @allow (create) - User 'user_abc' can create a forum post.
-     * @allow (update, delete) - User 'user_abc' can update or delete their own forum post.
-     * @deny (update, delete) - User 'user_xyz' cannot update or delete a forum post authored by 'user_abc'.
-     * @principle Enforces document ownership for writes.
+     * @allow (get) Any user can read a forum post.
+     * @allow (list) Any user can list forum posts.
+     * @allow (create) User with ID 'user123' creates a forum post with authorId 'user123'.
+     *   - request.auth.uid: 'user123'
+     *   - request.resource.data.authorId: 'user123'
+     * @allow (update) User with ID 'user123' updates a forum post they authored.
+     *   - request.auth.uid: 'user123'
+     *   - resource.data.authorId: 'user123'
+     * @deny (create) User with ID 'user123' tries to create a forum post with authorId 'user456'.
+     *   - request.auth.uid: 'user123'
+     *   - request.resource.data.authorId: 'user456'
+     * @deny (delete) User with ID 'user123' tries to delete a forum post they didn't author.
+     *   - request.auth.uid: 'user123'
+     *   - resource.data.authorId: 'user456'
+     * @principle Allows public read access but enforces ownership for writes via authorId.
      */
     match /forumposts/{postId} {
       allow get, list: if true;
-      allow create: if request.auth != null && request.resource.data.authorId == request.auth.uid;
-      allow update: if isExistingOwner(resource.data.authorId);
-      allow delete: if isExistingOwner(resource.data.authorId);
+      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+      allow update: if isSignedIn() && resource != null && resource.data.authorId == request.auth.uid;
+      allow delete: if isSignedIn() && resource != null && resource.data.authorId == request.auth.uid;
     }
 
     /**
-     * @description Allows anyone to read comments on a forum post, but only the author can create, modify, or delete them.
+     * @description Rule for comments on forum posts.
      * @path /forumposts/{postId}/comments/{commentId}
-     * @allow (get, list) - Any user can read comments on forum posts.
-     * @allow (create) - User 'user_abc' can create a comment on a forum post.
-     * @allow (update, delete) - User 'user_abc' can update or delete their own comment.
-     * @deny (update, delete) - User 'user_xyz' cannot update or delete a comment authored by 'user_abc'.
-     * @principle Enforces document ownership for writes.
+     * @allow (create) User with ID 'user123' creates a comment with authorId 'user123'.
+     *   - request.auth.uid: 'user123'
+     *   - request.resource.data.authorId: 'user123'
+     * @allow (get) Any user can read a comment.
+     * @allow (list) Any user can list comments.
+     * @allow (update) User with ID 'user123' updates a comment they authored.
+     *   - request.auth.uid: 'user123'
+     *   - resource.data.authorId: 'user123'
+     * @deny (create) User with ID 'user123' tries to create a comment with authorId 'user456'.
+     *   - request.auth.uid: 'user123'
+     *   - request.resource.data.authorId: 'user456'
+     * @deny (delete) User with ID 'user123' tries to delete a comment they didn't author.
+     *   - request.auth.uid: 'user123'
+     *   - resource.data.authorId: 'user456'
+     * @principle Allows public read access but enforces ownership for writes via authorId.
      */
     match /forumposts/{postId}/comments/{commentId} {
       allow get, list: if true;
-      allow create: if request.auth != null && request.resource.data.authorId == request.auth.uid;
-      allow update: if isExistingOwner(resource.data.authorId);
-      allow delete: if isExistingOwner(resource.data.authorId);
+      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+      allow update: if isSignedIn() && resource != null && resource.data.authorId == request.auth.uid;
+      allow delete: if isSignedIn() && resource != null && resource.data.authorId == request.auth.uid;
     }
 
     /**
-     * @description Controls likes on forum posts. A user can create a "like" document (identified by their user ID) to like a post, and delete it to unlike the post.
+     * @description Rule for likes on forum posts.
      * @path /forumposts/{postId}/likes/{userId}
-     * @allow (get, list) - Any user can read the likes on forum posts.
-     * @allow (create) - User 'user_abc' can create a like document for themselves.
-     * @allow (delete) - User 'user_abc' can delete their own like document to unlike the post.
-     * @deny (create, delete) - User 'user_xyz' cannot create/delete a like on behalf of 'user_abc'.
-     * @principle Controls likes on forum posts through document existence.
+     * @allow (create) User with ID 'user123' likes a post (creates a like document with ID 'user123').
+     *   - request.auth.uid: 'user123'
+     * @allow (get) Any user can check if a user liked a post.
+     * @allow (list) Any user can list likes on a post.
+     * @deny (create) User with ID 'user123' tries to like a post as 'user456'.
+     *   - request.auth.uid: 'user123'
+     * @deny (update) No user can update a like.
+     * @deny (delete) User with ID 'user123' tries to unlike a post as 'user456'.
+     *   - request.auth.uid: 'user123'
+     * @principle Only the authenticated user can like/unlike a post for themselves.
      */
     match /forumposts/{postId}/likes/{userId} {
-      allow get: if true;
-      allow list: if true;
-      allow create: if request.auth != null && request.auth.uid == userId;
-      allow delete: if request.auth != null && request.auth.uid == userId && resource != null;
+      allow get, list: if true;
+      allow create: if isSignedIn() && userId == request.auth.uid;
       allow update: if false;
+      allow delete: if isSignedIn() && userId == request.auth.uid;
     }
-  }
-
-  // Helper function to determine if the user is signed in.
-  function isSignedIn() {
-    return request.auth != null;
-  }
-
-  // Helper function to determine if the user is the owner of the resource.
-  function isOwner(userId) {
-    return request.auth != null && request.auth.uid == userId;
-  }
-
-  // Helper function to determine if the user is the owner of an existing resource.
-  function isExistingOwner(userId) {
-    return isSignedIn() && request.auth.uid == userId && resource != null;
   }
 }
