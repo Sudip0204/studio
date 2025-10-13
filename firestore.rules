@@ -1,112 +1,100 @@
-/**
- * @file Firestore Security Rules for EcoCity Application
- *
- * @core_philosophy This ruleset prioritizes user data protection and content ownership.
- *  - It enforces strict user-ownership for profile data and allows public read access to forum posts while controlling write access to authorized users.
- *
- * @data_structure
- *  - User profiles are stored under `/users/{userId}`.
- *  - Forum posts are stored in the top-level `/forumposts/{postId}` collection.
- *  - Comments on forum posts are stored in the `/forumposts/{postId}/comments/{commentId}` subcollection.
- *  - Leaderboard entries are stored in the `/leaderboard/{scoreId}` collection.
- *
- * @key_security_decisions
- *  - Users can only read and write their own profile data.
- *  - Forum posts are publicly readable but can only be created by authenticated users.
- *  - Leaderboard scores are publicly readable, but writes are open for prototyping (TODO: Restrict writes).
- *
- * @denormalization_for_authorization N/A
- * @structural_segregation N/A
- */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Controls access to user profile documents.
+     * @description Controls access to user profile data.
      * @path /users/{userId}
-     * @allow (create) - Authenticated user can create their own profile if the userId matches their auth.uid.
-     * @allow (get, list, update, delete) - Authenticated user can only access their own profile.
-     * @deny (create) - If the userId does not match the authenticated user's uid.
-     * @principle Enforces document ownership for user profiles.
+     * @allow (get, list) if isSignedIn() && isOwner(userId);
+     * @allow (create) if isSignedIn() && isOwner(userId) && request.resource.data.email == request.auth.token.email;
+     * @allow (update) if isSignedIn() && isOwner(userId) && resource.data.name == request.resource.data.name && resource.data.email == request.resource.data.email;
+     * @allow (delete) if isSignedIn() && isOwner(userId);
+     * @deny (create) if !isSignedIn();
+     * @deny (update, delete) if !isExistingOwner(userId);
+     * @principle Enforces document ownership for all operations. Ensures only authenticated user can update or delete their own profile.
      */
     match /users/{userId} {
-      function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
-      }
-      function isExistingOwner(userId) {
-          return request.auth != null && request.auth.uid == userId;
-      }
-
-      allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow get: if isSignedIn() && isOwner(userId);
+      allow list: if isSignedIn() && isOwner(userId);
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if isSignedIn() && isOwner(userId);
+      allow delete: if isSignedIn() && isOwner(userId);
     }
 
     /**
-     * @description Controls access to forum post documents.
+     * @description Manages access to community forum posts.
      * @path /forumposts/{postId}
-     * @allow (get, list) - Anyone can read the forum posts.
-     * @allow (create) - Authenticated users can create forum posts, ensuring that authorId matches auth.uid.
-     * @allow (update, delete) - Only the author of the post can update or delete it.
-     * @deny (create) - If the authorId does not match the authenticated user's uid.
-     * @principle Allows public read access to forum posts, but restricts write access to the author.
+     * @allow (get, list) if true;
+     * @allow (create) if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+     * @allow (update) if isSignedIn() && isAuthor(resource.data.authorId);
+     * @allow (delete) if isSignedIn() && isAuthor(resource.data.authorId);
+     * @deny (create) if !isSignedIn();
+     * @deny (update, delete) if !isSignedIn() || resource == null || request.resource.data.authorId != resource.data.authorId;
+     * @principle Allows public read access while restricting write access to the author.
      */
     match /forumposts/{postId} {
-      function isSignedIn() {
-        return request.auth != null;
-      }
-      function isOwner() {
-        return request.auth != null && request.auth.uid == resource.data.authorId;
-      }
-      function isNewOwner() {
-        return request.auth != null && request.auth.uid == request.resource.data.authorId;
-      }
-
-      allow get, list: if true;
-      allow create: if isSignedIn() && isNewOwner();
-      allow update: if isSignedIn() && isOwner();
-      allow delete: if isSignedIn() && isOwner();
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+      allow update: if isSignedIn() && request.resource.data.authorId == resource.data.authorId && request.auth.uid == resource.data.authorId;
+      allow delete: if isSignedIn() && request.resource.data.authorId == resource.data.authorId && request.auth.uid == resource.data.authorId;
     }
 
     /**
      * @description Controls access to comments on forum posts.
      * @path /forumposts/{postId}/comments/{commentId}
-     * @allow (get, list) - Anyone can read the comments on forum posts.
-     * @allow (create) - Authenticated users can create comments, ensuring that authorId matches auth.uid.
-     * @allow (update, delete) - Only the author of the comment can update or delete it.
-     * @deny (create) - If the authorId does not match the authenticated user's uid.
-     * @principle Allows public read access to comments, but restricts write access to the author.
+     * @allow (get, list) if true;
+     * @allow (create) if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+     * @allow (update) if isSignedIn() && isAuthor(resource.data.authorId);
+     * @allow (delete) if isSignedIn() && isAuthor(resource.data.authorId);
+     * @deny (create) if !isSignedIn();
+     * @deny (update, delete) if !isSignedIn() || resource == null || request.resource.data.authorId != resource.data.authorId;
+     * @principle Allows public read access while restricting write access to the comment author.
      */
     match /forumposts/{postId}/comments/{commentId} {
-      function isSignedIn() {
-        return request.auth != null;
-      }
-      function isOwner() {
-        return request.auth != null && request.auth.uid == resource.data.authorId;
-      }
-       function isNewOwner() {
-        return request.auth != null && request.auth.uid == request.resource.data.authorId;
-      }
-
-      allow get, list: if true;
-      allow create: if isSignedIn() && isNewOwner();
-      allow update: if isSignedIn() && isOwner();
-      allow delete: if isSignedIn() && isOwner();
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+      allow update: if isSignedIn() && request.resource.data.authorId == resource.data.authorId && request.auth.uid == resource.data.authorId;
+      allow delete: if isSignedIn() && request.resource.data.authorId == resource.data.authorId && request.auth.uid == resource.data.authorId;
     }
 
     /**
-     * @description Controls access to leaderboard entries.
+     * @description Manages access to the Eco-Runner leaderboard.
      * @path /leaderboard/{scoreId}
-     * @allow (get, list) - Anyone can read the leaderboard.
-     * @allow (create, update, delete) - All creates, updates, deletes are currently allowed.
-     * @principle Allows public read access to the leaderboard and open writes for prototyping. TODO: Restrict writes.
+     * @allow get: if true;
+     * @allow list: if true;
+     * @allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+     * @allow update: if false; // Leaderboard entries should not be updated.
+     * @allow delete: if false; // Leaderboard entries should not be deleted.
+     * @deny create: if !isSignedIn();
      */
     match /leaderboard/{scoreId} {
-        allow get, list: if true;
-        allow create, update, delete: if true; // TODO: Add write validation to restrict leaderboard submissions.
+      allow get: if true;
+      allow list: if true;
+      allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid;
+      allow update: if false; // Leaderboard entries should not be updated.
+      allow delete: if false; // Leaderboard entries should not be deleted.
     }
+  }
+
+  // Helper function to determine if the user is signed in.
+  function isSignedIn() {
+    return request.auth != null;
+  }
+
+  // Helper function to determine if the user is the owner of the resource.
+  function isOwner(userId) {
+    return request.auth.uid == userId;
+  }
+
+  // Helper function to determine if the user is the author of the resource.
+  function isAuthor(authorId) {
+      return request.auth.uid == resource.data.authorId;
+  }
+
+    // Helper function to determine if the user is the owner of the resource and the resource exists.
+  function isExistingOwner(userId) {
+    return isSignedIn() && isOwner(userId) && resource != null;
   }
 }
