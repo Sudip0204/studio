@@ -7,309 +7,48 @@
       "type": "object",
       "description": "Represents a product listing in the marketplace.",
       "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the product."
-        },
-        "name": {
-          "type": "string",
-          "description": "Name of the product."
-        },
-        "description": {
-          "type": "string",
-          "description": "Description of the product."
-        },
-        "price": {
-          "type": "number",
-          "description": "Price of the product."
-        },
-        "category": {
-          "type": "string",
-          "description": "Category of the product."
-        },
-        "condition": {
-          "type": "string",
-          "description": "Condition of the product (e.g., New, Used, Refurbished)."
-        },
-        "imageUrl": {
-          "type": "string",
-          "description": "URL of the product image."
-        },
-        "sellerId": {
-          "type": "string",
-          "description": "ID of the user selling the product."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Timestamp when the product was listed."
-        }
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "category": { "type": "string" },
+        "condition": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "sellerId": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "id",
-        "name",
-        "description",
-        "price",
-        "category",
-        "condition",
-        "imageUrl",
-        "sellerId",
-        "createdAt"
-      ]
+      "required": ["id", "name", "price", "sellerId", "createdAt"]
     },
     "UserProfile": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "UserProfile",
       "type": "object",
-      "description": "Represents a user profile in the EcoCity application, including game stats.",
+      "description": "Represents a user profile in the EcoCity application.",
       "properties": {
-        "name": {
-          "type": "string",
-          "description": "User's full name."
-        },
-        "email": {
-          "type": "string",
-          "description": "User's email address.",
-          "format": "email"
-        },
-        "photoURL": {
-          "type": "string",
-          "format": "uri",
-          "description": "URL of the user's profile picture."
-        },
-        "ecoPoints": {
-          "type": "number",
-          "description": "Number of eco-points the user has earned."
-        },
-        "level": {
-          "type": "string",
-          "description": "User's level in the EcoCity rewards program."
-        },
-        "highestScore": {
-          "type": "number",
-          "description": "The user's personal best score in Eco-Runner."
-        },
-        "lastRunScore": {
-          "type": "number",
-          "description": "The score of the most recently submitted game run."
-        },
-        "lastRunTimestamp": {
-          "type": "string",
-          "format": "date-time",
-          "description": "Timestamp of the last submitted game run."
-        },
-        "totalWasteCollected": {
-          "type": "object",
-          "description": "Cumulative waste collected across all Eco-Runner runs.",
-          "properties": {
-            "plastic": {
-              "type": "number"
-            },
-            "cans": {
-              "type": "number"
-            },
-            "paper": {
-              "type": "number"
-            },
-            "organic": {
-              "type": "number"
-            }
-          }
-        }
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "phoneNumber": { "type": "string" },
+        "photoURL": { "type": "string", "format": "uri" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "rewardPoints": { "type": "number" }
       },
-      "required": [
-        "name",
-        "email"
-      ]
-    },
-    "MarketplaceListing": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "MarketplaceListing",
-      "type": "object",
-      "description": "Represents a listing in the EcoCity marketplace.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the marketplace listing."
-        },
-        "details": {
-          "type": "string",
-          "description": "Details of product."
-        },
-        "sellerId": {
-          "type": "string",
-          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N MarketplaceListing)"
-        },
-        "images": {
-          "type": "array",
-          "description": "URLs of images for the product.",
-          "items": {
-            "type": "string"
-          }
-        },
-        "category": {
-          "type": "string",
-          "description": "Category of the product."
-        },
-        "title": {
-          "type": "string",
-          "description": "Title of the product."
-        },
-        "description": {
-          "type": "string",
-          "description": "Description of product."
-        },
-        "price": {
-          "type": "number",
-          "description": "Price of product."
-        },
-        "condition": {
-          "type": "string",
-          "description": "Condition of the product."
-        }
-      },
-      "required": [
-        "id",
-        "sellerId",
-        "category",
-        "title",
-        "description",
-        "price",
-        "condition"
-      ]
-    },
-    "RecyclingCenter": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "RecyclingCenter",
-      "type": "object",
-      "description": "Represents a recycling center in the EcoCity application.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the recycling center."
-        },
-        "name": {
-          "type": "string",
-          "description": "Name of the recycling center."
-        },
-        "address": {
-          "type": "string",
-          "description": "Address of the recycling center."
-        },
-        "coordinates": {
-          "type": "string",
-          "description": "Coordinates of the recycling center."
-        },
-        "acceptedWasteTypes": {
-          "type": "array",
-          "description": "Types of waste accepted at the recycling center.",
-          "items": {
-            "type": "string"
-          }
-        },
-        "operatingHours": {
-          "type": "string",
-          "description": "Operating hours of the recycling center."
-        }
-      },
-      "required": [
-        "id",
-        "name",
-        "address",
-        "coordinates",
-        "acceptedWasteTypes",
-        "operatingHours"
-      ]
-    },
-    "Reward": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "Reward",
-      "type": "object",
-      "description": "Represents a reward in the EcoCity rewards program.",
-      "properties": {
-        "id": {
-          "type": "string",
-          "description": "Unique identifier for the reward."
-        },
-        "userId": {
-          "type": "string",
-          "description": "Reference to UserProfile. (Relationship: UserProfile 1:N Reward)"
-        },
-        "ecoPointsBalance": {
-          "type": "number",
-          "description": "Eco-points balance of the user."
-        },
-        "transactionHistory": {
-          "type": "array",
-          "description": "Transaction history of the user.",
-          "items": {
-            "type": "string"
-          }
-        },
-        "leaderboardRank": {
-          "type": "number",
-          "description": "Leaderboard rank of the user."
-        }
-      },
-      "required": [
-        "id",
-        "userId",
-        "ecoPointsBalance",
-        "transactionHistory",
-        "leaderboardRank"
-      ]
+      "required": ["name", "email"]
     },
     "ForumPost": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "ForumPost",
       "type": "object",
-      "description": "Represents a post in the EcoCity forum.",
+      "description": "Represents a post in the community forum.",
       "properties": {
-        "authorId": {
-          "type": "string",
-          "description": "The ID of the user who created the post. (Relationship: UserProfile 1:N ForumPost)"
-        },
-        "content": {
-          "type": "string",
-          "description": "The text content of the forum post."
-        },
-        "imageUrl": {
-          "type": "string",
-          "format": "uri",
-          "description": "An optional URL for an image attached to the post."
-        },
-        "mediaUrl": {
-          "type": "string",
-          "format": "uri",
-          "description": "An optional URL for an image or video attached to the post."
-        },
-        "mediaType": {
-          "type": "string",
-          "enum": [
-            "image",
-            "video"
-          ],
-          "description": "The type of media attached, if any."
-        },
-        "likeCount": {
-          "type": "number",
-          "description": "The number of likes the post has received."
-        },
-        "commentCount": {
-          "type": "number",
-          "description": "The number of comments the post has received."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "The timestamp when the post was created."
-        }
+        "authorId": { "type": "string" },
+        "content": { "type": "string" },
+        "imageUrl": { "type": "string", "format": "uri" },
+        "likes": { "type": "array", "items": { "type": "string" } },
+        "likeCount": { "type": "number" },
+        "commentCount": { "type": "number" },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "authorId",
-        "content",
-        "createdAt"
-      ]
+      "required": ["authorId", "content", "createdAt"]
     },
     "PostComment": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -317,40 +56,22 @@
       "type": "object",
       "description": "Represents a comment on a forum post.",
       "properties": {
-        "authorId": {
-          "type": "string",
-          "description": "The ID of the user who wrote the comment. (Relationship: UserProfile 1:N PostComment)"
-        },
-        "content": {
-          "type": "string",
-          "description": "The text content of the comment."
-        },
-        "createdAt": {
-          "type": "string",
-          "format": "date-time",
-          "description": "The timestamp when the comment was created."
-        }
+        "authorId": { "type": "string" },
+        "content": { "type": "string" },
+        "likes": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "authorId",
-        "content",
-        "createdAt"
-      ]
+      "required": ["authorId", "content", "createdAt"]
     },
     "PostLike": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "PostLike",
       "type": "object",
-      "description": "Represents a like on a forum post. The existence of a document signifies a like.",
+      "description": "Represents a like on a forum post or comment. The existence of a document signifies a like.",
       "properties": {
-        "userId": {
-          "type": "string",
-          "description": "The ID of the user who liked the post."
-        }
+        "userId": { "type": "string" }
       },
-      "required": [
-        "userId"
-      ]
+      "required": ["userId"]
     },
     "LeaderboardEntry": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -358,116 +79,44 @@
       "type": "object",
       "description": "Represents a single high-score submission for the Eco-Runner leaderboard.",
       "properties": {
-        "userId": {
-          "type": "string",
-          "description": "The user ID who achieved this score."
-        },
-        "username": {
-          "type": "string",
-          "description": "The user's displayed name (denormalized)."
-        },
-        "score": {
-          "type": "number",
-          "description": "The verifiable score achieved in that run."
-        },
-        "timestamp": {
-          "type": "string",
-          "format": "date-time",
-          "description": "When the score was achieved."
-        }
+        "userId": { "type": "string" },
+        "username": { "type": "string" },
+        "score": { "type": "number" },
+        "timestamp": { "type": "string", "format": "date-time" }
       },
-      "required": [
-        "userId",
-        "username",
-        "score",
-        "timestamp"
-      ]
+      "required": ["userId", "username", "score", "timestamp"]
     }
   },
   "auth": {
-    "providers": [
-      "password"
-    ]
+    "providers": ["password", "google.com"]
   },
   "firestore": {
     "structure": [
       {
         "path": "/users/{userId}",
         "definition": {
-          "entityName": "UserProfile",
-          "schema": {
-            "$ref": "#/backend/entities/UserProfile"
-          },
-          "description": "Collection for storing user profiles and game stats."
-        }
-      },
-      {
-        "path": "/products/{productId}",
-        "definition": {
-          "entityName": "Product",
-          "schema": {
-            "$ref": "#/backend/entities/Product"
-          },
-          "description": "Collection for storing marketplace product listings."
-        }
-      },
-      {
-        "path": "/recyclingcenters/{recyclingcenterId}",
-        "definition": {
-          "entityName": "RecyclingCenter",
-          "schema": {
-            "$ref": "#/backend/entities/RecyclingCenter"
-          },
-          "description": "Collection for storing recycling center data."
-        }
-      },
-      {
-        "path": "/users/{userId}/rewards/{rewardId}",
-        "definition": {
-          "entityName": "Reward",
-          "schema": {
-            "$ref": "#/backend/entities/Reward"
-          },
-          "description": "Subcollection for storing user rewards."
+          "schema": { "$ref": "#/entities/UserProfile" },
+          "description": "Stores user profiles and application-specific data."
         }
       },
       {
         "path": "/forumposts/{postId}",
         "definition": {
-          "entityName": "ForumPost",
-          "schema": {
-            "$ref": "#/backend/entities/ForumPost"
-          },
-          "description": "Collection for storing all forum posts."
+          "schema": { "$ref": "#/entities/ForumPost" },
+          "description": "Top-level collection for all community forum posts."
         }
       },
       {
         "path": "/forumposts/{postId}/comments/{commentId}",
         "definition": {
-          "entityName": "PostComment",
-          "schema": {
-            "$ref": "#/backend/entities/PostComment"
-          },
-          "description": "Subcollection for storing comments on a specific forum post."
-        }
-      },
-      {
-        "path": "/forumposts/{postId}/likes/{userId}",
-        "definition": {
-          "entityName": "PostLike",
-          "schema": {
-            "$ref": "#/backend/entities/PostLike"
-          },
-          "description": "Subcollection for storing likes on a post. The document ID is the ID of the user who liked it."
+          "schema": { "$ref": "#/entities/PostComment" },
+          "description": "Subcollection for comments on a specific forum post."
         }
       },
       {
         "path": "/leaderboard/{scoreId}",
         "definition": {
-          "entityName": "LeaderboardEntry",
-          "schema": {
-            "$ref": "#/backend/entities/LeaderboardEntry"
-          },
+          "schema": { "$ref": "#/entities/LeaderboardEntry" },
           "description": "Collection for storing Eco-Runner high scores."
         }
       }
