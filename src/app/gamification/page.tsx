@@ -93,7 +93,7 @@ export default function GamificationPage() {
   return (
     <div className="container mx-auto py-12 px-4 flex justify-center items-center min-h-[80vh]">
       <Card className="w-full max-w-sm sm:max-w-md md:max-w-lg overflow-hidden shadow-2xl bg-muted/30">
-        <div className="relative aspect-[6/13] w-full bg-gray-900 flex items-center justify-center">
+        <div className="relative aspect-[6/10] w-full bg-gray-900 flex items-center justify-center">
             {renderScreen()}
         </div>
       </Card>
@@ -350,6 +350,8 @@ function HowToPlayScreen({ onBack }: any) {
     </div>
   );
 }
+
+    
 
     
 
