@@ -1,8 +1,9 @@
 
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import Image from 'next/image';
+import { useRouter } from 'next/navigation';
 import {
   Avatar,
   AvatarFallback,
@@ -336,9 +337,16 @@ function CreatePostForm({ onPostCreated }: { onPostCreated: () => void }) {
 }
 
 export default function ForumPage() {
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
+  const router = useRouter();
   const [isCreatePostOpen, setIsCreatePostOpen] = useState(false);
+
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
 
   const { usersMap, isLoadingUsers } = useUsersMap();
   const { posts, isLoadingPosts } = useForumPosts();
@@ -362,7 +370,15 @@ export default function ForumPage() {
   };
 
 
-  const isLoading = isLoadingUsers || isLoadingPosts || isLoadingLikes;
+  const isLoading = isLoadingUsers || isLoadingPosts || isLoadingLikes || isUserLoading;
+
+  if (isLoading || !user) {
+    return (
+      <div className="container mx-auto max-w-2xl py-8 px-4 flex justify-center items-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto max-w-2xl py-8 px-4">
@@ -377,12 +393,6 @@ export default function ForumPage() {
                     <CreatePostForm onPostCreated={() => {}} />
                 </CardContent>
             </Card>
-        )}
-        
-        {isLoading && (
-            <div className="flex justify-center items-center py-10">
-                <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            </div>
         )}
         
         {!isLoading && combinedPosts.length === 0 && (
@@ -417,5 +427,3 @@ export default function ForumPage() {
     </div>
   );
 }
-
-    
