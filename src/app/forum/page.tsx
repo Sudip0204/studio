@@ -135,6 +135,7 @@ function PostCard({ post, isCurrentUser, author }: { post: ForumPost & { id: str
   useEffect(() => {
     if (post.createdAt) {
       const postDate = post.createdAt instanceof Timestamp ? post.createdAt.toDate() : new Date();
+      // This will only run on the client, preventing hydration mismatch
       setFormattedDate(postDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
     }
   }, [post.createdAt]);
@@ -213,14 +214,14 @@ function MessageComposer() {
         imageUrl = await uploadImageMock(imageFile);
       }
 
-      const postData: any = {
+      const postData: Omit<ForumPost, 'id' | 'createdAt'> & { createdAt: any } = {
         authorId: user.uid,
         content: content,
-        createdAt: serverTimestamp(),
         likeCount: 0,
         commentCount: 0,
+        createdAt: serverTimestamp(),
       };
-
+      
       if (imageUrl) {
         postData.imageUrl = imageUrl;
       }
@@ -322,7 +323,8 @@ export default function ForumPage() {
     }
   }, [posts, authors]);
 
-  const displayPosts = posts && posts.length > 0 ? posts : samplePosts;
+  const displayPosts = (posts && posts.length > 0) ? posts : samplePosts;
+  const showSamplePosts = !posts || posts.length === 0;
 
   return (
     <div className="container mx-auto py-12 px-4 flex justify-center">
@@ -341,15 +343,23 @@ export default function ForumPage() {
                         <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     </div>
                 )}
-                {!isLoading && displayPosts.map(post => (
-                    <PostCard 
+                {!isLoading && showSamplePosts && samplePosts.map(post => (
+                     <PostCard 
                       key={post.id} 
                       post={post} 
                       isCurrentUser={user?.uid === post.authorId}
                       author={(post as any).author || authors[post.authorId]}
                     />
                 ))}
-                 {!isLoading && displayPosts.length === 0 && (
+                {!isLoading && !showSamplePosts && posts?.map(post => (
+                    <PostCard 
+                      key={post.id} 
+                      post={post} 
+                      isCurrentUser={user?.uid === post.authorId}
+                      author={authors[post.authorId]}
+                    />
+                ))}
+                 {!isLoading && showSamplePosts && (
                     <div className="text-center text-muted-foreground pt-16">
                         <p>No messages yet. Be the first to start a conversation!</p>
                     </div>
