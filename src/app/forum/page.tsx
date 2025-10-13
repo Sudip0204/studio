@@ -1,9 +1,9 @@
 
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import Image from 'next/image';
-import { useUser, useAuth, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useUser, useFirestore, useCollection, useDoc, useMemoFirebase } from '@/firebase';
 import { addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,12 +16,25 @@ import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 
-// Combine Post with Author Info
-type PostWithAuthor = ForumPost & {
-  author: UserProfile | null;
-};
+// This component fetches the author's data based on authorId
+function PostAuthor({ authorId }: { authorId: string }) {
+    const firestore = useFirestore();
+    const authorRef = useMemoFirebase(() => doc(firestore, 'users', authorId), [firestore, authorId]);
+    const { data: author } = useDoc<UserProfile>(authorRef);
 
-function PostCard({ post, isCurrentUser, author }: { post: ForumPost; isCurrentUser: boolean; author: UserProfile | null }) {
+    return (
+        <div className="flex items-center gap-2">
+            <Avatar className="h-10 w-10">
+                <AvatarImage src={author?.photoURL || undefined} alt={author?.name || ''} />
+                <AvatarFallback>{author?.name?.[0].toUpperCase() || 'U'}</AvatarFallback>
+            </Avatar>
+            <p className="font-semibold text-sm">{author?.name || 'Eco-Warrior'}</p>
+        </div>
+    );
+}
+
+
+function PostCard({ post, isCurrentUser }: { post: ForumPost; isCurrentUser: boolean; }) {
   const [formattedDate, setFormattedDate] = useState('');
   const firestore = useFirestore();
   const { user } = useUser();
@@ -48,13 +61,17 @@ function PostCard({ post, isCurrentUser, author }: { post: ForumPost; isCurrentU
 
   return (
     <div className={`flex items-start gap-3 my-4 ${isCurrentUser ? 'flex-row-reverse' : ''}`}>
-      <Avatar className="h-10 w-10">
-        <AvatarImage src={author?.photoURL || undefined} alt={author?.name || ''} />
-        <AvatarFallback>{author?.name?.[0].toUpperCase() || 'U'}</AvatarFallback>
-      </Avatar>
+       {isCurrentUser ? (
+         <Avatar className="h-10 w-10">
+            <AvatarImage src={user?.photoURL || undefined} alt={user?.displayName || ''} />
+            <AvatarFallback>{user?.displayName?.[0].toUpperCase() || 'U'}</AvatarFallback>
+        </Avatar>
+       ) : (
+        <PostAuthor authorId={post.authorId} />
+       )}
       <div className={`max-w-xl rounded-lg p-3 ${isCurrentUser ? 'bg-primary text-primary-foreground' : 'bg-muted'}`}>
         <div className="flex items-center gap-2">
-          <p className="font-semibold text-sm">{isCurrentUser ? 'You' : author?.name}</p>
+          {isCurrentUser && <p className="font-semibold text-sm">You</p>}
         </div>
         {post.content && <p className="text-sm mt-1">{post.content}</p>}
         {post.imageUrl && (
@@ -192,11 +209,10 @@ function MessageComposer() {
   );
 }
 
-const samplePosts: PostWithAuthor[] = [
+const samplePosts: ForumPost[] = [
     {
         id: 'sample1',
         authorId: 'user1',
-        author: { id: 'user1', name: 'Eco Warrior Alex', email: 'alex@example.com', photoURL: 'https://i.pravatar.cc/150?u=user1' },
         content: 'Just organized a weekend cleanup drive at our local park. We collected over 50kg of plastic waste! Small steps make a big difference. Who wants to join the next one?',
         createdAt: new Date(Date.now() - 1000 * 60 * 30),
         likeCount: 15,
@@ -206,7 +222,6 @@ const samplePosts: PostWithAuthor[] = [
     {
         id: 'sample2',
         authorId: 'user2',
-        author: { id: 'user2', name: 'Green Thumb Priya', email: 'priya@example.com', photoURL: 'https://i.pravatar.cc/150?u=user2' },
         content: 'My compost bin is finally producing rich fertilizer! Any tips for using it effectively in a small apartment garden?',
         createdAt: new Date(Date.now() - 1000 * 60 * 60 * 2),
         likeCount: 22,
@@ -216,7 +231,6 @@ const samplePosts: PostWithAuthor[] = [
     {
         id: 'sample3',
         authorId: 'user3',
-        author: { id: 'user3', name: 'Recycle Guru Sam', email: 'sam@example.com', photoURL: 'https://i.pravatar.cc/150?u=user3' },
         content: "Blog Post: '5 Creative Ways to Upcycle Your Glass Jars'. Check it out and share your own ideas! I've turned mine into herb planters and candle holders.",
         imageUrl: 'https://picsum.photos/seed/glassjars/600/400',
         createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24),
@@ -227,7 +241,6 @@ const samplePosts: PostWithAuthor[] = [
      {
         id: 'sample4',
         authorId: 'user4',
-        author: { id: 'user4', name: 'Campaign Carla', email: 'carla@example.com', photoURL: 'https://i.pravatar.cc/150?u=user4' },
         content: "Let's start a campaign to get local cafes to offer discounts for reusable cups! Who's with me? #BringYourOwnCup",
         createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48),
         likeCount: 78,
@@ -247,26 +260,11 @@ export default function ForumPage() {
   );
   const { data: posts, isLoading } = useCollection<ForumPost>(postsQuery);
 
-  const usersQuery = useMemoFirebase(
-    () => collection(firestore, 'users'),
-    [firestore]
-  );
-  const { data: users } = useCollection<UserProfile>(usersQuery);
-
-  const postsWithAuthors = useMemoFirebase(() => {
-    if (!posts || !users) return null;
-    return posts.map(post => ({
-      ...post,
-      author: users.find(u => u.id === post.authorId) || null,
-    }));
-  }, [posts, users]);
-
-
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [postsWithAuthors]);
+  }, [posts]);
   
-  const displayPosts = (postsWithAuthors && postsWithAuthors.length > 0) ? postsWithAuthors : samplePosts;
+  const displayPosts = (posts && posts.length > 0) ? posts : samplePosts;
 
   return (
     <div className="container mx-auto py-12 px-4 flex justify-center">
@@ -276,14 +274,14 @@ export default function ForumPage() {
           <CardDescription>Share, learn, and connect with fellow eco-warriors.</CardDescription>
         </CardHeader>
         <div className="flex-1 overflow-y-auto p-4">
-          {isLoading && !postsWithAuthors ? (
+          {isLoading && !posts ? (
             <div className="flex justify-center items-center h-full">
               <Loader2 className="h-8 w-8 animate-spin text-primary" />
             </div>
           ) : (
             <>
               {displayPosts.map(post => (
-                <PostCard key={post.id} post={post} isCurrentUser={user?.uid === post.authorId} author={post.author}/>
+                <PostCard key={post.id} post={post} isCurrentUser={user?.uid === post.authorId} />
               ))}
               <div ref={messagesEndRef} />
             </>
