@@ -1,13 +1,13 @@
 
 "use client";
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Crown, Play, Trophy, HelpCircle, Power, Loader2, Star, Shield, Repeat, Gift } from 'lucide-react';
+import { Crown, Play, Trophy, HelpCircle, Power, Loader2, Star, Shield, Repeat, Gift, Maximize, Minimize } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Table,
@@ -45,6 +45,9 @@ export default function GamificationPage() {
   const [screen, setScreen] = useState<GameScreen>('main-menu');
   const [lastScore, setLastScore] = useState(0);
   const [isNewHighScore, setIsNewHighScore] = useState(false);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const gameContainerRef = useRef<HTMLDivElement>(null);
+
   
   // A mock function to simulate ending a game
   const handleGameOver = () => {
@@ -58,6 +61,27 @@ export default function GamificationPage() {
     }
     setScreen('game-over');
   };
+
+  const toggleFullScreen = () => {
+    const elem = gameContainerRef.current;
+    if (!elem) return;
+
+    if (!document.fullscreenElement) {
+      elem.requestFullscreen().catch(err => {
+        alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFullscreenChange);
+    return () => document.removeEventListener('fullscreenchange', handleFullscreenChange);
+  }, []);
   
   const renderScreen = () => {
     switch(screen) {
@@ -93,8 +117,17 @@ export default function GamificationPage() {
   return (
     <div className="container mx-auto py-12 px-4 flex justify-center items-center min-h-[80vh]">
       <Card className="w-full max-w-sm sm:max-w-md md:max-w-lg overflow-hidden shadow-2xl bg-muted/30">
-        <div className="relative aspect-[5/8] w-full bg-gray-900 flex items-center justify-center">
+        <div ref={gameContainerRef} className="relative aspect-[5/8] w-full bg-gray-900 flex items-center justify-center">
             {renderScreen()}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute bottom-4 right-4 text-white z-20 hover:bg-white/20"
+              onClick={toggleFullScreen}
+              aria-label="Toggle fullscreen"
+            >
+              {isFullscreen ? <Minimize className="h-6 w-6" /> : <Maximize className="h-6 w-6" />}
+            </Button>
         </div>
       </Card>
     </div>
@@ -161,7 +194,7 @@ function InGameUI({ onGameOver }: { onGameOver: () => void }) {
                 </div>
             </div>
              {/* This button is for simulation purposes to end the game */}
-            <div className="absolute bottom-4 right-4">
+            <div className="absolute bottom-4 left-4 z-20">
                  <Button onClick={onGameOver}>Simulate Game Over</Button>
             </div>
         </div>
@@ -356,3 +389,4 @@ function HowToPlayScreen({ onBack }: any) {
     
 
     
+
