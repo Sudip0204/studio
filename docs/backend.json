@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "Product": {
@@ -61,11 +60,11 @@
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "UserProfile",
       "type": "object",
-      "description": "Represents a user profile in the EcoCity application.",
+      "description": "Represents a user profile in the EcoCity application, including game stats.",
       "properties": {
         "id": {
           "type": "string",
-          "description": "Unique identifier for the user profile."
+          "description": "Unique identifier for the user profile, matching Firebase Auth UID."
         },
         "name": {
           "type": "string",
@@ -88,6 +87,37 @@
         "level": {
           "type": "string",
           "description": "User's level in the EcoCity rewards program."
+        },
+        "highestScore": {
+          "type": "number",
+          "description": "The user's personal best score in Eco-Runner."
+        },
+        "lastRunScore": {
+          "type": "number",
+          "description": "The score of the most recently submitted game run."
+        },
+        "lastRunTimestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Timestamp of the last submitted game run."
+        },
+        "totalWasteCollected": {
+          "type": "object",
+          "description": "Cumulative waste collected across all Eco-Runner runs.",
+          "properties": {
+            "plastic": {
+              "type": "number"
+            },
+            "cans": {
+              "type": "number"
+            },
+            "paper": {
+              "type": "number"
+            },
+            "organic": {
+              "type": "number"
+            }
+          }
         }
       },
       "required": [
@@ -253,7 +283,10 @@
         },
         "mediaType": {
           "type": "string",
-          "enum": ["image", "video"],
+          "enum": [
+            "image",
+            "video"
+          ],
           "description": "The type of media attached, if any."
         },
         "likeCount": {
@@ -316,6 +349,37 @@
       "required": [
         "userId"
       ]
+    },
+    "LeaderboardEntry": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "LeaderboardEntry",
+      "type": "object",
+      "description": "Represents a single high-score submission for the Eco-Runner leaderboard.",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The user ID who achieved this score."
+        },
+        "username": {
+          "type": "string",
+          "description": "The user's displayed name (denormalized)."
+        },
+        "score": {
+          "type": "number",
+          "description": "The verifiable score achieved in that run."
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "When the score was achieved."
+        }
+      },
+      "required": [
+        "userId",
+        "username",
+        "score",
+        "timestamp"
+      ]
     }
   },
   "auth": {
@@ -332,7 +396,7 @@
           "schema": {
             "$ref": "#/backend/entities/UserProfile"
           },
-          "description": "Collection for storing user profiles."
+          "description": "Collection for storing user profiles and game stats."
         }
       },
       {
@@ -394,9 +458,17 @@
           },
           "description": "Subcollection for storing likes on a post. The document ID is the ID of the user who liked it."
         }
+      },
+      {
+        "path": "/leaderboard/{scoreId}",
+        "definition": {
+          "entityName": "LeaderboardEntry",
+          "schema": {
+            "$ref": "#/backend/entities/LeaderboardEntry"
+          },
+          "description": "Collection for storing Eco-Runner high scores."
+        }
       }
     ]
   }
 }
-
-    
