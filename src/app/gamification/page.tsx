@@ -1,12 +1,13 @@
+
 "use client";
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import Image from 'next/image';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Crown, Play, Trophy, HelpCircle, Power, Loader2, Star, Shield, Repeat } from 'lucide-react';
+import { Crown, Play, Trophy, HelpCircle, Power, Loader2, Star, Shield, Repeat, Gift } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import {
   Table,
@@ -22,18 +23,20 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import { collection, query, orderBy, limit } from 'firebase/firestore';
+import type { LeaderboardEntry } from '@/lib/types';
 
 
 type GameScreen = "main-menu" | "in-game" | "game-over" | "leaderboard" | "how-to-play";
 
 const placeholderLeaderboard = [
-  { rank: 1, name: "EcoWarrior", score: 156780, avatar: "https://picsum.photos/seed/leader1/40/40" },
-  { rank: 2, name: "RecycleQueen", score: 149230, avatar: "https://picsum.photos/seed/leader2/40/40" },
-  { rank: 3, name: "GreenNinja", score: 148500, avatar: "https://picsum.photos/seed/leader3/40/40" },
-  { rank: 4, name: "You", score: 125480, avatar: "https://picsum.photos/seed/you/40/40" },
-  { rank: 5, name: "TrashTornado", score: 110950, avatar: "https://picsum.photos/seed/leader5/40/40" },
-  { rank: 6, name: "CaptainPlanet", score: 98760, avatar: "https://picsum.photos/seed/leader6/40/40" },
-  { rank: 7, name: "EnviroGirl", score: 95430, avatar: "https://picsum.photos/seed/leader7/40/40" },
+  { rank: 1, username: "EcoWarrior", score: 156780, avatar: "https://picsum.photos/seed/leader1/40/40" },
+  { rank: 2, username: "RecycleQueen", score: 149230, avatar: "https://picsum.photos/seed/leader2/40/40" },
+  { rank: 3, username: "GreenNinja", score: 148500, avatar: "https://picsum.photos/seed/leader3/40/40" },
+  { rank: 4, username: "You", score: 125480, avatar: "https://picsum.photos/seed/you/40/40" },
+  { rank: 5, username: "TrashTornado", score: 110950, avatar: "https://picsum.photos/seed/leader5/40/40" },
+  { rank: 6, username: "CaptainPlanet", score: 98760, avatar: "https://picsum.photos/seed/leader6/40/40" },
+  { rank: 7, username: "EnviroGirl", score: 95430, avatar: "https://picsum.photos/seed/leader7/40/40" },
 ];
 
 
@@ -89,8 +92,8 @@ export default function GamificationPage() {
 
   return (
     <div className="container mx-auto py-12 px-4 flex justify-center items-center min-h-[80vh]">
-      <Card className="w-full max-w-lg md:max-w-xl lg:max-w-2xl overflow-hidden shadow-2xl bg-muted/30">
-        <div className="relative aspect-[9/16] md:aspect-video w-full bg-gray-900 flex items-center justify-center">
+      <Card className="w-full max-w-sm sm:max-w-md md:max-w-lg overflow-hidden shadow-2xl bg-muted/30">
+        <div className="relative aspect-[9/16] w-full bg-gray-900 flex items-center justify-center">
             {renderScreen()}
         </div>
       </Card>
@@ -112,7 +115,7 @@ function MainMenu({ user, isUserLoading, onPlay, onLeaderboard, onHowToPlay }: a
                     <Play className="mr-2"/> PLAY
                 </Button>
                 <Button onClick={onLeaderboard} size="lg" variant="secondary" className="w-full text-lg py-6">
-                    <Trophy className="mr-2"/> LEADERBOARD
+                    <Trophy className="mr-2"/> LEADERBOARD & REWARDS
                 </Button>
                  <Button onClick={onHowToPlay} size="lg" variant="secondary" className="w-full text-lg py-6">
                     <HelpCircle className="mr-2"/> HOW TO PLAY
@@ -181,7 +184,7 @@ function GameOverScreen({ score, isNewHighScore, onPlayAgain, onMainMenu }: any)
         </Card>
         
         <div className="mt-8 space-y-4 w-full max-w-sm">
-            <Button onClick={() => alert("Score Submitted!")} size="lg" className="w-full text-lg py-6 bg-blue-500 hover:bg-blue-600">
+            <Button onClick={() => alert("This would call the 'submitGameScore' Cloud Function.")} size="lg" className="w-full text-lg py-6 bg-blue-500 hover:bg-blue-600">
                 <Trophy className="mr-2"/> SUBMIT SCORE
             </Button>
              <Button onClick={onPlayAgain} size="lg" className="w-full text-lg py-6 bg-green-500 hover:bg-green-600">
@@ -196,6 +199,17 @@ function GameOverScreen({ score, isNewHighScore, onPlayAgain, onMainMenu }: any)
 }
 
 function LeaderboardScreen({ onBack }: any) {
+  const firestore = useFirestore();
+  const { user } = useUser();
+
+  const leaderboardQuery = useMemoFirebase(() => 
+    query(collection(firestore, 'leaderboard'), orderBy('score', 'desc'), limit(100)),
+    [firestore]
+  );
+  const { data: leaderboardData, isLoading } = useCollection<LeaderboardEntry>(leaderboardQuery);
+
+  const top5 = useMemo(() => leaderboardData?.slice(0, 5) || [], [leaderboardData]);
+  
   return (
     <div className="w-full h-full bg-gray-800 text-white flex flex-col items-center p-4 md:p-8">
         <div className="w-full max-w-md">
@@ -206,33 +220,69 @@ function LeaderboardScreen({ onBack }: any) {
             </div>
 
             <Tabs defaultValue="all-time" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 bg-gray-700">
+                <TabsList className="grid w-full grid-cols-4 bg-gray-700">
+                    <TabsTrigger value="rewards">Rewards</TabsTrigger>
                     <TabsTrigger value="daily">Daily</TabsTrigger>
                     <TabsTrigger value="weekly">Weekly</TabsTrigger>
                     <TabsTrigger value="all-time">All Time</TabsTrigger>
                 </TabsList>
+
+                <TabsContent value="rewards" className="mt-4">
+                  <Card className="bg-black/30 border-amber-400/50">
+                      <CardHeader className="text-center">
+                          <Gift className="h-10 w-10 mx-auto text-amber-400" />
+                          <CardTitle className="text-amber-400 font-headline">Top 5 Champions</CardTitle>
+                          <CardDescription>The highest scorers get exciting gifts!</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                          {isLoading ? <Loader2 className="mx-auto animate-spin" /> : (
+                            <Table>
+                              <TableHeader>
+                                  <TableRow className="border-gray-600">
+                                      <TableHead className="w-[50px]">Rank</TableHead>
+                                      <TableHead>Player</TableHead>
+                                      <TableHead className="text-right">Score</TableHead>
+                                  </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                  {top5.map((player, index) => (
+                                      <TableRow key={player.userId} className="border-gray-700 font-bold">
+                                          <TableCell className="text-center text-amber-400">{index + 1}</TableCell>
+                                          <TableCell>{player.username}</TableCell>
+                                          <TableCell className="text-right font-mono">{player.score.toLocaleString()}</TableCell>
+                                      </TableRow>
+                                  ))}
+                              </TableBody>
+                          </Table>
+                          )}
+                           {top5.length === 0 && !isLoading && <p className="text-center text-muted-foreground p-4">No scores submitted yet. Be the first!</p>}
+                      </CardContent>
+                  </Card>
+                </TabsContent>
+
                 <TabsContent value="all-time" className="mt-4">
                     <Card className="bg-black/30 border-gray-600">
-                        <CardContent className="p-0">
+                        <CardContent className="p-0 max-h-[50vh] overflow-y-auto">
+                             {isLoading ? <div className="flex justify-center p-8"><Loader2 className="animate-spin" /></div> : (
                              <Table>
                                 <TableHeader>
-                                    <TableRow className="border-gray-600">
+                                    <TableRow className="border-gray-600 sticky top-0 bg-gray-800">
                                         <TableHead className="w-[50px]">Rank</TableHead>
                                         <TableHead>Player</TableHead>
                                         <TableHead className="text-right">Score</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {placeholderLeaderboard.map((player) => (
-                                        <TableRow key={player.rank} className={cn("border-gray-700", player.name === 'You' && 'bg-amber-500/20')}>
-                                            <TableCell className="font-medium text-center">{player.rank}</TableCell>
+                                    {leaderboardData && leaderboardData.map((player, index) => (
+                                        <TableRow key={player.userId + index} className={cn("border-gray-700", player.userId === user?.uid && 'bg-amber-500/20')}>
+                                            <TableCell className="font-medium text-center">{index + 1}</TableCell>
                                             <TableCell>
                                                 <div className="flex items-center gap-2">
                                                     <Avatar className="h-8 w-8">
-                                                        <AvatarImage src={player.avatar} />
-                                                        <AvatarFallback>{player.name[0]}</AvatarFallback>
+                                                        <AvatarImage src={`https://i.pravatar.cc/40?u=${player.userId}`} />
+                                                        <AvatarFallback>{player.username[0]}</AvatarFallback>
                                                     </Avatar>
-                                                    <span className="font-semibold">{player.name}</span>
+                                                    <span className="font-semibold">{player.username}</span>
                                                 </div>
                                             </TableCell>
                                             <TableCell className="text-right font-mono">{player.score.toLocaleString()}</TableCell>
@@ -240,6 +290,8 @@ function LeaderboardScreen({ onBack }: any) {
                                     ))}
                                 </TableBody>
                             </Table>
+                             )}
+                             {leaderboardData?.length === 0 && !isLoading && <p className="text-center text-muted-foreground p-8">No scores submitted yet. Be the first!</p>}
                         </CardContent>
                     </Card>
                 </TabsContent>
@@ -298,3 +350,5 @@ function HowToPlayScreen({ onBack }: any) {
     </div>
   );
 }
+
+    

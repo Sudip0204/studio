@@ -8,6 +8,15 @@ export interface UserProfile {
     photoURL?: string;
     ecoPoints?: number;
     level?: string;
+    highestScore?: number;
+    lastRunScore?: number;
+    lastRunTimestamp?: Timestamp;
+    totalWasteCollected?: {
+        plastic?: number;
+        cans?: number;
+        paper?: number;
+        organic?: number;
+    };
 }
 
 export interface ForumPost {
@@ -31,5 +40,13 @@ export interface PostComment {
 export interface PostLike {
     userId: string;
 }
+
+export interface LeaderboardEntry {
+    userId: string;
+    username: string;
+    score: number;
+    timestamp: Timestamp;
+}
+    
 
     
