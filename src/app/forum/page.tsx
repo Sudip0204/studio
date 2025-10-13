@@ -18,74 +18,60 @@ const samplePosts: (ForumPost & { id: string, author: UserProfile })[] = [
   {
     id: 'sample1',
     authorId: 'user1',
-    content: "Just finished our weekend beach cleanup drive at Juhu Beach! We collected over 50kg of plastic waste. It was tiring but so rewarding. Huge thanks to everyone who joined. Let's plan the next one for Bandra Bandstand!",
-    createdAt: new Timestamp(Math.floor(Date.now() / 1000) - 7200, 0),
-    likeCount: 25,
-    commentCount: 7,
-    imageUrl: 'https://picsum.photos/seed/beachcleanup/600/400',
+    content: "Let's clean up Marine Drive this Sunday! We're meeting at 8 AM near the Trident Hotel. Gloves and bags will be provided. Every hand helps! #CleanMumbai #BeachCleanup",
+    createdAt: new Timestamp(Math.floor(Date.now() / 1000) - 86400, 0),
+    likeCount: 42,
+    commentCount: 12,
+    imageUrl: 'https://picsum.photos/seed/beachdrive/600/400',
     author: {
         id: 'user1',
-        name: 'Green Warrior Priya',
-        email: 'priya@example.com',
+        name: 'Eco Activist Anjali',
+        email: 'anjali@example.com',
         photoURL: 'https://i.pravatar.cc/40?u=user1',
     }
   },
   {
     id: 'sample2',
     authorId: 'user2',
-    content: "Quick question: I've been collecting all my plastic bags, but my local recycling center doesn't accept them. Any ideas for upcycling or proper disposal in the Mumbai area?",
-    createdAt: new Timestamp(Math.floor(Date.now() / 1000) - 5400, 0),
-    likeCount: 12,
-    commentCount: 8,
+    content: "I finally managed a zero-waste week! It was challenging but so rewarding. Wrote a short blog on my top 5 tips for beginners. Check it out: [link-to-blog-post] #ZeroWaste #Sustainability",
+    createdAt: new Timestamp(Math.floor(Date.now() / 1000) - 43200, 0),
+    likeCount: 58,
+    commentCount: 15,
     author: {
         id: 'user2',
-        name: 'Recycle Rohan',
-        email: 'rohan@example.com',
+        name: 'Minimalist Mike',
+        email: 'mike@example.com',
         photoURL: 'https://i.pravatar.cc/40?u=user2',
     }
   },
   {
     id: 'sample3',
     authorId: 'user3',
-    content: "Blog Post: My Journey to a Zero-Waste Kitchen! Hey everyone, I wrote a short blog about the simple swaps I made to drastically reduce waste in my kitchen. From composting to reusable wraps, it's been a game-changer. Hope it inspires some of you! [link-to-blog]",
-    createdAt: new Timestamp(Math.floor(Date.now() / 1000) - 3600, 0),
-    likeCount: 38,
-    commentCount: 12,
+    content: "Question: Does anyone know where to properly dispose of old electronics in the Pune area? I have an old laptop and some cables. #eWaste #RecyclingHelp",
+    createdAt: new Timestamp(Math.floor(Date.now() / 1000) - 21600, 0),
+    likeCount: 22,
+    commentCount: 9,
     author: {
         id: 'user3',
-        name: 'Sustainable Sarah',
-        email: 'sarah@example.com',
+        name: 'Curious Carol',
+        email: 'carol@example.com',
         photoURL: 'https://i.pravatar.cc/40?u=user3',
     }
   },
   {
     id: 'sample4',
     authorId: 'user4',
-    content: "Composting workshop this Sunday at the community garden! We'll cover the basics of setting up your own compost bin. Limited spots available, DM me to register. #composting #organicwaste",
-    createdAt: new Timestamp(Math.floor(Date.now() / 1000) - 1800, 0),
-    likeCount: 18,
-    commentCount: 5,
+    content: "Starting a campaign to get our local society to start composting! Need some volunteers to help create awareness posters and go door-to-door. Interested? DM me!",
+    createdAt: new Timestamp(Math.floor(Date.now() / 1000) - 10800, 0),
+    likeCount: 31,
+    commentCount: 7,
     author: {
         id: 'user4',
-        name: 'EcoAnand',
-        email: 'anand@example.com',
+        name: 'GreenNeighbor Raj',
+        email: 'raj@example.com',
         photoURL: 'https://i.pravatar.cc/40?u=user4',
     }
   },
-  {
-    id: 'sample5',
-    authorId: 'user5',
-    content: "I have so many glass jars! Any creative ideas on how to reuse them around the house, other than for storage?",
-    createdAt: new Timestamp(Math.floor(Date.now() / 1000) - 600, 0),
-    likeCount: 9,
-    commentCount: 11,
-    author: {
-        id: 'user5',
-        name: 'CreativeMeena',
-        email: 'meena@example.com',
-        photoURL: 'https://i.pravatar.cc/40?u=user5',
-    }
-  }
 ];
 
 
