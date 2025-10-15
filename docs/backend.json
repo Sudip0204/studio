@@ -35,7 +35,7 @@
         "gender": { "type": "string" },
         "address": { "type": "string" }
       },
-      "required": ["name", "email"]
+      "required": ["name", "email", "dob", "gender", "phoneNumber", "address"]
     }
   },
   "auth": {
@@ -54,4 +54,3 @@
   }
 }
 
-    

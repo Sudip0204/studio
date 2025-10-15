@@ -43,6 +43,9 @@ function LoginForm({ onSwitchToSignup }: { onSwitchToSignup: () => void }) {
   const auth = useAuth();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get('redirect') || '/marketplace';
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -70,11 +73,8 @@ function LoginForm({ onSwitchToSignup }: { onSwitchToSignup: () => void }) {
         title: "Login Failed",
         description: description,
       });
+      setIsSubmitting(false); // only set to false on error
     }
-    // Don't set isSubmitting to false immediately with non-blocking calls.
-    // The redirect or a state change will unmount this anyway.
-    // If there's an error caught synchronously, you would set it to false in the catch block.
-    // For now, we'll let it spin until redirection.
   };
 
   return (
@@ -147,8 +147,7 @@ function SignupForm() {
           gender: values.gender,
           phoneNumber: values.phoneNumber,
           address: values.address,
-          ecoPoints: 0,
-          level: "Seedling",
+          rewardPoints: 0,
           createdAt: serverTimestamp(),
         };
         setDocumentNonBlocking(userProfileRef, userProfileData, { merge: true });
@@ -352,4 +351,3 @@ export default function AuthPage() {
   );
 }
 
-    
