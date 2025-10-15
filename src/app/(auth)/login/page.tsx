@@ -42,14 +42,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
-import { Calendar } from '@/components/ui/calendar';
-import { cn } from '@/lib/utils';
-import { format } from 'date-fns';
 import { CountryCodeSelect } from '@/components/country-code-select';
 
 const loginSchema = z.object({
@@ -61,13 +53,18 @@ const loginSchema = z.object({
 
 const signupSchema = z.object({
   name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
-  dob: z.date({ required_error: 'A date of birth is required.' }),
+  dob: z.string().refine((val) => !isNaN(Date.parse(val)), {
+    message: 'A valid date of birth is required.',
+  }),
   gender: z.enum(['male', 'female', 'other'], {
     required_error: 'Please select a gender.',
   }),
   phoneNumber: z.object({
     countryCode: z.string().min(1, 'Country code is required.'),
-    number: z.string().min(1, 'Mobile number is required.').max(10, 'Number cannot exceed 10 digits.'),
+    number: z
+      .string()
+      .min(1, 'Mobile number is required.')
+      .max(10, 'Number cannot exceed 10 digits.'),
   }),
   address: z
     .string()
@@ -160,6 +157,11 @@ function LoginForm({ onSwitchToSignup }: { onSwitchToSignup: () => void }) {
 
 const Step1 = () => {
   const { control } = useFormContext();
+  const maxDate = new Date();
+  maxDate.setFullYear(maxDate.getFullYear());
+  const minDate = new Date();
+  minDate.setFullYear(minDate.getFullYear() - 150);
+
   return (
     <>
       <FormField
@@ -179,42 +181,16 @@ const Step1 = () => {
         control={control}
         name="dob"
         render={({ field }) => (
-          <FormItem className="flex flex-col">
+          <FormItem>
             <FormLabel>Date of birth</FormLabel>
-            <Popover>
-              <PopoverTrigger asChild>
-                <FormControl>
-                  <Button
-                    variant={'outline'}
-                    className={cn(
-                      'w-full pl-3 text-left font-normal',
-                      !field.value && 'text-muted-foreground'
-                    )}
-                  >
-                    {field.value ? (
-                      format(field.value, 'PPP')
-                    ) : (
-                      <span>Pick a date</span>
-                    )}
-                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                  </Button>
-                </FormControl>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  captionLayout="dropdown-buttons"
-                  fromYear={new Date().getFullYear() - 150}
-                  toYear={new Date().getFullYear()}
-                  mode="single"
-                  selected={field.value}
-                  onSelect={field.onChange}
-                  disabled={(date) =>
-                    date > new Date() || date < new Date(new Date().setFullYear(new Date().getFullYear() - 150))
-                  }
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+            <FormControl>
+              <Input
+                type="date"
+                {...field}
+                max={maxDate.toISOString().split('T')[0]}
+                min={minDate.toISOString().split('T')[0]}
+              />
+            </FormControl>
             <FormMessage />
           </FormItem>
         )}
@@ -250,7 +226,10 @@ const Step1 = () => {
             render={({ field }) => (
               <FormItem className="w-1/3">
                 <FormControl>
-                  <CountryCodeSelect onValueChange={field.onChange} defaultValue={field.value} />
+                  <CountryCodeSelect
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  />
                 </FormControl>
               </FormItem>
             )}
@@ -261,7 +240,12 @@ const Step1 = () => {
             render={({ field }) => (
               <FormItem className="w-2/3">
                 <FormControl>
-                  <Input type="tel" placeholder="1234567890" maxLength={10} {...field} />
+                  <Input
+                    type="tel"
+                    placeholder="1234567890"
+                    maxLength={10}
+                    {...field}
+                  />
                 </FormControl>
               </FormItem>
             )}
@@ -269,7 +253,8 @@ const Step1 = () => {
         </div>
         <FormMessage>
           {/* Manually display errors for nested object */}
-          {(control.getFieldState('phoneNumber.countryCode').error?.message || control.getFieldState('phoneNumber.number').error?.message)}
+          {control.getFieldState('phoneNumber.countryCode').error?.message ||
+            control.getFieldState('phoneNumber.number').error?.message}
         </FormMessage>
       </FormItem>
       <FormField
@@ -338,9 +323,10 @@ function SignupForm() {
       password: '',
       phoneNumber: {
         countryCode: '+91',
-        number: ''
+        number: '',
       },
       address: '',
+      dob: '',
     },
   });
 
@@ -374,7 +360,7 @@ function SignupForm() {
         const userProfileData = {
           name: values.name,
           email: values.email,
-          dob: values.dob,
+          dob: new Date(values.dob),
           gender: values.gender,
           phoneNumber: `${values.phoneNumber.countryCode} ${values.phoneNumber.number}`,
           address: values.address,
@@ -424,7 +410,9 @@ function SignupForm() {
               Back
             </Button>
             <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isSubmitting && (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
               Create Account
             </Button>
           </div>
@@ -483,5 +471,3 @@ export default function AuthPage() {
     </div>
   );
 }
-
-    
