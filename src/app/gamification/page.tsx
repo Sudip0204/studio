@@ -13,11 +13,12 @@ export default function GamificationPage() {
             <Trophy className="h-10 w-10 text-primary" />
           </div>
           <CardTitle className="font-headline text-2xl mt-4">Gamification</CardTitle>
+          <CardDescription>Coming Soon!</CardDescription>
         </CardHeader>
         <CardContent>
-           <CardDescription>
-            This feature has been removed.
-          </CardDescription>
+          <p className="text-muted-foreground">
+            Get ready to play, compete, and earn rewards for your sustainable actions! Our exciting EcoSnake game is currently under development and will be available soon.
+          </p>
         </CardContent>
       </Card>
     </div>

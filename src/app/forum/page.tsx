@@ -13,11 +13,12 @@ export default function ForumPage() {
             <MessageSquare className="h-10 w-10 text-primary" />
           </div>
           <CardTitle className="font-headline text-2xl mt-4">Community Forum</CardTitle>
+          <CardDescription>Coming Soon!</CardDescription>
         </CardHeader>
         <CardContent>
-          <CardDescription>
-            This feature has been removed.
-          </CardDescription>
+          <p className="text-muted-foreground">
+            A space for our eco-community to connect, share tips, and discuss sustainability is on its way. Stay tuned!
+          </p>
         </CardContent>
       </Card>
     </div>
