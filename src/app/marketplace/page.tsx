@@ -24,17 +24,19 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+
 
 // Expanded placeholder data for products
 const initialProducts = [
-  { id: 1, name: "Upcycled Denim Jacket", price: 3600, description: "A stylish jacket made from reclaimed denim.", image: "https://picsum.photos/seed/product1/300/300", seller: "GreenThreads", dataAiHint: "denim jacket", category: "Clothing", condition: "Good", location: "Mumbai Central" },
-  { id: 2, name: "Recycled Glass Vases", price: 2000, description: "Beautiful vases crafted from recycled glass.", image: "https://picsum.photos/seed/product2/300/300", seller: "EcoDecor", dataAiHint: "glass vase", category: "Home Decor", condition: "New", location: "Andheri East" },
-  { id: 3, name: "Handmade Wooden Bowl", price: 2400, description: "A unique bowl carved from sustainable wood.", image: "https://picsum.photos/seed/product3/300/300", seller: "ArtisanWood", dataAiHint: "wooden bowl", category: "Kitchenware", condition: "New", location: "Bandra West" },
-  { id: 4, name: "Vintage Leather Bag", price: 4800, description: "A classic leather bag with a timeless design.", image: "https://picsum.photos/seed/product4/300/300", seller: "RetroFinds", dataAiHint: "leather bag", category: "Accessories", condition: "Fair", location: "Dadar" },
-  { id: 5, name: "Bamboo Toothbrush Set", price: 960, description: "An eco-friendly alternative to plastic toothbrushes.", image: "https://picsum.photos/seed/product5/300/300", seller: "EcoEssentials", dataAiHint: "bamboo toothbrush", category: "Personal Care", condition: "New", location: "Thane" },
-  { id: 6, name: "Second-hand Novel Set", price: 1440, description: "A collection of pre-loved novels for your reading pleasure.", image: "https://picsum.photos/seed/product6/300/300", seller: "BookCycle", dataAiHint: "books pile", category: "Books", condition: "Used", location: "Colaba" },
-  { id: 7, name: "Refurbished Smartphone", price: 12000, description: "A high-quality, professionally refurbished smartphone.", image: "https://picsum.photos/seed/product7/300/300", seller: "GadgetCycle", dataAiHint: "smartphone hand", category: "Electronics", condition: "Good", location: "Goregaon" },
-  { id: 8, name: "Upcycled Tire Chair", price: 6000, description: "A unique and sturdy chair made from upcycled car tires.", image: "https://picsum.photos/seed/product8/300/300", seller: "RevolveDesigns", dataAiHint: "tire chair", category: "Furniture", condition: "Used", location: "Chembur" },
+  { id: 1, name: "Upcycled Denim Jacket", price: 3600, description: "A stylish jacket made from reclaimed denim, perfect for a cool evening.", image: "https://picsum.photos/seed/product1/300/300", seller: "GreenThreads", dataAiHint: "denim jacket", category: "Clothing", condition: "Good", location: "Mumbai Central" },
+  { id: 2, name: "Recycled Glass Vases", price: 2000, description: "Beautiful, handcrafted vases made from 100% recycled glass bottles. Each one is unique.", image: "https://picsum.photos/seed/product2/300/300", seller: "EcoDecor", dataAiHint: "glass vase", category: "Home Decor", condition: "New", location: "Andheri East" },
+  { id: 3, name: "Handmade Wooden Bowl", price: 2400, description: "A unique serving bowl carved from sustainably sourced mango wood. Ideal for salads or fruits.", image: "https://picsum.photos/seed/product3/300/300", seller: "ArtisanWood", dataAiHint: "wooden bowl", category: "Kitchenware", condition: "New", location: "Bandra West" },
+  { id: 4, name: "Vintage Leather Bag", price: 4800, description: "A classic, pre-loved leather messenger bag with a timeless design and durable construction.", image: "https://picsum.photos/seed/product4/300/300", seller: "RetroFinds", dataAiHint: "leather bag", category: "Accessories", condition: "Fair", location: "Dadar" },
+  { id: 5, name: "Bamboo Toothbrush Set", price: 960, description: "A set of four eco-friendly bamboo toothbrushes. A great alternative to plastic.", image: "https://picsum.photos/seed/product5/300/300", seller: "EcoEssentials", dataAiHint: "bamboo toothbrush", category: "Personal Care", condition: "New", location: "Thane" },
+  { id: 6, name: "Second-hand Novel Set", price: 1440, description: "A collection of five popular, pre-loved novels in excellent condition for your reading pleasure.", image: "https://picsum.photos/seed/product6/300/300", seller: "BookCycle", dataAiHint: "books pile", category: "Books", condition: "Used", location: "Colaba" },
+  { id: 7, name: "Refurbished Smartphone", price: 12000, description: "A high-quality, professionally refurbished smartphone with a new battery and a 6-month warranty.", image: "https://picsum.photos/seed/product7/300/300", seller: "GadgetCycle", dataAiHint: "smartphone hand", category: "Electronics", condition: "Good", location: "Goregaon" },
+  { id: 8, name: "Upcycled Tire Chair", price: 6000, description: "A unique and surprisingly comfortable statement chair made from upcycled car tires. Perfect for a patio.", image: "https://picsum.photos/seed/product8/300/300", seller: "RevolveDesigns", dataAiHint: "tire chair", category: "Furniture", condition: "Used", location: "Chembur" },
 ];
 
 const categories = ["Electronics", "Furniture", "Clothing", "Books", "Home Decor", "Kitchenware", "Accessories", "Personal Care"];
@@ -238,32 +240,41 @@ export default function MarketplacePage() {
                       </SheetContent>
                     </Sheet>
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                  {filteredProducts.map((product) => (
-                    <Card key={product.id} className="group overflow-hidden flex flex-col">
-                      <CardHeader className="p-0">
-                        <div className="relative aspect-video">
-                          <Image src={product.image} alt={product.name} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint={product.dataAiHint}/>
-                        </div>
-                      </CardHeader>
-                      <CardContent className="p-4 flex flex-col flex-grow">
-                        <h3 className="font-semibold truncate text-base">{product.name}</h3>
-                         <div className="text-xs text-muted-foreground mt-1 space-y-0.5">
-                            <p>Category: <span className="font-medium text-foreground">{product.category}</span></p>
-                            <p>Location: <span className="font-medium text-foreground">{product.location}</span></p>
-                            <p>Condition: <span className="font-medium text-foreground">{product.condition}</span></p>
-                        </div>
-                        <div className="flex-grow"></div>
-                        <div className="flex justify-between items-center mt-4">
-                          <p className="font-bold text-xl text-primary">₹{product.price}</p>
-                           <Button variant="default" size="sm" onClick={() => user ? alert('This will be added to cart!') : alert('Please log in to add items to your cart.')}>
-                            Add to cart
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ))}
-                </div>
+                <TooltipProvider>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                    {filteredProducts.map((product) => (
+                        <Card key={product.id} className="group overflow-hidden flex flex-col">
+                        <CardHeader className="p-0">
+                            <div className="relative aspect-video">
+                            <Image src={product.image} alt={product.name} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint={product.dataAiHint}/>
+                            </div>
+                        </CardHeader>
+                        <CardContent className="p-4 flex flex-col flex-grow">
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <h3 className="font-semibold truncate text-lg cursor-pointer hover:underline">{product.name}</h3>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p className="max-w-xs">{product.description}</p>
+                                </TooltipContent>
+                            </Tooltip>
+                            <div className="text-xs text-muted-foreground mt-2 space-y-1">
+                                <p>Category: <span className="font-medium text-foreground">{product.category}</span></p>
+                                <p>Location: <span className="font-medium text-foreground">{product.location}</span></p>
+                                <p>Condition: <span className="font-medium text-foreground">{product.condition}</span></p>
+                            </div>
+                            <div className="flex-grow"></div>
+                            <div className="flex justify-between items-center mt-4 pt-4 border-t">
+                                <p className="font-bold text-xl text-primary">₹{product.price}</p>
+                                <Button variant="default" size="sm" onClick={() => user ? alert('This will be added to cart!') : alert('Please log in to add items to your cart.')}>
+                                    Add to cart
+                                </Button>
+                            </div>
+                        </CardContent>
+                        </Card>
+                    ))}
+                    </div>
+                </TooltipProvider>
                 {filteredProducts.length === 0 && (
                     <div className="text-center py-16">
                         <p className="text-muted-foreground">No products match the selected filters.</p>
@@ -275,6 +286,3 @@ export default function MarketplacePage() {
     </div>
   );
 }
-
-    
-    
