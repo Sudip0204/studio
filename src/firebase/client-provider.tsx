@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect, type ReactNode } from 'react';
-import { FirebaseProvider, FirebaseContext, FirebaseContextState } from '@/firebase/provider';
+import { FirebaseProvider } from '@/firebase/provider';
 import { initializeFirebase } from '@/firebase';
 import { Loader2 } from 'lucide-react';
 
@@ -13,15 +13,17 @@ type FirebaseServices = ReturnType<typeof initializeFirebase>;
 
 export function FirebaseClientProvider({ children }: FirebaseClientProviderProps) {
   const [firebaseServices, setFirebaseServices] = useState<FirebaseServices | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    // Initialize Firebase on the client side, once per component mount.
+    // This effect runs only on the client, after the component has mounted.
+    setIsClient(true);
     setFirebaseServices(initializeFirebase());
-  }, []); // Empty dependency array ensures this runs only once on mount
+  }, []);
 
-  if (!firebaseServices) {
-    // While Firebase is initializing, you can return a loading state or null.
-    // This prevents children from rendering and trying to access a null context.
+  if (!isClient || !firebaseServices) {
+    // While waiting for the client to mount and Firebase to initialize,
+    // show a loading indicator. This prevents children from rendering prematurely.
     return (
       <div className="flex items-center justify-center min-h-screen">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -29,6 +31,7 @@ export function FirebaseClientProvider({ children }: FirebaseClientProviderProps
     );
   }
 
+  // Once Firebase is initialized on the client, render the full provider.
   return (
     <FirebaseProvider
       firebaseApp={firebaseServices.firebaseApp}

@@ -209,6 +209,24 @@
       "description": "An aluminum can for the game.",
       "imageUrl": "https://picsum.photos/seed/wastecan/64/64",
       "imageHint": "soda can"
+    },
+    {
+      "id": "carbon-emissions-info",
+      "description": "An image representing carbon emissions, like factory smoke.",
+      "imageUrl": "https://picsum.photos/seed/carbon1/800/600",
+      "imageHint": "factory smoke"
+    },
+    {
+      "id": "pollution-impact-info",
+      "description": "An image showing the impact of pollution, like a smoggy city.",
+      "imageUrl": "https://picsum.photos/seed/carbon2/800/600",
+      "imageHint": "city smog"
+    },
+    {
+      "id": "global-issue-info",
+      "description": "An image representing the global nature of climate change.",
+      "imageUrl": "https://picsum.photos/seed/carbon3/800/600",
+      "imageHint": "earth globe"
     }
   ]
 }

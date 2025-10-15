@@ -10,6 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Footprints, Car, Plane, Home, Salad, ShoppingCart, Info, Lightbulb, BarChart3, TrendingDown, Repeat, Globe, Cloud, AlertTriangle } from 'lucide-react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
+import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 const EMISSION_FACTORS = {
   // Transport (kg CO2e per km)
@@ -76,6 +78,10 @@ export default function CarbonCalculatorPage() {
     shopping: 0,
     total: 0,
   });
+  
+    const carbonImage1 = PlaceHolderImages.find(p => p.id === 'carbon-emissions-info');
+    const carbonImage2 = PlaceHolderImages.find(p => p.id === 'pollution-impact-info');
+    const carbonImage3 = PlaceHolderImages.find(p => p.id === 'global-issue-info');
 
   const handleCalculate = () => {
     const transport = 
@@ -132,9 +138,59 @@ export default function CarbonCalculatorPage() {
         </div>
       </section>
 
+      <section className="bg-background py-16">
+        <div className="container mx-auto max-w-6xl">
+            <div className="text-center mb-12">
+                <h2 className="font-headline text-3xl font-bold tracking-tighter text-primary sm:text-4xl">Understanding Carbon Emissions</h2>
+                <p className="mt-4 text-lg text-muted-foreground">Learn more about the sources of carbon emissions and their global impact.</p>
+            </div>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 items-center">
+                <div className="lg:col-span-1 space-y-4">
+                     <div className="p-3 rounded-full bg-primary/10 w-fit">
+                        <Cloud className="h-8 w-8 text-primary"/>
+                    </div>
+                    <h3 className="font-headline text-2xl font-semibold">What Are Carbon Emissions?</h3>
+                    <p className="text-muted-foreground">Carbon emissions, primarily carbon dioxide (CO₂), are released from burning fossil fuels like coal, oil, and natural gas. These activities power our homes, industries, and transportation. While a natural part of Earth's ecosystem, human activities have dramatically increased their concentration, leading to a greenhouse effect that warms the planet.</p>
+                </div>
+                 {carbonImage1 && (
+                     <div className="lg:col-span-2 relative h-64 md:h-80 rounded-xl overflow-hidden shadow-lg">
+                        <Image src={carbonImage1.imageUrl} alt={carbonImage1.description} fill className="object-cover" data-ai-hint={carbonImage1.imageHint}/>
+                    </div>
+                 )}
+            </div>
+             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 items-center mt-16">
+                {carbonImage2 && (
+                     <div className="lg:col-span-2 relative h-64 md:h-80 rounded-xl overflow-hidden shadow-lg order-last md:order-first">
+                        <Image src={carbonImage2.imageUrl} alt={carbonImage2.description} fill className="object-cover" data-ai-hint={carbonImage2.imageHint}/>
+                    </div>
+                 )}
+                <div className="lg:col-span-1 space-y-4">
+                     <div className="p-3 rounded-full bg-accent/10 w-fit">
+                        <AlertTriangle className="h-8 w-8 text-accent"/>
+                    </div>
+                    <h3 className="font-headline text-2xl font-semibold">The Impact of Pollution</h3>
+                    <p className="text-muted-foreground">Excessive carbon emissions drive air pollution and climate change, leading to rising temperatures, extreme weather, and melting ice caps. This pollution also has direct health impacts, contributing to respiratory illnesses and other health problems worldwide.</p>
+                </div>
+            </div>
+             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 items-center mt-16">
+                <div className="lg:col-span-1 space-y-4">
+                     <div className="p-3 rounded-full bg-secondary/10 w-fit">
+                        <Globe className="h-8 w-8 text-secondary"/>
+                    </div>
+                    <h3 className="font-headline text-2xl font-semibold">A Global Issue</h3>
+                    <p className="text-muted-foreground">Climate change is a global challenge that requires a collective response. While some countries have historically contributed more to emissions, the impacts are felt worldwide. By reducing your personal carbon footprint, you contribute to a global effort for a more sustainable and equitable world.</p>
+                </div>
+                 {carbonImage3 && (
+                     <div className="lg:col-span-2 relative h-64 md:h-80 rounded-xl overflow-hidden shadow-lg">
+                        <Image src={carbonImage3.imageUrl} alt={carbonImage3.description} fill className="object-cover" data-ai-hint={carbonImage3.imageHint}/>
+                    </div>
+                 )}
+            </div>
+        </div>
+      </section>
+
       <div className="container mx-auto py-12 px-4">
         <div className="grid lg:grid-cols-3 gap-8">
-            {/* Left side: Calculator */}
             <div className="lg:col-span-2">
                 <Card>
                     <CardHeader>
@@ -214,7 +270,6 @@ export default function CarbonCalculatorPage() {
                 </Card>
             </div>
 
-            {/* Right side: Results & Info */}
             <div className="lg:col-span-1 space-y-6">
                 <Card className="bg-primary/5 border-primary/20">
                     <CardHeader>
@@ -258,53 +313,6 @@ export default function CarbonCalculatorPage() {
             </div>
         </div>
       </div>
-
-       <section className="bg-background py-16">
-        <div className="container mx-auto max-w-5xl">
-            <div className="text-center mb-12">
-                <h2 className="font-headline text-3xl font-bold tracking-tighter text-primary sm:text-4xl">Understanding Carbon Emissions</h2>
-                <p className="mt-4 text-lg text-muted-foreground">Learn more about the sources of carbon emissions and their global impact.</p>
-            </div>
-            <div className="grid md:grid-cols-2 gap-8">
-                <Card>
-                    <CardHeader className="flex-row items-center gap-4">
-                         <div className="p-3 rounded-full bg-primary/10">
-                            <Cloud className="h-8 w-8 text-primary"/>
-                        </div>
-                        <CardTitle className="font-headline text-2xl">What Are Carbon Emissions?</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4 text-muted-foreground">
-                        <p>Carbon emissions, primarily carbon dioxide (CO₂), are released into the atmosphere from burning fossil fuels like coal, oil, and natural gas. These activities power our homes, industries, and transportation.</p>
-                        <p>While a natural part of Earth's ecosystem, human activities have dramatically increased their concentration, leading to a phenomenon known as the greenhouse effect, which traps heat and warms the planet.</p>
-                    </CardContent>
-                </Card>
-                 <Card>
-                    <CardHeader className="flex-row items-center gap-4">
-                        <div className="p-3 rounded-full bg-accent/10">
-                            <AlertTriangle className="h-8 w-8 text-accent"/>
-                        </div>
-                        <CardTitle className="font-headline text-2xl">The Impact of Pollution</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4 text-muted-foreground">
-                        <p>Excessive carbon emissions are a primary driver of air pollution and climate change. This leads to severe environmental consequences, including rising global temperatures, more frequent extreme weather events like heatwaves and floods, and melting polar ice caps.</p>
-                        <p>This pollution also has direct health impacts, contributing to respiratory illnesses and other health problems in communities around the world.</p>
-                    </CardContent>
-                </Card>
-                 <Card className="md:col-span-2">
-                    <CardHeader className="flex-row items-center gap-4">
-                        <div className="p-3 rounded-full bg-secondary/10">
-                            <Globe className="h-8 w-8 text-secondary"/>
-                        </div>
-                        <CardTitle className="font-headline text-2xl">A Global Issue</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-4 text-muted-foreground">
-                        <p>Climate change is a global challenge that requires a collective response. While some countries have historically contributed more to emissions, the impacts are felt worldwide, often most severely in developing nations that are less equipped to adapt.</p>
-                        <p>By understanding and reducing your personal carbon footprint, you contribute to a global effort to transition to cleaner energy, protect vulnerable ecosystems, and build a more sustainable and equitable world for future generations.</p>
-                    </CardContent>
-                </Card>
-            </div>
-        </div>
-      </section>
     </div>
   );
 }
