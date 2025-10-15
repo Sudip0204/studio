@@ -2,7 +2,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Award, Ticket, CircleSlash, CheckCircle, Calendar, Shirt, MonitorSmartphone, Lamp, Loader2 } from "lucide-react";
+import { Award, Ticket, CircleSlash, CheckCircle, Calendar, Shirt, MonitorSmartphone, Lamp, Loader2, Gamepad2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -24,6 +24,7 @@ type Coupon = {
 const coupons: Coupon[] = [
   { id: 'c1', title: 'Welcome Gift!', description: 'A thank you for joining our community.', discount: '10% OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() + 30)), used: false, icon: <Ticket className="h-8 w-8" /> },
   { id: 'c2', title: 'First Recycling Milestone', description: 'Congrats on recycling 10 items!', discount: '₹150 OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() + 60)), used: false, icon: <Ticket className="h-8 w-8" /> },
+  { id: 'c9', title: 'Gaming Guru', description: 'For scoring over 5,000 EcoPoints!', discount: '₹300 OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() + 40)), used: false, icon: <Gamepad2 className="h-8 w-8" /> },
   { id: 'c6', title: 'Sustainable Fashion', description: 'For purchasing upcycled clothing.', discount: '20% OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() + 45)), used: false, icon: <Shirt className="h-8 w-8" /> },
   { id: 'c7', title: 'Green Tech Discount', description: 'On any refurbished electronics.', discount: '₹1000 OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() + 75)), used: false, icon: <MonitorSmartphone className="h-8 w-8" /> },
   { id: 'c8', title: 'Eco-Decor Special', description: 'For items in our Home Decor category.', discount: '15% OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() + 20)), used: false, icon: <Lamp className="h-8 w-8" /> },
