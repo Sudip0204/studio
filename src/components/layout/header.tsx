@@ -22,9 +22,60 @@ const navLinks = [
   { href: "/gamification", label: "Gamification" },
 ];
 
+function NavLinks() {
+  const pathname = usePathname();
+  return (
+    <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
+      {navLinks.map((link) => (
+        <Link
+          key={link.href}
+          href={link.href}
+          className={cn(
+            "transition-colors hover:text-primary",
+            pathname === link.href ? "text-primary" : "text-foreground/70"
+          )}
+          prefetch={false}
+        >
+          {link.label}
+        </Link>
+      ))}
+    </nav>
+  );
+}
+
+function MobileNavLinks() {
+    const pathname = usePathname();
+    return (
+        <nav className="grid gap-6 text-lg font-medium">
+            <Link
+            href="/"
+            className="flex items-center gap-2 text-lg font-semibold"
+            prefetch={false}
+            >
+            <EcoCityLogo className="h-6 w-6 text-primary" />
+            <span className="font-headline">EcoCity</span>
+            </Link>
+            {navLinks.map((link) => (
+                <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                    "transition-colors hover:text-primary",
+                    pathname === link.href
+                    ? "text-foreground"
+                    : "text-muted-foreground"
+                )}
+                prefetch={false}
+                >
+                {link.label}
+                </Link>
+            ))}
+        </nav>
+    );
+}
+
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
-  const pathname = usePathname();
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
 
@@ -56,21 +107,9 @@ export function Header() {
             EcoCity
           </span>
         </Link>
-        <nav className="hidden items-center gap-6 text-sm font-medium md:flex">
-          {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  "transition-colors hover:text-primary",
-                  pathname === link.href ? "text-primary" : "text-foreground/70"
-                )}
-                prefetch={false}
-              >
-                {link.label}
-              </Link>
-          ))}
-        </nav>
+        
+        <NavLinks />
+
         <div className="hidden items-center gap-4 md:flex">
           {isUserLoading ? (
             <div className="h-8 w-20 animate-pulse rounded-md bg-muted" />
@@ -128,40 +167,16 @@ export function Header() {
           </SheetTrigger>
           <SheetContent side="right">
             <SheetTitle>Mobile Menu</SheetTitle>
-            <nav className="grid gap-6 text-lg font-medium">
-              <Link
-                href="/"
-                className="flex items-center gap-2 text-lg font-semibold"
-                prefetch={false}
-              >
-                <EcoCityLogo className="h-6 w-6 text-primary" />
-                <span className="font-headline">EcoCity</span>
-              </Link>
-              {navLinks.map((link) => (
-                   <Link
-                    key={link.href}
-                    href={link.href}
-                    className={cn(
-                      "transition-colors hover:text-primary",
-                      pathname === link.href
-                        ? "text-foreground"
-                        : "text-muted-foreground"
-                    )}
-                    prefetch={false}
-                  >
-                    {link.label}
-                  </Link>
-              ))}
-              <div className="mt-6 flex flex-col gap-4">
-                 {user ? (
-                   <Button onClick={handleLogout} variant="outline">Logout</Button>
-                 ) : (
-                    <Button asChild>
-                        <Link href="/login">Login / Sign Up</Link>
-                    </Button>
-                 )}
-              </div>
-            </nav>
+            <MobileNavLinks />
+            <div className="mt-6 flex flex-col gap-4">
+                {user ? (
+                <Button onClick={handleLogout} variant="outline">Logout</Button>
+                ) : (
+                <Button asChild>
+                    <Link href="/login">Login / Sign Up</Link>
+                </Button>
+                )}
+            </div>
           </SheetContent>
         </Sheet>
       </div>
