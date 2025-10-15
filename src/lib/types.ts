@@ -27,13 +27,10 @@ export interface ForumPost {
     id: string;
     authorId: string;
     content: string;
-    imageUrl?: string; // Changed from mediaUrl for clarity
-    // postType?: "experience" | "blog" | "event" | "campaign" | "tip";
-    // category?: "waste-management" | "recycling" | "awareness" | "reusing";
-    likes?: string[];
-    likeCount: number; // Denormalized for quick reads
-    commentCount: number; // Denormalized for quick reads
-    createdAt: Timestamp | Date; // Date for client-side, Timestamp for Firestore
+    imageUrl?: string;
+    likes: string[];
+    commentCount: number;
+    createdAt: Timestamp | Date;
 }
 
 export interface PostComment {

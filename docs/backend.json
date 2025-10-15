@@ -44,7 +44,6 @@
         "content": { "type": "string" },
         "imageUrl": { "type": "string", "format": "uri" },
         "likes": { "type": "array", "items": { "type": "string" } },
-        "likeCount": { "type": "number" },
         "commentCount": { "type": "number" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
@@ -100,14 +99,14 @@
         }
       },
       {
-        "path": "/forumposts/{postId}",
+        "path": "/communityPosts/{postId}",
         "definition": {
           "schema": { "$ref": "#/entities/ForumPost" },
           "description": "Top-level collection for all community forum posts."
         }
       },
       {
-        "path": "/forumposts/{postId}/comments/{commentId}",
+        "path": "/communityPosts/{postId}/comments/{commentId}",
         "definition": {
           "schema": { "$ref": "#/entities/PostComment" },
           "description": "Subcollection for comments on a specific forum post."
