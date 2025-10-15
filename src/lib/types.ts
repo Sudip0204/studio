@@ -22,33 +22,3 @@ export interface UserProfile {
         organic?: number;
     };
 }
-
-export interface ForumPost {
-    id: string;
-    authorId: string;
-    title?: string;
-    content: string;
-    imageUrl?: string;
-    likes: string[];
-    commentCount: number;
-    createdAt: Timestamp | Date;
-}
-
-export interface PostComment {
-    id: string;
-    authorId: string;
-    content: string;
-    likes?: string[];
-    createdAt: Timestamp;
-}
-
-export interface PostLike {
-    userId: string; // The ID of the user who liked the post/comment
-}
-
-export interface LeaderboardEntry {
-    userId: string;
-    username: string;
-    score: number;
-    timestamp: Timestamp;
-}

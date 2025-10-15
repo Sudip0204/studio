@@ -1,3 +1,4 @@
+
 import Link from "next/link";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -35,18 +36,6 @@ const features = [
     description: "Buy/sell second-hand items.",
     href: "/marketplace",
   },
-  {
-    icon: <Trophy className="h-8 w-8 text-primary" />,
-    title: "Gamification",
-    description: "Engage in challenges and earn badges.",
-    href: "/gamification",
-  },
-  {
-    icon: <Users className="h-8 w-8 text-primary" />,
-    title: "Community Forum",
-    description: "Connect with eco-conscious individuals.",
-    href: "/forum", 
-  },
 ];
 
 export function FeaturesSection() {
@@ -62,7 +51,7 @@ export function FeaturesSection() {
             Our platform offers a suite of tools designed to make sustainable living accessible and rewarding for everyone.
           </p>
         </div>
-        <div className="mx-auto grid grid-cols-1 gap-6 pt-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
+        <div className="mx-auto grid grid-cols-1 gap-6 pt-12 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
           {features.map((feature) => (
             <Link href={feature.href} key={feature.title} className="group">
               <Card className="h-full transform transition-transform duration-300 group-hover:-translate-y-2 group-hover:shadow-xl">

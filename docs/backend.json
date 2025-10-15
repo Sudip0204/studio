@@ -33,57 +33,6 @@
         "rewardPoints": { "type": "number" }
       },
       "required": ["name", "email"]
-    },
-    "ForumPost": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "ForumPost",
-      "type": "object",
-      "description": "Represents a post in the community forum.",
-      "properties": {
-        "authorId": { "type": "string" },
-        "content": { "type": "string" },
-        "imageUrl": { "type": "string", "format": "uri" },
-        "likes": { "type": "array", "items": { "type": "string" } },
-        "commentCount": { "type": "number" },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["authorId", "content", "createdAt"]
-    },
-    "PostComment": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "PostComment",
-      "type": "object",
-      "description": "Represents a comment on a forum post.",
-      "properties": {
-        "authorId": { "type": "string" },
-        "content": { "type": "string" },
-        "likes": { "type": "array", "items": { "type": "string" } },
-        "createdAt": { "type": "string", "format": "date-time" }
-      },
-      "required": ["authorId", "content", "createdAt"]
-    },
-    "PostLike": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "PostLike",
-      "type": "object",
-      "description": "Represents a like on a forum post or comment. The existence of a document signifies a like.",
-      "properties": {
-        "userId": { "type": "string" }
-      },
-      "required": ["userId"]
-    },
-    "LeaderboardEntry": {
-      "$schema": "http://json-schema.org/draft-07/schema#",
-      "title": "LeaderboardEntry",
-      "type": "object",
-      "description": "Represents a single high-score submission for the Eco-Runner leaderboard.",
-      "properties": {
-        "userId": { "type": "string" },
-        "username": { "type": "string" },
-        "score": { "type": "number" },
-        "timestamp": { "type": "string", "format": "date-time" }
-      },
-      "required": ["userId", "username", "score", "timestamp"]
     }
   },
   "auth": {
@@ -96,27 +45,6 @@
         "definition": {
           "schema": { "$ref": "#/entities/UserProfile" },
           "description": "Stores user profiles and application-specific data."
-        }
-      },
-      {
-        "path": "/communityPosts/{postId}",
-        "definition": {
-          "schema": { "$ref": "#/entities/ForumPost" },
-          "description": "Top-level collection for all community forum posts."
-        }
-      },
-      {
-        "path": "/communityPosts/{postId}/comments/{commentId}",
-        "definition": {
-          "schema": { "$ref": "#/entities/PostComment" },
-          "description": "Subcollection for comments on a specific forum post."
-        }
-      },
-      {
-        "path": "/leaderboard/{scoreId}",
-        "definition": {
-          "schema": { "$ref": "#/entities/LeaderboardEntry" },
-          "description": "Collection for storing Eco-Runner high scores."
         }
       }
     ]
