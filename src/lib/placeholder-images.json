@@ -161,6 +161,24 @@
       "description": "Recycling symbol 7 for Other",
       "imageUrl": "https://picsum.photos/seed/symbol7/100/100",
       "imageHint": "recycling symbol"
+    },
+    {
+      "id": "waste-plastic",
+      "description": "A plastic bottle as waste for the game.",
+      "imageUrl": "https://picsum.photos/seed/wasteplastic/64/64",
+      "imageHint": "plastic bottle"
+    },
+    {
+      "id": "waste-paper",
+      "description": "A crumpled paper ball for the game.",
+      "imageUrl": "https://picsum.photos/seed/wastepaper/64/64",
+      "imageHint": "crumpled paper"
+    },
+    {
+      "id": "waste-can",
+      "description": "An aluminum can for the game.",
+      "imageUrl": "https://picsum.photos/seed/wastecan/64/64",
+      "imageHint": "soda can"
     }
   ]
 }
