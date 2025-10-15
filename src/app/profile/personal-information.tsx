@@ -175,7 +175,7 @@ export function PersonalInformation({ user }: { user: User }) {
              <div className="grid md:grid-cols-2 gap-x-8 divide-y md:divide-y-0">
                 <InfoRow label="Full Name" value={userProfile.name} />
                 <InfoRow label="Gender" value={userProfile.gender} />
-                <InfoRow label="Date of Birth" value={userProfile.dob ? format(userProfile.dob.toDate(), 'PPP') : undefined} />
+                <InfoRow label="Date of Birth" value={userProfile.dob ? format(userProfile.dob.toDate(), 'dd/MM/yyyy') : undefined} />
                 <InfoRow label="Email Address" value={userProfile.email} />
                 <InfoRow label="Mobile Number" value={userProfile.phoneNumber} />
              </div>

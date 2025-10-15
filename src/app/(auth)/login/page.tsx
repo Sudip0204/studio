@@ -186,6 +186,7 @@ const Step1 = () => {
               <Input
                 type="date"
                 {...field}
+                placeholder="dd/MM/yyyy"
                 max="2025-12-31"
                 min={minDate.toISOString().split('T')[0]}
               />
