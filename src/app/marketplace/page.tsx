@@ -240,41 +240,33 @@ export default function MarketplacePage() {
                       </SheetContent>
                     </Sheet>
                 </div>
-                <TooltipProvider>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                    {filteredProducts.map((product) => (
-                        <Card key={product.id} className="group overflow-hidden flex flex-col">
-                        <CardHeader className="p-0">
-                            <div className="relative aspect-video">
-                            <Image src={product.image} alt={product.name} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint={product.dataAiHint}/>
-                            </div>
-                        </CardHeader>
-                        <CardContent className="p-4 flex flex-col flex-grow">
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <h3 className="font-semibold truncate text-lg cursor-pointer hover:underline">{product.name}</h3>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p className="max-w-xs">{product.description}</p>
-                                </TooltipContent>
-                            </Tooltip>
-                            <div className="text-xs text-muted-foreground mt-2 space-y-1">
-                                <p>Category: <span className="font-medium text-foreground">{product.category}</span></p>
-                                <p>Location: <span className="font-medium text-foreground">{product.location}</span></p>
-                                <p>Condition: <span className="font-medium text-foreground">{product.condition}</span></p>
-                            </div>
-                            <div className="flex-grow"></div>
-                            <div className="flex justify-between items-center mt-4 pt-4 border-t">
-                                <p className="font-bold text-xl text-primary">₹{product.price}</p>
-                                <Button variant="default" size="sm" onClick={() => user ? alert('This will be added to cart!') : alert('Please log in to add items to your cart.')}>
-                                    Add to cart
-                                </Button>
-                            </div>
-                        </CardContent>
-                        </Card>
-                    ))}
-                    </div>
-                </TooltipProvider>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                {filteredProducts.map((product) => (
+                    <Card key={product.id} className="group overflow-hidden flex flex-col">
+                    <CardHeader className="p-0">
+                        <div className="relative aspect-video">
+                        <Image src={product.image} alt={product.name} fill className="object-cover transition-transform group-hover:scale-105" data-ai-hint={product.dataAiHint}/>
+                        </div>
+                    </CardHeader>
+                    <CardContent className="p-4 flex flex-col flex-grow">
+                        <h3 className="font-semibold text-lg">{product.name}</h3>
+                        <p className="text-sm text-muted-foreground mt-1 line-clamp-2">{product.description}</p>
+                        <div className="text-xs text-muted-foreground mt-2 space-y-1">
+                            <p>Category: <span className="font-medium text-foreground">{product.category}</span></p>
+                            <p>Location: <span className="font-medium text-foreground">{product.location}</span></p>
+                            <p>Condition: <span className="font-medium text-foreground">{product.condition}</span></p>
+                        </div>
+                        <div className="flex-grow"></div>
+                        <div className="flex justify-between items-center mt-4 pt-4 border-t">
+                            <p className="font-bold text-xl text-primary">₹{product.price}</p>
+                            <Button variant="default" size="sm" onClick={() => user ? alert('This will be added to cart!') : alert('Please log in to add items to your cart.')}>
+                                Add to cart
+                            </Button>
+                        </div>
+                    </CardContent>
+                    </Card>
+                ))}
+                </div>
                 {filteredProducts.length === 0 && (
                     <div className="text-center py-16">
                         <p className="text-muted-foreground">No products match the selected filters.</p>
@@ -286,3 +278,5 @@ export default function MarketplacePage() {
     </div>
   );
 }
+
+    
