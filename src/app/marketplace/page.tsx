@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/sheet";
 import { useCart } from "@/context/cart-context";
 import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 
 // Expanded placeholder data for products
@@ -300,3 +301,5 @@ export default function MarketplacePage() {
     </div>
   );
 }
+
+    
