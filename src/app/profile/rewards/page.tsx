@@ -29,7 +29,7 @@ const coupons: Coupon[] = [
   { id: 'c7', title: 'Green Tech Discount', description: 'On any refurbished electronics.', discount: '₹1000 OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() + 75)), used: false, icon: <MonitorSmartphone className="h-8 w-8" /> },
   { id: 'c8', title: 'Eco-Decor Special', description: 'For items in our Home Decor category.', discount: '15% OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() + 20)), used: false, icon: <Lamp className="h-8 w-8" /> },
   { id: 'c5', title: 'Community Challenge Winner', description: 'Winner of the "Clean Your Block" challenge.', discount: '50% OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() + 90)), used: false, icon: <Ticket className="h-8 w-8" /> },
-  { id: 'c3', title: 'Eco-Warrior Reward', description: 'For reaching 1000 Eco-points.', discount: '₹500 OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() - 10)), used: false, icon: <Ticket className="h-8 w-8" /> }, // Expired
+  { id: 'c3', title: 'Eco-Warrior Reward', description: 'For reaching 1000 Eco-points.', expiryDate: new Date(new Date().setDate(new Date().getDate() - 10)), used: false, icon: <Ticket className="h-8 w-8" /> }, // Expired
   { id: 'c4', title: 'Marketplace Launch Coupon', description: 'Special launch offer for our marketplace.', discount: '25% OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() - 5)), used: true, icon: <Ticket className="h-8 w-8" /> }, // Used
 ];
 
