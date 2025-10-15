@@ -65,12 +65,16 @@ export function EcoSnakeGame() {
 
   const handleFullScreenChange = useCallback(() => {
     setIsFullScreen(!!document.fullscreenElement);
-  }, []);
+    setTimeout(updateTileSize, 100);
+  }, [updateTileSize]);
 
   useEffect(() => {
     document.addEventListener('fullscreenchange', handleFullScreenChange);
     window.addEventListener('resize', updateTileSize);
     
+    // Initial size calculation
+    updateTileSize();
+
     return () => {
       document.removeEventListener('fullscreenchange', handleFullScreenChange);
       window.removeEventListener('resize', updateTileSize);
@@ -94,7 +98,12 @@ export function EcoSnakeGame() {
 
   const resetGame = useCallback(() => {
     setSnake([{ x: 10, y: 10 }]);
-    setFood({ ...getRandomCoordinate(), type: getRandomWasteType() });
+    let newFoodPosition;
+    do {
+      newFoodPosition = getRandomCoordinate();
+    } while (newFoodPosition.x === 10 && newFoodPosition.y === 10);
+
+    setFood({ ...newFoodPosition, type: getRandomWasteType() });
     setDirection('RIGHT');
     setScore(0);
     setIsGameOver(false);
@@ -110,6 +119,7 @@ export function EcoSnakeGame() {
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (!isGameStarted) return;
+    e.preventDefault();
     switch (e.key) {
       case 'ArrowUp':
         if (direction !== 'DOWN') setDirection('UP');
@@ -230,13 +240,18 @@ export function EcoSnakeGame() {
     }
     return tiles;
   };
+  
+  const boardSize = GRID_SIZE * tileSize;
 
   return (
-    <div ref={gameContainerRef} className="flex flex-col items-center w-full bg-background transition-all duration-300 p-4 rounded-lg data-[fullscreen=true]:p-8 data-[fullscreen=true]:h-screen data-[fullscreen=true]:justify-center" data-fullscreen={isFullScreen}>
-      <div className="flex justify-between w-full max-w-lg mb-4 p-4 rounded-lg bg-muted">
+    <div ref={gameContainerRef} className="flex flex-col items-center justify-center w-full bg-background transition-all duration-300 p-4 data-[fullscreen=true]:h-screen data-[fullscreen=true]:p-8" data-fullscreen={isFullScreen}>
+      <div className="flex justify-between w-full mb-4 p-4 rounded-lg bg-muted" style={{maxWidth: boardSize}}>
         <div className="text-center">
             <p className="text-sm text-muted-foreground">Score</p>
             <p className="text-2xl font-bold text-primary">{score}</p>
+        </div>
+        <div className="text-center">
+            <p className="font-headline text-2xl text-primary">EcoSnake</p>
         </div>
         <div className="text-center">
             <p className="text-sm text-muted-foreground">High Score</p>
@@ -249,42 +264,51 @@ export function EcoSnakeGame() {
       </div>
       <div
         ref={gameBoardRef}
-        className="relative bg-background-alt border-4 border-muted-foreground/20 rounded-lg overflow-hidden transition-all duration-300"
+        className="relative bg-background-alt border-4 border-muted-foreground/20 rounded-lg overflow-hidden transition-all duration-300 w-full h-auto aspect-square"
         style={{
-          display: 'grid',
-          gridTemplateColumns: `repeat(${GRID_SIZE}, ${tileSize}px)`,
-          gridTemplateRows: `repeat(${GRID_SIZE}, ${tileSize}px)`,
-          width: GRID_SIZE * tileSize,
-          height: GRID_SIZE * tileSize,
+          maxWidth: 'min(100vw - 2rem, 100vh - 10rem)',
+          maxHeight: 'min(100vw - 2rem, 100vh - 10rem)',
         }}
       >
-        {!isGameStarted && (
-          <div className="absolute inset-0 bg-black/50 z-10 flex flex-col items-center justify-center text-white">
-            <h3 className="font-headline text-2xl mb-4">Welcome to EcoSnake!</h3>
-            <p className="mb-6 text-center max-w-xs">Use your arrow keys to move the snake and collect the waste items.</p>
-            <Button onClick={() => setIsGameStarted(true)} size="lg">
-              <Play className="mr-2" /> Start Game
-            </Button>
+          <div
+            className="absolute top-1/2 left-1/2"
+            style={{
+                transform: 'translate(-50%, -50%)',
+                width: boardSize,
+                height: boardSize,
+                display: 'grid',
+                gridTemplateColumns: `repeat(${GRID_SIZE}, 1fr)`,
+                gridTemplateRows: `repeat(${GRID_SIZE}, 1fr)`,
+            }}
+          >
+            {!isGameStarted && (
+            <div className="absolute inset-0 bg-black/50 z-10 flex flex-col items-center justify-center text-white col-span-full row-span-full">
+                <h3 className="font-headline text-2xl mb-4">Welcome to EcoSnake!</h3>
+                <p className="mb-6 text-center max-w-xs">Use your arrow keys to move the snake and collect the waste items.</p>
+                <Button onClick={resetGame} size="lg">
+                <Play className="mr-2" /> Start Game
+                </Button>
+            </div>
+            )}
+            {isGameOver && (
+            <div className="absolute inset-0 bg-black/70 z-10 flex flex-col items-center justify-center text-white p-4 col-span-full row-span-full">
+                <h3 className="font-headline text-3xl mb-2">Game Over</h3>
+                <p className="text-lg mb-4">Your final score is {score}</p>
+                {score > 0 && score === highScore && (
+                    <div className="flex items-center text-amber-400 mb-6">
+                        <Award className="mr-2" />
+                        <span>New High Score!</span>
+                    </div>
+                )}
+                <Button onClick={resetGame}>
+                <RotateCw className="mr-2" /> Play Again
+                </Button>
+            </div>
+            )}
+            {renderGrid()}
           </div>
-        )}
-        {isGameOver && (
-          <div className="absolute inset-0 bg-black/70 z-10 flex flex-col items-center justify-center text-white p-4">
-            <h3 className="font-headline text-3xl mb-2">Game Over</h3>
-            <p className="text-lg mb-4">Your final score is {score}</p>
-             {score > 0 && score === highScore && (
-                <div className="flex items-center text-amber-400 mb-6">
-                    <Award className="mr-2" />
-                    <span>New High Score!</span>
-                </div>
-             )}
-            <Button onClick={resetGame}>
-              <RotateCw className="mr-2" /> Play Again
-            </Button>
-          </div>
-        )}
-        {renderGrid()}
       </div>
-       <div className="w-full max-w-lg mt-4 text-center text-sm text-muted-foreground">
+       <div className="w-full mt-4 text-center text-sm text-muted-foreground" style={{maxWidth: boardSize}}>
         Use the <span className="font-bold">Arrow Keys</span> on your keyboard to control the snake.
       </div>
     </div>
