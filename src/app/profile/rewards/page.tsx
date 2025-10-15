@@ -2,7 +2,7 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Award, Ticket, CircleSlash, CheckCircle, Calendar } from "lucide-react";
+import { Award, Ticket, CircleSlash, CheckCircle, Calendar, Shirt, MonitorSmartphone, Lamp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
@@ -15,14 +15,18 @@ type Coupon = {
   discount: string;
   expiryDate: Date;
   used: boolean;
+  icon?: React.ReactNode;
 };
 
 const coupons: Coupon[] = [
-  { id: 'c1', title: 'Welcome Gift!', description: 'A thank you for joining our community.', discount: '10% OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() + 30)), used: false },
-  { id: 'c2', title: 'First Recycling Milestone', description: 'Congrats on recycling 10 items!', discount: '₹150 OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() + 60)), used: false },
-  { id: 'c3', title: 'Eco-Warrior Reward', description: 'For reaching 1000 Eco-points.', discount: '₹500 OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() - 10)), used: false }, // Expired
-  { id: 'c4', title: 'Marketplace Launch Coupon', description: 'Special launch offer for our marketplace.', discount: '25% OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() - 5)), used: true }, // Used
-  { id: 'c5', title: 'Community Challenge Winner', description: 'Winner of the "Clean Your Block" challenge.', discount: '50% OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() + 90)), used: false },
+  { id: 'c1', title: 'Welcome Gift!', description: 'A thank you for joining our community.', discount: '10% OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() + 30)), used: false, icon: <Ticket className="h-8 w-8" /> },
+  { id: 'c2', title: 'First Recycling Milestone', description: 'Congrats on recycling 10 items!', discount: '₹150 OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() + 60)), used: false, icon: <Ticket className="h-8 w-8" /> },
+  { id: 'c6', title: 'Sustainable Fashion', description: 'For purchasing upcycled clothing.', discount: '20% OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() + 45)), used: false, icon: <Shirt className="h-8 w-8" /> },
+  { id: 'c7', title: 'Green Tech Discount', description: 'On any refurbished electronics.', discount: '₹1000 OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() + 75)), used: false, icon: <MonitorSmartphone className="h-8 w-8" /> },
+  { id: 'c8', title: 'Eco-Decor Special', description: 'For items in our Home Decor category.', discount: '15% OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() + 20)), used: false, icon: <Lamp className="h-8 w-8" /> },
+  { id: 'c5', title: 'Community Challenge Winner', description: 'Winner of the "Clean Your Block" challenge.', discount: '50% OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() + 90)), used: false, icon: <Ticket className="h-8 w-8" /> },
+  { id: 'c3', title: 'Eco-Warrior Reward', description: 'For reaching 1000 Eco-points.', discount: '₹500 OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() - 10)), used: false, icon: <Ticket className="h-8 w-8" /> }, // Expired
+  { id: 'c4', title: 'Marketplace Launch Coupon', description: 'Special launch offer for our marketplace.', discount: '25% OFF', expiryDate: new Date(new Date().setDate(new Date().getDate() - 5)), used: true, icon: <Ticket className="h-8 w-8" /> }, // Used
 ];
 
 const CouponCard = ({ coupon }: { coupon: Coupon }) => {
@@ -32,9 +36,15 @@ const CouponCard = ({ coupon }: { coupon: Coupon }) => {
 
     let status = {
         icon: <Award className="h-5 w-5 text-amber-500" />,
-        label: `${daysLeft} days left`,
+        label: daysLeft > 0 ? `${daysLeft} days left` : 'Expires today',
         color: "text-amber-500",
     };
+
+    if (daysLeft < 0 && !isExpired) {
+        // This case handles if the date is in the past but the isPast check hasn't run yet for today
+        status.label = 'Expires today';
+    }
+
 
     if(coupon.used) {
         status = {
@@ -55,7 +65,7 @@ const CouponCard = ({ coupon }: { coupon: Coupon }) => {
             <div className={cn("h-2 w-full", isDisabled ? "bg-muted-foreground" : "bg-primary")}></div>
             <CardHeader className="flex-row items-start gap-4">
                 <div className={cn("p-3 rounded-full", isDisabled ? "bg-muted-foreground/10 text-muted-foreground" : "bg-primary/10 text-primary")}>
-                    <Ticket className="h-8 w-8" />
+                    {coupon.icon || <Ticket className="h-8 w-8" />}
                 </div>
                 <div>
                     <CardTitle className={cn("font-headline text-2xl", isDisabled && "text-muted-foreground")}>{coupon.discount}</CardTitle>
@@ -70,7 +80,7 @@ const CouponCard = ({ coupon }: { coupon: Coupon }) => {
                         <span>{status.label}</span>
                     </div>
                      <Button asChild disabled={isDisabled} variant={isDisabled ? 'secondary' : 'default'}>
-                        <Link href="/marketplace">Use in Marketplace</Link>
+                        <Link href="/marketplace">Apply</Link>
                     </Button>
                 </div>
                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
