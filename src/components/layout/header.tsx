@@ -12,11 +12,13 @@ import { useUser, useAuth } from "@/firebase";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { NavLinks, MobileNavLinks } from "./nav-links";
+import { usePathname } from "next/navigation";
 
 export function Header() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
+  const pathname = usePathname();
 
   const handleLogout = () => {
     auth.signOut();
@@ -29,6 +31,8 @@ export function Header() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+  
+  const loginUrl = `/login?redirect=${encodeURIComponent(pathname)}`;
 
   return (
     <header
@@ -93,7 +97,7 @@ export function Header() {
             </DropdownMenu>
           ) : (
             <Button asChild>
-              <Link href="/login">Login / Sign Up</Link>
+              <Link href={loginUrl}>Login / Sign Up</Link>
             </Button>
           )}
         </div>
@@ -112,7 +116,7 @@ export function Header() {
                 <Button onClick={handleLogout} variant="outline">Logout</Button>
                 ) : (
                 <Button asChild>
-                    <Link href="/login">Login / Sign Up</Link>
+                    <Link href={loginUrl}>Login / Sign Up</Link>
                 </Button>
                 )}
             </div>

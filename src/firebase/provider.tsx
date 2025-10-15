@@ -34,9 +34,9 @@ export interface FirebaseContextState {
 
 // Return type for useFirebase()
 export interface FirebaseServicesAndUser {
-  firebaseApp: FirebaseApp;
-  firestore: Firestore;
-  auth: Auth;
+  firebaseApp: FirebaseApp | null;
+  firestore: Firestore | null;
+  auth: Auth | null;
   user: User | null;
   isUserLoading: boolean;
   userError: Error | null;
@@ -119,13 +119,13 @@ export const useFirebase = (): FirebaseServicesAndUser => {
   const context = useContext(FirebaseContext);
 
   if (context === undefined) {
+    // This case might happen if a component is rendered outside the provider,
+    // which is a developer error.
     throw new Error('useFirebase must be used within a FirebaseProvider.');
   }
 
-  if (!context.areServicesAvailable || !context.firebaseApp || !context.firestore || !context.auth) {
-    throw new Error('Firebase core services not available. Check FirebaseProvider props.');
-  }
-
+  // Instead of throwing an error, we return the possibly-null services.
+  // The UI components should be prepared to handle this case (e.g., show a loading spinner).
   return {
     firebaseApp: context.firebaseApp,
     firestore: context.firestore,
@@ -139,18 +139,27 @@ export const useFirebase = (): FirebaseServicesAndUser => {
 /** Hook to access Firebase Auth instance. */
 export const useAuth = (): Auth => {
   const { auth } = useFirebase();
+  if (!auth) {
+    throw new Error("useAuth() can't be used here. Auth service is not available.");
+  }
   return auth;
 };
 
 /** Hook to access Firestore instance. */
 export const useFirestore = (): Firestore => {
   const { firestore } = useFirebase();
+   if (!firestore) {
+    throw new Error("useFirestore() can't be used here. Firestore service is not available.");
+  }
   return firestore;
 };
 
 /** Hook to access Firebase App instance. */
 export const useFirebaseApp = (): FirebaseApp => {
   const { firebaseApp } = useFirebase();
+   if (!firebaseApp) {
+    throw new Error("useFirebaseApp() can't be used here. Firebase App service is not available.");
+  }
   return firebaseApp;
 };
 

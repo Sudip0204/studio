@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { useAuth, useUser, setDocumentNonBlocking, initiateEmailSignIn } from "@/firebase";
 import { doc, serverTimestamp } from "firebase/firestore";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/hooks/use-toast";
 import { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
@@ -208,13 +208,16 @@ function SignupForm() {
 export default function AuthPage() {
   const { user } = useUser();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectUrl = searchParams.get('redirect') || '/marketplace';
+
   const [activeTab, setActiveTab] = useState("login");
 
   useEffect(() => {
     if (user) {
-      router.push("/marketplace");
+      router.push(redirectUrl);
     }
-  }, [user, router]);
+  }, [user, router, redirectUrl]);
 
   return (
     <div className="container mx-auto py-12 px-4 flex justify-center items-center min-h-[60vh]">
