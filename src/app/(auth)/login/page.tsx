@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm, useFormContext } from 'react-hook-form';
@@ -157,8 +158,6 @@ function LoginForm({ onSwitchToSignup }: { onSwitchToSignup: () => void }) {
 
 const Step1 = () => {
   const { control } = useFormContext();
-  const maxDate = new Date();
-  maxDate.setFullYear(maxDate.getFullYear());
   const minDate = new Date();
   minDate.setFullYear(minDate.getFullYear() - 150);
 
@@ -187,7 +186,7 @@ const Step1 = () => {
               <Input
                 type="date"
                 {...field}
-                max={maxDate.toISOString().split('T')[0]}
+                max="2025-12-31"
                 min={minDate.toISOString().split('T')[0]}
               />
             </FormControl>
