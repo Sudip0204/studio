@@ -2,11 +2,14 @@
 'use client';
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Award, Ticket, CircleSlash, CheckCircle, Calendar, Shirt, MonitorSmartphone, Lamp } from "lucide-react";
+import { Award, Ticket, CircleSlash, CheckCircle, Calendar, Shirt, MonitorSmartphone, Lamp, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { differenceInDays, format, isPast } from 'date-fns';
+import { useUser } from "@/firebase";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 type Coupon = {
   id: string;
@@ -94,6 +97,23 @@ const CouponCard = ({ coupon }: { coupon: Coupon }) => {
 
 
 export default function RewardsPage() {
+  const { user, isUserLoading } = useUser();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isUserLoading, router]);
+
+  if (isUserLoading || !user) {
+    return (
+      <div className="container mx-auto py-12 px-4 flex justify-center items-center min-h-[60vh]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto py-12 px-4">
        <Card className="w-full max-w-4xl mx-auto bg-transparent border-none shadow-none">
