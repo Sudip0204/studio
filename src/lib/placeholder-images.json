@@ -31,6 +31,36 @@
       "imageHint": "person portrait"
     },
     {
+      "id": "user-3",
+      "description": "Avatar for a leaderboard user.",
+      "imageUrl": "https://picsum.photos/seed/user3/100/100",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "user-you",
+      "description": "Avatar for the current leaderboard user.",
+      "imageUrl": "https://picsum.photos/seed/useryou/100/100",
+      "imageHint": "person happy"
+    },
+    {
+      "id": "user-5",
+      "description": "Avatar for a leaderboard user.",
+      "imageUrl": "https://picsum.photos/seed/user5/100/100",
+      "imageHint": "person profile"
+    },
+    {
+      "id": "user-6",
+      "description": "Avatar for a leaderboard user.",
+      "imageUrl": "https://picsum.photos/seed/user6/100/100",
+      "imageHint": "person serious"
+    },
+    {
+      "id": "user-7",
+      "description": "Avatar for a leaderboard user.",
+      "imageUrl": "https://picsum.photos/seed/user7/100/100",
+      "imageHint": "person glasses"
+    },
+    {
       "id": "recycling-guide-hero",
       "description": "An inspiring image about recycling for the guide page hero.",
       "imageUrl": "https://picsum.photos/seed/guidehero/1600/600",
