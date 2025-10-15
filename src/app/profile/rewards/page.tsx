@@ -10,6 +10,7 @@ import { differenceInDays, format, isPast } from 'date-fns';
 import { useUser } from "@/firebase";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 type Coupon = {
   id: string;
@@ -35,6 +36,7 @@ const coupons: Coupon[] = [
 ];
 
 const CouponCard = ({ coupon }: { coupon: Coupon }) => {
+    const { toast } = useToast();
     const isExpired = isPast(coupon.expiryDate);
     const isDisabled = coupon.used || isExpired;
     const daysLeft = differenceInDays(coupon.expiryDate, new Date());
@@ -59,6 +61,16 @@ const CouponCard = ({ coupon }: { coupon: Coupon }) => {
         };
     }
     
+    const handleApplyClick = () => {
+        if (isDisabled) {
+            toast({
+                variant: "destructive",
+                title: "Coupon Invalid",
+                description: `This coupon is ${coupon.used ? 'already used' : 'expired'}.`,
+            });
+        }
+    };
+    
     return (
         <Card className={cn("flex flex-col overflow-hidden transition-all", isDisabled && "bg-muted/50 opacity-75")}>
             <div className={cn("h-2 w-full", isDisabled ? "bg-muted-foreground/30" : "bg-primary")}></div>
@@ -78,9 +90,15 @@ const CouponCard = ({ coupon }: { coupon: Coupon }) => {
                         {status.icon}
                         <span>{status.label}</span>
                     </div>
-                     <Button asChild disabled={isDisabled} variant={isDisabled ? 'secondary' : 'default'}>
-                        <Link href="/marketplace">Apply</Link>
-                    </Button>
+                    {isDisabled ? (
+                         <Button onClick={handleApplyClick} disabled={isDisabled} variant="secondary">
+                            Apply
+                         </Button>
+                    ) : (
+                        <Button asChild>
+                            <Link href="/marketplace">Apply</Link>
+                        </Button>
+                    )}
                 </div>
                  <div className="flex items-center gap-2 text-xs text-muted-foreground mt-2">
                     <Calendar className="h-4 w-4" />
