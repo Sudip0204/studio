@@ -44,6 +44,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { CountryCodeSelect } from '@/components/country-code-select';
+import { format } from 'date-fns';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -186,7 +187,7 @@ const Step1 = () => {
               <Input
                 type="date"
                 {...field}
-                placeholder="dd/MM/yyyy"
+                placeholder="dd-MM-yyyy"
                 max="2025-12-31"
                 min={minDate.toISOString().split('T')[0]}
               />
