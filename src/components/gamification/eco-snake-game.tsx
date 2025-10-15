@@ -5,11 +5,12 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
-import { Award, Play, RotateCw } from 'lucide-react';
+import { Award, Play, RotateCw, Maximize, Minimize } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 // Game constants
 const GRID_SIZE = 20;
-const TILE_SIZE = 24; // size of each grid cell in pixels
+const INITIAL_TILE_SIZE = 24; // Base size of each grid cell in pixels
 const GAME_SPEED = 150; // ms between game ticks
 
 type Snake = { x: number; y: number }[];
@@ -46,7 +47,50 @@ export function EcoSnakeGame() {
   const [highScore, setHighScore] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isGameStarted, setIsGameStarted] = useState(false);
+  const [isFullScreen, setIsFullScreen] = useState(false);
+  const [tileSize, setTileSize] = useState(INITIAL_TILE_SIZE);
+  
   const gameLoopRef = useRef<NodeJS.Timeout | null>(null);
+  const gameContainerRef = useRef<HTMLDivElement>(null);
+  const gameBoardRef = useRef<HTMLDivElement>(null);
+
+
+  const updateTileSize = useCallback(() => {
+    if (gameBoardRef.current) {
+        const { width, height } = gameBoardRef.current.getBoundingClientRect();
+        const minDim = Math.min(width, height);
+        setTileSize(Math.floor(minDim / GRID_SIZE));
+    }
+  }, []);
+
+  const handleFullScreenChange = useCallback(() => {
+    setIsFullScreen(!!document.fullscreenElement);
+  }, []);
+
+  useEffect(() => {
+    document.addEventListener('fullscreenchange', handleFullScreenChange);
+    window.addEventListener('resize', updateTileSize);
+    
+    return () => {
+      document.removeEventListener('fullscreenchange', handleFullScreenChange);
+      window.removeEventListener('resize', updateTileSize);
+    };
+  }, [handleFullScreenChange, updateTileSize]);
+
+  useEffect(() => {
+    updateTileSize();
+  }, [isFullScreen, updateTileSize]);
+
+  const toggleFullScreen = () => {
+    if (!gameContainerRef.current) return;
+    if (!document.fullscreenElement) {
+      gameContainerRef.current.requestFullscreen().catch(err => {
+        alert(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
 
   const resetGame = useCallback(() => {
     setSnake([{ x: 10, y: 10 }]);
@@ -171,8 +215,8 @@ export function EcoSnakeGame() {
             key={`${x}-${y}`}
             className="rounded-sm"
             style={{
-              width: TILE_SIZE,
-              height: TILE_SIZE,
+              width: tileSize,
+              height: tileSize,
               backgroundColor: isSnakeHead ? '#2E7D32' : isSnake ? '#4CAF50' : 'hsl(var(--muted))',
               position: 'relative'
             }}
@@ -188,7 +232,7 @@ export function EcoSnakeGame() {
   };
 
   return (
-    <div className="flex flex-col items-center">
+    <div ref={gameContainerRef} className="flex flex-col items-center w-full bg-background transition-all duration-300 p-4 rounded-lg data-[fullscreen=true]:p-8 data-[fullscreen=true]:h-screen data-[fullscreen=true]:justify-center" data-fullscreen={isFullScreen}>
       <div className="flex justify-between w-full max-w-lg mb-4 p-4 rounded-lg bg-muted">
         <div className="text-center">
             <p className="text-sm text-muted-foreground">Score</p>
@@ -198,15 +242,20 @@ export function EcoSnakeGame() {
             <p className="text-sm text-muted-foreground">High Score</p>
             <p className="text-2xl font-bold text-primary">{highScore}</p>
         </div>
+        <Button variant="outline" size="icon" onClick={toggleFullScreen} className="self-center">
+            {isFullScreen ? <Minimize /> : <Maximize />}
+            <span className="sr-only">Toggle Fullscreen</span>
+        </Button>
       </div>
       <div
-        className="relative bg-background-alt border-4 border-muted-foreground/20 rounded-lg overflow-hidden"
+        ref={gameBoardRef}
+        className="relative bg-background-alt border-4 border-muted-foreground/20 rounded-lg overflow-hidden transition-all duration-300"
         style={{
           display: 'grid',
-          gridTemplateColumns: `repeat(${GRID_SIZE}, ${TILE_SIZE}px)`,
-          gridTemplateRows: `repeat(${GRID_SIZE}, ${TILE_SIZE}px)`,
-          width: GRID_SIZE * TILE_SIZE,
-          height: GRID_SIZE * TILE_SIZE,
+          gridTemplateColumns: `repeat(${GRID_SIZE}, ${tileSize}px)`,
+          gridTemplateRows: `repeat(${GRID_SIZE}, ${tileSize}px)`,
+          width: GRID_SIZE * tileSize,
+          height: GRID_SIZE * tileSize,
         }}
       >
         {!isGameStarted && (
