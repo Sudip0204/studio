@@ -36,6 +36,22 @@
         "address": { "type": "string" }
       },
       "required": ["name", "email", "dob", "gender", "phoneNumber", "address"]
+    },
+    "UserAddress": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserAddress",
+      "type": "object",
+      "description": "Represents a user's saved address.",
+      "properties": {
+        "name": { "type": "string" },
+        "phoneNumber": { "type": "string" },
+        "pincode": { "type": "string" },
+        "addressLine": { "type": "string" },
+        "city": { "type": "string" },
+        "state": { "type": "string" },
+        "isDefault": { "type": "boolean" }
+      },
+      "required": ["name", "phoneNumber", "pincode", "addressLine", "city", "state"]
     }
   },
   "auth": {
@@ -49,8 +65,14 @@
           "schema": { "$ref": "#/entities/UserProfile" },
           "description": "Stores user profiles and application-specific data."
         }
+      },
+      {
+        "path": "/users/{userId}/addresses/{addressId}",
+        "definition": {
+          "schema": { "$ref": "#/entities/UserAddress" },
+          "description": "Stores a user's saved shipping addresses."
+        }
       }
     ]
   }
 }
-

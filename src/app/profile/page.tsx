@@ -1,15 +1,25 @@
-
 'use client';
 
-import { useUser } from '@/firebase';
+import { useUser, useAuth } from '@/firebase';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Award, BarChart3, Edit, LogOut } from 'lucide-react';
-import Link from 'next/link';
+import { Edit, LogOut } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { useAuth } from '@/firebase';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { PersonalInformation } from './personal-information';
+import { ManageAddresses } from './manage-addresses';
+import { Skeleton } from '@/components/ui/skeleton';
+
+function AccountSettings() {
+  return (
+    <div className="p-6">
+      <h3 className="text-lg font-medium">Account Settings</h3>
+      <p className="text-sm text-muted-foreground">Manage your account settings and preferences.</p>
+    </div>
+  )
+}
 
 export default function ProfilePage() {
   const { user, isUserLoading } = useUser();
@@ -18,7 +28,7 @@ export default function ProfilePage() {
 
   useEffect(() => {
     if (!isUserLoading && !user) {
-      router.push('/login');
+      router.push('/login?redirect=/profile');
     }
   }, [user, isUserLoading, router]);
 
@@ -28,50 +38,68 @@ export default function ProfilePage() {
 
   if (isUserLoading || !user) {
     return (
-      <div className="container mx-auto py-12 px-4 flex justify-center items-center min-h-[60vh]">
-        <p>Loading...</p>
+      <div className="container mx-auto py-12 px-4 max-w-5xl">
+        <Card>
+          <CardHeader className="flex flex-col md:flex-row items-center gap-6">
+            <Skeleton className="h-24 w-24 rounded-full" />
+            <div className="flex-1 space-y-2">
+              <Skeleton className="h-8 w-48" />
+              <Skeleton className="h-6 w-64" />
+            </div>
+            <Skeleton className="h-10 w-24" />
+          </CardHeader>
+          <CardContent>
+            <Skeleton className="h-10 w-full" />
+            <div className="mt-6 p-6 border rounded-lg">
+                <Skeleton className="h-8 w-1/3 mb-4" />
+                <Skeleton className="h-24 w-full" />
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-12 px-4">
-      <Card className="max-w-4xl mx-auto">
-        <CardHeader className="flex flex-col md:flex-row items-center gap-6">
-          <Avatar className="h-24 w-24">
-            <AvatarImage src={user.photoURL || undefined} alt={user.displayName || user.email || ''} />
-            <AvatarFallback>{user.email?.[0].toUpperCase()}</AvatarFallback>
-          </Avatar>
-          <div className="flex-1 text-center md:text-left">
-            <CardTitle className="font-headline text-3xl">{user.displayName || 'Eco-Warrior'}</CardTitle>
-            <CardDescription className="text-lg text-muted-foreground">{user.email}</CardDescription>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline"><Edit className="mr-2 h-4 w-4" /> Edit Profile</Button>
-            <Button variant="destructive" onClick={handleLogout}><LogOut className="mr-2 h-4 w-4" /> Logout</Button>
-          </div>
-        </CardHeader>
-        <CardContent className="mt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-           <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2"><BarChart3 className="text-primary"/> Your Stats</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <p><strong>EcoPoints:</strong> 1,250</p>
-                <p><strong>Level:</strong> Earth Advocate</p>
-                <p><strong>Items Recycled:</strong> 42</p>
-              </CardContent>
-            </Card>
-            <Card className="flex flex-col items-center justify-center text-center p-6 hover:bg-muted/50 transition-colors">
-              <Award className="h-12 w-12 text-primary mb-4" />
-              <h3 className="font-headline text-xl font-semibold">Rewards</h3>
-              <p className="text-muted-foreground text-sm mb-4">View your earned rewards and redeem points.</p>
-              <Button asChild>
-                <Link href="/profile/rewards">Go to Rewards</Link>
-              </Button>
-            </Card>
-        </CardContent>
-      </Card>
+    <div className="bg-muted/40 min-h-screen">
+      <div className="container mx-auto py-12 px-4 max-w-5xl">
+        <Card className="overflow-hidden">
+          <CardHeader className="flex flex-col md:flex-row items-center gap-6 bg-background">
+            <Avatar className="h-24 w-24 border-4 border-background ring-2 ring-primary">
+              <AvatarImage src={user.photoURL || undefined} alt={user.displayName || user.email || ''} />
+              <AvatarFallback>{user.email?.[0].toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1 text-center md:text-left">
+              <p className="text-sm text-muted-foreground">Hello,</p>
+              <CardTitle className="font-headline text-3xl">{user.displayName || 'Eco-Warrior'}</CardTitle>
+            </div>
+            <Button variant="outline" onClick={handleLogout}>
+              <LogOut className="mr-2 h-4 w-4" /> Logout
+            </Button>
+          </CardHeader>
+          <CardContent className="p-0">
+             <Tabs defaultValue="personal-info" className="w-full">
+                <TabsList className="grid w-full grid-cols-3 rounded-none">
+                    <TabsTrigger value="personal-info">Personal Information</TabsTrigger>
+                    <TabsTrigger value="addresses">Manage Addresses</TabsTrigger>
+                    <TabsTrigger value="settings">Account Settings</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="personal-info">
+                    <PersonalInformation user={user} />
+                </TabsContent>
+
+                 <TabsContent value="addresses">
+                    <ManageAddresses userId={user.uid} />
+                </TabsContent>
+                
+                 <TabsContent value="settings">
+                    <AccountSettings />
+                </TabsContent>
+            </Tabs>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
