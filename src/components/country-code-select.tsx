@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -9,12 +10,12 @@ import {
 } from '@/components/ui/select';
 
 const countryCodes = [
-  { code: '+91', country: 'India' },
-  { code: '+1', country: 'USA' },
-  { code: '+44', country: 'UK' },
-  { code: '+61', country: 'Australia' },
-  { code: '+86', country: 'China' },
-  { code: '+81', country: 'Japan' },
+  { code: '+91', country: 'India', flag: '🇮🇳' },
+  { code: '+1', country: 'USA', flag: '🇺🇸' },
+  { code: '+44', country: 'UK', flag: '🇬🇧' },
+  { code: '+61', country: 'Australia', flag: '🇦🇺' },
+  { code: '+86', country: 'China', flag: '🇨🇳' },
+  { code: '+81', country: 'Japan', flag: '🇯🇵' },
 ];
 
 interface CountryCodeSelectProps {
@@ -31,7 +32,10 @@ export function CountryCodeSelect({ onValueChange, defaultValue }: CountryCodeSe
       <SelectContent>
         {countryCodes.map((item) => (
           <SelectItem key={item.code} value={item.code}>
-            {item.code}
+            <span className="flex items-center gap-2">
+              <span>{item.flag}</span>
+              <span>{item.code}</span>
+            </span>
           </SelectItem>
         ))}
       </SelectContent>
