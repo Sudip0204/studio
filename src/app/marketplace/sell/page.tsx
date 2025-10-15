@@ -13,8 +13,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Upload, PlusCircle, Image as ImageIcon } from 'lucide-react';
+import { Loader2, PlusCircle, Image as ImageIcon } from 'lucide-react';
 import Image from 'next/image';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+
+const categories = ["Electronics", "Furniture", "Clothing", "Books", "Home Decor", "Kitchenware", "Accessories", "Personal Care"];
+const conditions = ["New", "Good", "Fair", "Used"];
 
 const productSchema = z.object({
   name: z.string().min(3, 'Product name must be at least 3 characters long.'),
@@ -23,6 +27,9 @@ const productSchema = z.object({
     (a) => parseFloat(z.string().parse(a)),
     z.number().positive('Price must be a positive number.')
   ),
+  category: z.string({ required_error: "Please select a category." }),
+  condition: z.string({ required_error: "Please select a condition." }),
+  location: z.string().min(2, 'Location must be at least 2 characters long.'),
   image: z.any().refine(file => !!file, 'Product image is required.'),
 });
 
@@ -42,6 +49,7 @@ export default function SellItemPage() {
       name: '',
       description: '',
       price: 0,
+      location: '',
     },
   });
 
@@ -75,9 +83,9 @@ export default function SellItemPage() {
             image: values.image, // This is now a data URL
             seller: user?.displayName || "Anonymous",
             dataAiHint: values.name.toLowerCase().split(' ').slice(0, 2).join(' '),
-            category: "Miscellaneous", // Default category
-            condition: "Used", // Default condition
-            location: "Online", // Default location
+            category: values.category,
+            condition: values.condition,
+            location: values.location,
         };
 
         const existingProducts = JSON.parse(localStorage.getItem('userProducts') || '[]');
@@ -149,19 +157,78 @@ export default function SellItemPage() {
                 )}
               />
 
-              <FormField
-                control={form.control}
-                name="price"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Price (in ₹)</FormLabel>
-                    <FormControl>
-                      <Input type="number" placeholder="e.g., 1500" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <FormField
+                  control={form.control}
+                  name="price"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Price (in ₹)</FormLabel>
+                      <FormControl>
+                        <Input type="number" placeholder="e.g., 1500" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="location"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Location</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g., Bandra West, Mumbai" {...field} />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+
+               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                 <FormField
+                    control={form.control}
+                    name="category"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Category</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a category" />
+                            </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {categories.map(cat => <SelectItem key={cat} value={cat}>{cat}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+                 <FormField
+                    control={form.control}
+                    name="condition"
+                    render={({ field }) => (
+                        <FormItem>
+                        <FormLabel>Condition</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                            <FormControl>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select the item's condition" />
+                            </SelectTrigger>
+                            </FormControl>
+                            <SelectContent>
+                                {conditions.map(con => <SelectItem key={con} value={con}>{con}</SelectItem>)}
+                            </SelectContent>
+                        </Select>
+                        <FormMessage />
+                        </FormItem>
+                    )}
+                    />
+               </div>
+
 
               <FormField
                 control={form.control}
@@ -217,5 +284,3 @@ export default function SellItemPage() {
     </div>
   );
 }
-
-    
