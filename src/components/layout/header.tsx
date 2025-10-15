@@ -107,12 +107,6 @@ export function Header() {
                     <span>Rewards</span>
                   </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="/forum">
-                    <Users className="mr-2 h-4 w-4" />
-                    <span>Community Forum</span>
-                  </Link>
-                </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
