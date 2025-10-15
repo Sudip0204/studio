@@ -30,7 +30,10 @@
         "phoneNumber": { "type": "string" },
         "photoURL": { "type": "string", "format": "uri" },
         "createdAt": { "type": "string", "format": "date-time" },
-        "rewardPoints": { "type": "number" }
+        "rewardPoints": { "type": "number" },
+        "dob": { "type": "string", "format": "date" },
+        "gender": { "type": "string" },
+        "address": { "type": "string" }
       },
       "required": ["name", "email"]
     }
@@ -50,3 +53,5 @@
     ]
   }
 }
+
+    
