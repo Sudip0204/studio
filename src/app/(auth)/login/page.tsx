@@ -209,7 +209,7 @@ const Step1 = () => {
                   selected={field.value}
                   onSelect={field.onChange}
                   disabled={(date) =>
-                    date > new Date() || new Date(new Date().setFullYear(new Date().getFullYear() - 150)) > date
+                    date > new Date() || date < new Date(new Date().setFullYear(new Date().getFullYear() - 150))
                   }
                   initialFocus
                 />
@@ -483,3 +483,5 @@ export default function AuthPage() {
     </div>
   );
 }
+
+    
