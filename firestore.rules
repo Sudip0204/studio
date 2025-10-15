@@ -1,115 +1,77 @@
 /**
- * @file Overview
- * This ruleset enforces a mixed security model, allowing public read access to forum posts and leaderboard data
- * while restricting user profiles and write access to specific owners or authenticated users.
+ * @fileoverview Firestore Security Rules for EcoCity application.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for user profiles and addresses.
+ * Users can only read and write their own data.
  *
  * Data Structure:
- * - /users/{userId}: Stores individual user profiles, accessible only to the owner.
- * - /communityPosts/{postId}: Top-level collection for public forum posts.
- * - /communityPosts/{postId}/comments/{commentId}: Subcollection for comments, write access open to authetnicated users.
- * - /leaderboard/{scoreId}: Stores Eco-Runner high scores, publicly readable.
+ * - /users/{userId}: Stores user profile data.
+ * - /users/{userId}/addresses/{addressId}: Stores user-specific address data.
  *
  * Key Security Decisions:
- * - User profiles are strictly private and only accessible to the owning user.
- * - Forum posts are publicly readable but writable only by authenticated users.
- * - Leaderboard data is publicly readable.
+ * - Users can only access their own user document and associated subcollections.
+ * - Listing all users is disallowed for privacy.
+ * - All writes are validated against the authenticated user's ID.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Controls access to user profile information.
+     * @description Checks if the request is made by a signed-in user.
+     * @return {boolean} True if the user is signed in, false otherwise.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the authenticated user ID matches the provided user ID.
+     * @param {string} userId - The user ID to compare against the authenticated user's ID.
+     * @return {boolean} True if the user IDs match, false otherwise.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Checks if the authenticated user is the owner of an existing document.
+     * @param {string} userId - The user ID of the document owner.
+     * @return {boolean} True if the user is the owner and the document exists, false otherwise.
+     */
+    function isExistingOwner(userId) {
+      return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description Rules for user profiles.
      * @path /users/{userId}
-     * @allow (create) User with ID 'user123' can create their profile.
-     * @deny (create) User with ID 'user456' cannot create profile for 'user123'.
-     * @allow (get) User with ID 'user123' can read their profile.
-     * @deny (get) User with ID 'user456' cannot read profile for 'user123'.
-     * @principle Enforces document ownership for all operations.
+     * @allow (read, write) if user is signed in and their UID matches the userId.
+     * @deny (read, write) if user is not signed in or their UID does not match the userId.
+     * @principle Enforces document ownership for writes.
      */
     match /users/{userId} {
-      function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
-      }
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
-      }
-
-      allow create: if isOwner(userId);
       allow get: if isOwner(userId);
       allow list: if false;
-      allow update: if isExistingOwner(userId);
+      allow create: if isOwner(userId) && request.resource.data.email is string && request.resource.data.name is string;
+      allow update: if isExistingOwner(userId) && request.resource.data.email == resource.data.email && request.resource.data.name == resource.data.name;
       allow delete: if isExistingOwner(userId);
-    }
 
-    /**
-     * @description Controls access to community forum posts.
-     * @path /communityPosts/{postId}
-     * @allow (get, list) Any user can read forum posts.
-     * @allow (create) Authenticated users can create forum posts.
-     * @deny (create) Unauthenticated users cannot create forum posts.
-     * @allow (update, delete) Only the author can update or delete their post.
-     * @deny (update, delete) Other users cannot modify or delete posts.
-     * @principle Allows public read access but restricts write access to the author.
-     */
-    match /communityPosts/{postId} {
-      function isSignedIn() {
-        return request.auth != null;
+      /**
+       * @description Rules for user addresses subcollection.
+       * @path /users/{userId}/addresses/{addressId}
+       * @allow (create, read, update, delete) if user is signed in and their UID matches the userId.
+       * @deny (create, read, update, delete) if user is not signed in or their UID does not match the userId.
+       * @principle Enforces document ownership for writes.
+       */
+      match /addresses/{addressId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId);
+        allow update: if isExistingOwner(userId);
+        allow delete: if isExistingOwner(userId);
       }
-      function isOwner(authorId) {
-        return request.auth != null && request.auth.uid == authorId;
-      }
-      function isExistingOwner(authorId) {
-        return isOwner(authorId) && resource != null;
-      }
-
-      allow get, list: if true;
-      allow create: if isSignedIn();
-      allow update: if isExistingOwner(resource.data.authorId);
-      allow delete: if isExistingOwner(resource.data.authorId);
-    }
-
-    /**
-     * @description Controls access to comments on forum posts.
-     * @path /communityPosts/{postId}/comments/{commentId}
-     * @allow (get, list) Any user can read comments on forum posts.
-     * @allow (create) Authenticated users can create comments.
-     * @deny (create) Unauthenticated users cannot create comments.
-     * @allow (update, delete) Only the author can update or delete their comment.
-     * @deny (update, delete) Other users cannot modify or delete comments.
-     * @principle Allows public read access but restricts write access to authenticated users.
-     */
-    match /communityPosts/{postId}/comments/{commentId} {
-      function isSignedIn() {
-        return request.auth != null;
-      }
-       function isOwner(authorId) {
-        return request.auth != null && request.auth.uid == authorId;
-      }
-      function isExistingOwner(authorId) {
-        return isOwner(authorId) && resource != null;
-      }
-
-      allow get, list: if true;
-      allow create: if isSignedIn();
-      allow update: if isExistingOwner(resource.data.authorId);
-      allow delete: if isExistingOwner(resource.data.authorId);
-    }
-
-    /**
-     * @description Controls access to leaderboard entries.
-     * @path /leaderboard/{scoreId}
-     * @allow (get, list) Any user can read leaderboard entries.
-     * @allow (create) Authenticated users can create leaderboard entries.
-     * @deny (update, delete) No one can modify or delete leaderboard entries.
-     */
-    match /leaderboard/{scoreId} {
-      function isSignedIn() {
-        return request.auth != null;
-      }
-      allow get, list: if true;
-      allow create: if isSignedIn();
-      allow update, delete: if false;
     }
   }
 }
