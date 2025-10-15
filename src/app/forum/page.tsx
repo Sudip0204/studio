@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect, useMemo } from 'react';
@@ -8,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader2, Send, Image as ImageIcon, X, Heart, MessageSquare, Shield, PlusCircle } from 'lucide-react';
+import { Loader2, Send, Image as ImageIcon, X, Heart, MessageSquare, PlusCircle } from 'lucide-react';
 import { collection, query, orderBy, limit, serverTimestamp, doc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import type { ForumPost, UserProfile } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
@@ -16,7 +17,7 @@ import Link from 'next/link';
 import { formatDistanceToNow } from 'date-fns';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
-
+import { Input } from '@/components/ui/input';
 
 function PostAuthor({ authorId }: { authorId: string }) {
     const firestore = useFirestore();
@@ -25,18 +26,18 @@ function PostAuthor({ authorId }: { authorId: string }) {
 
     if (!author) {
         return (
-            <div className="flex items-center gap-2">
-                <Avatar className="h-8 w-8">
+            <div className="flex items-center gap-3">
+                <Avatar className="h-10 w-10">
                     <AvatarFallback>?</AvatarFallback>
                 </Avatar>
-                <p className="font-semibold text-sm">Loading...</p>
+                <div className='w-24 h-4 bg-muted rounded-md animate-pulse'></div>
             </div>
         );
     }
 
     return (
-        <div className="flex items-center gap-2">
-            <Avatar className="h-8 w-8">
+        <div className="flex items-center gap-3">
+            <Avatar className="h-10 w-10">
                 <AvatarImage src={author?.photoURL || undefined} alt={author?.name || ''} />
                 <AvatarFallback>{author?.name?.[0].toUpperCase() || 'U'}</AvatarFallback>
             </Avatar>
@@ -58,7 +59,7 @@ function PostCard({ post }: { post: ForumPost }) {
   }, [user, post.likes]);
 
   const handleLike = (e: React.MouseEvent) => {
-    e.stopPropagation(); // Prevent dialog from opening when liking
+    e.stopPropagation();
     if (!user) return;
     const postRef = doc(firestore, 'communityPosts', post.id);
     
@@ -74,71 +75,44 @@ function PostCard({ post }: { post: ForumPost }) {
   };
 
   return (
-    <Dialog>
-        <DialogTrigger asChild>
-            <div className="group relative aspect-square w-full cursor-pointer overflow-hidden rounded-lg">
-                {post.imageUrl ? (
-                    <Image src={post.imageUrl} alt="Forum post" fill className="object-cover transition-transform duration-300 group-hover:scale-105" />
-                ) : (
-                    <div className="flex h-full w-full items-center justify-center bg-muted p-4">
-                        <p className="line-clamp-6 text-sm text-muted-foreground">{post.content}</p>
-                    </div>
-                )}
-                <div className="absolute inset-0 bg-black/40 opacity-0 transition-opacity group-hover:opacity-100 flex items-center justify-center">
-                    <div className="flex items-center gap-6 text-white">
-                        <div className="flex items-center gap-2">
-                            <Heart className="h-6 w-6" fill={isLiked ? "white" : "none"} />
-                            <span className="font-bold">{likeCount}</span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                            <MessageSquare className="h-6 w-6" />
-                            <span className="font-bold">{post.commentCount || 0}</span>
-                        </div>
+    <div className="group relative bg-card p-4 rounded-lg shadow-sm transition-all duration-200 hover:shadow-md hover:-translate-y-1 flex gap-4 items-start">
+        <div className='flex-shrink-0'>
+            <PostAuthor authorId={post.authorId} />
+        </div>
+        <div className="flex-grow">
+            <div className='flex justify-between items-center'>
+                 <p className="text-xs text-muted-foreground">
+                    {post.createdAt && formatDistanceToNow((post.createdAt as any).toDate(), { addSuffix: true })}
+                </p>
+                <div className='flex items-center gap-4'>
+                     <button onClick={handleLike} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-primary transition-colors disabled:opacity-50" disabled={!user}>
+                        <Heart className={cn("h-4 w-4", isLiked ? 'text-red-500 fill-current' : '')} />
+                        <span>{likeCount}</span>
+                    </button>
+                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                        <MessageSquare className="h-4 w-4" />
+                        <span>{post.commentCount || 0}</span>
                     </div>
                 </div>
             </div>
-        </DialogTrigger>
-        <DialogContent className="max-w-4xl p-0">
-            <div className="grid md:grid-cols-2">
-                <div className="relative aspect-square">
-                    {post.imageUrl ? (
-                        <Image src={post.imageUrl} alt="Forum post" fill className="object-cover rounded-l-lg" />
-                     ) : (
-                        <div className="flex h-full w-full items-center justify-center bg-muted p-8 rounded-l-lg">
-                            <p className="text-muted-foreground italic">{post.content}</p>
-                        </div>
-                    )}
-                </div>
-                <div className="flex flex-col">
-                    <div className="p-4 border-b">
-                        <PostAuthor authorId={post.authorId} />
+            <div className="mt-2 space-y-2">
+                 {post.title && <h3 className='font-bold'>{post.title}</h3>}
+                 <p className="text-sm text-foreground/90 whitespace-pre-wrap">{post.content}</p>
+                 {post.imageUrl && (
+                    <div className="relative aspect-video rounded-md overflow-hidden mt-2">
+                        <Image src={post.imageUrl} alt="Post image" fill className="object-cover"/>
                     </div>
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                        <p>{post.content}</p>
-                        <p className="text-xs text-muted-foreground">
-                            {post.createdAt && formatDistanceToNow((post.createdAt as any).toDate(), { addSuffix: true })}
-                        </p>
-                    </div>
-                    <div className="p-4 border-t flex items-center gap-4">
-                        <button onClick={handleLike} className="flex items-center gap-2 text-sm hover:text-primary transition-colors disabled:opacity-50" disabled={!user}>
-                            <Heart className={cn("h-5 w-5", isLiked ? 'text-red-500 fill-current' : '')} />
-                            <span>{likeCount} {likeCount === 1 ? 'like' : 'likes'}</span>
-                        </button>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <MessageSquare className="h-5 w-5" />
-                            <span>{post.commentCount || 0} comments</span>
-                        </div>
-                    </div>
-                </div>
+                 )}
             </div>
-        </DialogContent>
-    </Dialog>
+        </div>
+    </div>
   );
 }
 
 function PostComposerDialog({ open, onOpenChange }: { open: boolean, onOpenChange: (open: boolean) => void }) {
   const { user } = useUser();
   const firestore = useFirestore();
+  const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -168,14 +142,17 @@ function PostComposerDialog({ open, onOpenChange }: { open: boolean, onOpenChang
 
     let imageUrl = '';
     if (imageFile) {
-        // Placeholder for Firebase Storage upload
+        // In a real app, this would upload to Firebase Storage and get a URL
+        // For this demo, we'll just use the base64 preview URL.
         await new Promise(res => setTimeout(res, 1500));
-        imageUrl = imagePreview!; // In real app, get URL from storage
+        imageUrl = imagePreview!;
+        toast({ title: "Image 'uploaded'!", description: "In a real app, this would be in Firebase Storage."});
     }
 
     const postsCollection = collection(firestore, 'communityPosts');
     addDocumentNonBlocking(postsCollection, {
       authorId: user.uid,
+      title,
       content,
       imageUrl,
       likes: [],
@@ -184,6 +161,7 @@ function PostComposerDialog({ open, onOpenChange }: { open: boolean, onOpenChang
     });
 
     toast({ title: "Post Created!", description: "Your post is now live in the community forum." });
+    setTitle('');
     setContent('');
     removeImage();
     setIsSubmitting(false);
@@ -197,9 +175,9 @@ function PostComposerDialog({ open, onOpenChange }: { open: boolean, onOpenChang
                 <DialogTitle className="font-headline text-2xl">Create a New Post</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
-                <div className="grid w-full gap-1.5">
-                    <Textarea placeholder="Share your thoughts..." value={content} onChange={(e) => setContent(e.target.value)} rows={4} />
-                </div>
+                <Input placeholder="Title (optional)" value={title} onChange={(e) => setTitle(e.target.value)} />
+                <Textarea placeholder="Share your thoughts, experiences, or questions with the community..." value={content} onChange={(e) => setContent(e.target.value)} rows={5} />
+                
                 {imagePreview && (
                     <div className="relative w-full aspect-video rounded-md overflow-hidden">
                         <Image src={imagePreview} alt="Preview" fill objectFit="cover" />
@@ -208,11 +186,13 @@ function PostComposerDialog({ open, onOpenChange }: { open: boolean, onOpenChang
                         </Button>
                     </div>
                 )}
+
                 <div className="flex justify-between items-center">
-                    <Button variant="outline" onClick={() => fileInputRef.current?.click()}>
+                    <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
                         <ImageIcon className="mr-2 h-4 w-4" /> Add Image
                     </Button>
                     <input type="file" ref={fileInputRef} onChange={handleImageChange} accept="image/*" className="hidden" />
+                    
                     <Button onClick={handleSubmit} disabled={isSubmitting || (!content.trim() && !imageFile)}>
                         {isSubmitting ? <Loader2 className="animate-spin mr-2" /> : <Send className="mr-2 h-4 w-4" />}
                         Post
@@ -239,23 +219,32 @@ export default function ForumPage() {
 
   return (
     <div className="container mx-auto py-12 px-4">
-        <Card className="w-full max-w-6xl mx-auto">
-            <CardHeader className="text-center border-b">
+        <Card className="w-full max-w-3xl mx-auto bg-muted/30">
+            <CardHeader className="text-center border-b bg-card rounded-t-lg">
                 <CardTitle className="font-headline text-3xl">Community Forum</CardTitle>
                 <CardDescription>Share, learn, and connect with fellow eco-warriors.</CardDescription>
             </CardHeader>
-            <CardContent className="p-4 md:p-6">
+            <CardContent className="p-2 md:p-4">
                 {isLoading ? (
-                    <div className="flex justify-center items-center h-96">
-                        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+                    <div className="space-y-4 mt-4">
+                        {[...Array(3)].map((_, i) => 
+                            <div key={i} className="bg-card p-4 rounded-lg flex gap-4 items-start">
+                                <Avatar className="h-10 w-10 animate-pulse bg-muted-foreground/20" />
+                                <div className="space-y-2 flex-grow">
+                                    <div className='h-4 w-1/4 bg-muted rounded-md animate-pulse'></div>
+                                    <div className='h-4 w-full bg-muted rounded-md animate-pulse'></div>
+                                    <div className='h-4 w-3/4 bg-muted rounded-md animate-pulse'></div>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 ) : (
                     posts && posts.length > 0 ? (
-                        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
+                        <div className="space-y-3 mt-4">
                             {posts.map(post => <PostCard key={post.id} post={post} />)}
                         </div>
                     ) : (
-                        <div className="flex flex-col items-center justify-center h-96 text-center text-muted-foreground">
+                        <div className="flex flex-col items-center justify-center h-80 text-center text-muted-foreground">
                             <MessageSquare className="h-16 w-16 mb-4" />
                             <p className="font-semibold text-lg">It's quiet in here...</p>
                             <p>Be the first to share something with the community!</p>

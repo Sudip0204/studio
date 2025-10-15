@@ -26,6 +26,7 @@ export interface UserProfile {
 export interface ForumPost {
     id: string;
     authorId: string;
+    title?: string;
     content: string;
     imageUrl?: string;
     likes: string[];
