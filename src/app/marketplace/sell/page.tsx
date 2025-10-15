@@ -23,7 +23,7 @@ const productSchema = z.object({
     (a) => parseFloat(z.string().parse(a)),
     z.number().positive('Price must be a positive number.')
   ),
-  image: z.any().refine(file => file, 'Product image is required.'),
+  image: z.any().refine(file => !!file, 'Product image is required.'),
 });
 
 type ProductFormValues = z.infer<typeof productSchema>;
@@ -55,8 +55,9 @@ export default function SellItemPage() {
     if (file) {
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-        form.setValue('image', file);
+        const result = reader.result as string;
+        setImagePreview(result);
+        form.setValue('image', result); // Store data URL
       };
       reader.readAsDataURL(file);
     }
@@ -65,20 +66,40 @@ export default function SellItemPage() {
   async function onSubmit(values: ProductFormValues) {
     setIsSubmitting(true);
     
-    // In a real app, you would upload the image to a storage service (like Firebase Storage)
-    // and then save the product details (including the image URL) to your database.
-    console.log('Form submitted:', { ...values, imageName: values.image.name });
+    try {
+        const newProduct = {
+            id: Date.now(), // Use timestamp for unique ID in this prototype
+            name: values.name,
+            price: values.price,
+            description: values.description,
+            image: values.image, // This is now a data URL
+            seller: user?.displayName || "Anonymous",
+            dataAiHint: values.name.toLowerCase().split(' ').slice(0, 2).join(' '),
+            category: "Miscellaneous", // Default category
+            condition: "Used", // Default condition
+            location: "Online", // Default location
+        };
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
+        const existingProducts = JSON.parse(localStorage.getItem('userProducts') || '[]');
+        localStorage.setItem('userProducts', JSON.stringify([...existingProducts, newProduct]));
 
-    toast({
-      title: 'Product Listed!',
-      description: `Your item "${values.name}" is now live on the marketplace.`,
-    });
+        toast({
+            title: 'Product Listed!',
+            description: `Your item "${values.name}" is now live on the marketplace.`,
+        });
 
-    setIsSubmitting(false);
-    router.push('/marketplace');
+        router.push('/marketplace');
+
+    } catch (error) {
+        console.error("Failed to save product to localStorage", error);
+        toast({
+            variant: "destructive",
+            title: 'Failed to list item',
+            description: 'There was an error saving your product.',
+        });
+    } finally {
+        setIsSubmitting(false);
+    }
   }
 
   return (
@@ -196,3 +217,5 @@ export default function SellItemPage() {
     </div>
   );
 }
+
+    

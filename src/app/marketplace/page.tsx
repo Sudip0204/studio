@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { ShoppingCart, PlusCircle, User, ListFilter } from "lucide-react";
@@ -26,7 +26,7 @@ import {
 } from "@/components/ui/sheet";
 
 // Expanded placeholder data for products
-const products = [
+const initialProducts = [
   { id: 1, name: "Upcycled Denim Jacket", price: 3600, description: "A stylish jacket made from reclaimed denim.", image: "https://picsum.photos/seed/product1/300/300", seller: "GreenThreads", dataAiHint: "denim jacket", category: "Clothing", condition: "Good", location: "Mumbai Central" },
   { id: 2, name: "Recycled Glass Vases", price: 2000, description: "Beautiful vases crafted from recycled glass.", image: "https://picsum.photos/seed/product2/300/300", seller: "EcoDecor", dataAiHint: "glass vase", category: "Home Decor", condition: "New", location: "Andheri East" },
   { id: 3, name: "Handmade Wooden Bowl", price: 2400, description: "A unique bowl carved from sustainable wood.", image: "https://picsum.photos/seed/product3/300/300", seller: "ArtisanWood", dataAiHint: "wooden bowl", category: "Kitchenware", condition: "New", location: "Bandra West" },
@@ -139,9 +139,28 @@ function Filters({
 
 export default function MarketplacePage() {
   const { user } = useUser();
+  const [products, setProducts] = useState(initialProducts);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 20000]);
+
+  useEffect(() => {
+    try {
+      const storedProducts = JSON.parse(localStorage.getItem('userProducts') || '[]');
+      // Combine initial products with user-added products, ensuring no duplicates
+      const allProducts = [...initialProducts];
+      const existingIds = new Set(allProducts.map(p => p.id));
+      for (const p of storedProducts) {
+        if (!existingIds.has(p.id)) {
+          allProducts.push(p);
+        }
+      }
+      setProducts(allProducts);
+    } catch (error) {
+      console.error("Failed to parse products from localStorage", error);
+      setProducts(initialProducts);
+    }
+  }, []);
 
   const handleReset = () => {
     setSelectedCategories([]);
@@ -256,3 +275,5 @@ export default function MarketplacePage() {
     </div>
   );
 }
+
+    
