@@ -35,7 +35,7 @@ const signupSchema = z.object({
   password: z.string().min(6, { message: "Password must be at least 6 characters." }),
   dob: z.date({ required_error: "A date of birth is required." }),
   gender: z.enum(["male", "female", "other"], { required_error: "Please select a gender."}),
-  phoneNumber: z.string().regex(/^\+?[1-9]\d{1,14}$/, { message: "Invalid phone number."}),
+  phoneNumber: z.string().min(1, { message: "Mobile number is required." }).regex(/^\+?[1-9]\d{1,14}$/, { message: "Invalid phone number."}),
   address: z.string().min(10, { message: "Address must be at least 10 characters." }),
 });
 
