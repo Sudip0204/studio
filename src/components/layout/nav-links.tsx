@@ -10,6 +10,7 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/recycling-guides", label: "Recycling Guides" },
   { href: "/ai-identifier", label: "AI Identifier" },
+  { href: "/carbon-calculator", label: "Carbon Calculator" },
   { href: "/recycling-centers", label: "Recycling Centers" },
   { href: "/marketplace", label: "Marketplace" },
   { href: "/gamification", label: "Gamification" },
