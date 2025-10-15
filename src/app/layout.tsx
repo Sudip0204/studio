@@ -4,6 +4,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { FirebaseClientProvider } from '@/firebase';
+import { CartProvider } from '@/context/cart-context';
 
 export const metadata: Metadata = {
   title: 'EcoCity - Join the Green Revolution',
@@ -24,9 +25,11 @@ export default function RootLayout({
       </head>
       <body className="font-body antialiased">
         <FirebaseClientProvider>
-          <Header />
-          <main>{children}</main>
-          <Footer />
+          <CartProvider>
+            <Header />
+            <main>{children}</main>
+            <Footer />
+          </CartProvider>
         </FirebaseClientProvider>
         <Toaster />
       </body>

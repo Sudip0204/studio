@@ -24,7 +24,8 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useCart } from "@/context/cart-context";
+import { useToast } from "@/hooks/use-toast";
 
 
 // Expanded placeholder data for products
@@ -145,6 +146,10 @@ export default function MarketplacePage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
   const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 20000]);
+  const { addToCart } = useCart();
+  const { toast } = useToast();
+  const router = useRouter();
+
 
   useEffect(() => {
     try {
@@ -170,6 +175,23 @@ export default function MarketplacePage() {
     setPriceRange([0, 20000]);
   };
 
+  const handleAddToCart = (product: typeof initialProducts[0]) => {
+    if (!user) {
+      router.push('/login?redirect=/marketplace');
+      return;
+    }
+    addToCart({ ...product, quantity: 1 });
+    toast({
+      title: "Added to Cart",
+      description: `${product.name} has been added to your cart.`,
+      action: (
+        <Button asChild variant="link" className="text-white">
+          <Link href="/marketplace/cart">View Cart</Link>
+        </Button>
+      ),
+    });
+  };
+
   const filteredProducts = products.filter(product => {
     const categoryMatch = selectedCategories.length === 0 || selectedCategories.includes(product.category);
     const conditionMatch = selectedConditions.length === 0 || selectedConditions.includes(product.condition);
@@ -192,7 +214,7 @@ export default function MarketplacePage() {
             </p>
              <div className="mt-8 flex gap-4 justify-center">
                 <Button asChild size="lg">
-                    <Link href={user ? "/marketplace/sell" : "/login"}>
+                    <Link href={user ? "/marketplace/sell" : "/login?redirect=/marketplace"}>
                         <PlusCircle className="mr-2" /> Sell Your Item
                     </Link>
                 </Button>
@@ -259,7 +281,7 @@ export default function MarketplacePage() {
                         <div className="flex-grow"></div>
                         <div className="flex justify-between items-center mt-4 pt-4 border-t">
                             <p className="font-bold text-xl text-primary">₹{product.price}</p>
-                            <Button variant="default" size="sm" onClick={() => user ? alert('This will be added to cart!') : alert('Please log in to add items to your cart.')}>
+                            <Button variant="default" size="sm" onClick={() => handleAddToCart(product)}>
                                 Add to cart
                             </Button>
                         </div>
@@ -278,5 +300,3 @@ export default function MarketplacePage() {
     </div>
   );
 }
-
-    
