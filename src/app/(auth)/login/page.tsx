@@ -50,6 +50,7 @@ import {
 import { Calendar } from '@/components/ui/calendar';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { CountryCodeSelect } from '@/components/country-code-select';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -64,10 +65,10 @@ const signupSchema = z.object({
   gender: z.enum(['male', 'female', 'other'], {
     required_error: 'Please select a gender.',
   }),
-  phoneNumber: z
-    .string()
-    .min(1, { message: 'Mobile number is required.' })
-    .regex(/^\+?[1-9]\d{1,14}$/, { message: 'Invalid phone number.' }),
+  phoneNumber: z.object({
+    countryCode: z.string().min(1, 'Country code is required.'),
+    number: z.string().min(1, 'Mobile number is required.').max(10, 'Number cannot exceed 10 digits.'),
+  }),
   address: z
     .string()
     .min(10, { message: 'Address must be at least 10 characters.' }),
@@ -237,19 +238,37 @@ const Step1 = () => {
           </FormItem>
         )}
       />
-      <FormField
-        control={control}
-        name="phoneNumber"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Mobile Number</FormLabel>
-            <FormControl>
-              <Input placeholder="+91 1234567890" {...field} />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
+      <FormItem>
+        <FormLabel>Mobile Number</FormLabel>
+        <div className="flex gap-2">
+          <FormField
+            control={control}
+            name="phoneNumber.countryCode"
+            render={({ field }) => (
+              <FormItem className="w-1/3">
+                <FormControl>
+                  <CountryCodeSelect onValueChange={field.onChange} defaultValue={field.value} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={control}
+            name="phoneNumber.number"
+            render={({ field }) => (
+              <FormItem className="w-2/3">
+                <FormControl>
+                  <Input type="tel" placeholder="1234567890" maxLength={10} {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+        </div>
+        <FormMessage>
+          {/* Manually display errors for nested object */}
+          {(control.getFieldState('phoneNumber.countryCode').error?.message || control.getFieldState('phoneNumber.number').error?.message)}
+        </FormMessage>
+      </FormItem>
       <FormField
         control={control}
         name="address"
@@ -314,7 +333,10 @@ function SignupForm() {
       name: '',
       email: '',
       password: '',
-      phoneNumber: '',
+      phoneNumber: {
+        countryCode: '+91',
+        number: ''
+      },
       address: '',
     },
   });
@@ -351,7 +373,7 @@ function SignupForm() {
           email: values.email,
           dob: values.dob,
           gender: values.gender,
-          phoneNumber: values.phoneNumber,
+          phoneNumber: `${values.phoneNumber.countryCode} ${values.phoneNumber.number}`,
           address: values.address,
           rewardPoints: 0,
           createdAt: serverTimestamp(),
