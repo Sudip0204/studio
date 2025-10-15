@@ -202,15 +202,15 @@ const Step1 = () => {
               </PopoverTrigger>
               <PopoverContent className="w-auto p-0" align="start">
                 <Calendar
+                  captionLayout="dropdown-buttons"
+                  fromYear={new Date().getFullYear() - 150}
+                  toYear={new Date().getFullYear()}
                   mode="single"
                   selected={field.value}
                   onSelect={field.onChange}
-                  disabled={(date) => {
-                    const today = new Date();
-                    const pastDate = new Date();
-                    pastDate.setFullYear(today.getFullYear() - 150);
-                    return date > today || date < pastDate;
-                  }}
+                  disabled={(date) =>
+                    date > new Date() || date < new Date('1900-01-01')
+                  }
                   initialFocus
                 />
               </PopoverContent>
@@ -483,3 +483,5 @@ export default function AuthPage() {
     </div>
   );
 }
+
+    
