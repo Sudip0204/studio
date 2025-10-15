@@ -1,42 +1,80 @@
+'use client';
 
-"use client";
-
-import { useForm, useFormContext } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import * as z from "zod";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useAuth, useUser, setDocumentNonBlocking, initiateEmailSignIn } from "@/firebase";
-import { doc, serverTimestamp } from "firebase/firestore";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useToast } from "@/hooks/use-toast";
-import { useEffect, useState } from "react";
-import { CalendarIcon, Loader2 } from "lucide-react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useFirestore } from "@/firebase";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Calendar } from "@/components/ui/calendar";
-import { cn } from "@/lib/utils";
-import { format } from "date-fns";
+import { useForm, useFormContext } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  useAuth,
+  useUser,
+  setDocumentNonBlocking,
+  initiateEmailSignIn,
+} from '@/firebase';
+import { doc, serverTimestamp } from 'firebase/firestore';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from '@/components/ui/form';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useToast } from '@/hooks/use-toast';
+import { useEffect, useState } from 'react';
+import { CalendarIcon, Loader2 } from 'lucide-react';
+import { createUserWithEmailAndPassword } from 'firebase/auth';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useFirestore } from '@/firebase';
+import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
+import { cn } from '@/lib/utils';
+import { format } from 'date-fns';
 
 const loginSchema = z.object({
-  email: z.string().email({ message: "Invalid email address." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+  email: z.string().email({ message: 'Invalid email address.' }),
+  password: z
+    .string()
+    .min(6, { message: 'Password must be at least 6 characters.' }),
 });
 
 const signupSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  dob: z.date({ required_error: "A date of birth is required." }),
-  gender: z.enum(["male", "female", "other"], { required_error: "Please select a gender."}),
-  phoneNumber: z.string().min(1, { message: "Mobile number is required." }).regex(/^\+?[1-9]\d{1,14}$/, { message: "Invalid phone number."}),
-  address: z.string().min(10, { message: "Address must be at least 10 characters." }),
-  email: z.string().email({ message: "Invalid email address." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
+  name: z.string().min(2, { message: 'Name must be at least 2 characters.' }),
+  dob: z.date({ required_error: 'A date of birth is required.' }),
+  gender: z.enum(['male', 'female', 'other'], {
+    required_error: 'Please select a gender.',
+  }),
+  phoneNumber: z
+    .string()
+    .min(1, { message: 'Mobile number is required.' })
+    .regex(/^\+?[1-9]\d{1,14}$/, { message: 'Invalid phone number.' }),
+  address: z
+    .string()
+    .min(10, { message: 'Address must be at least 10 characters.' }),
+  email: z.string().email({ message: 'Invalid email address.' }),
+  password: z
+    .string()
+    .min(6, { message: 'Password must be at least 6 characters.' }),
 });
 
 function LoginForm({ onSwitchToSignup }: { onSwitchToSignup: () => void }) {
@@ -50,8 +88,8 @@ function LoginForm({ onSwitchToSignup }: { onSwitchToSignup: () => void }) {
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
   });
 
@@ -61,16 +99,20 @@ function LoginForm({ onSwitchToSignup }: { onSwitchToSignup: () => void }) {
       // We are not awaiting this to avoid blocking UI, auth state is handled by the provider
       initiateEmailSignIn(auth, values.email, values.password);
     } catch (error: any) {
-      let description = "An unexpected error occurred. Please try again.";
-      if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-        description = "Invalid email or password. Please try again or sign up.";
+      let description = 'An unexpected error occurred. Please try again.';
+      if (
+        error.code === 'auth/user-not-found' ||
+        error.code === 'auth/wrong-password' ||
+        error.code === 'auth/invalid-credential'
+      ) {
+        description = 'Invalid email or password. Please try again or sign up.';
         onSwitchToSignup(); // Switch to signup tab on user-not-found
       } else if (error.message) {
         description = error.message;
       }
       toast({
-        variant: "destructive",
-        title: "Login Failed",
+        variant: 'destructive',
+        title: 'Login Failed',
         description: description,
       });
       setIsSubmitting(false); // only set to false on error
@@ -116,148 +158,148 @@ function LoginForm({ onSwitchToSignup }: { onSwitchToSignup: () => void }) {
 }
 
 const Step1 = () => {
-    const { control } = useFormContext();
-    return (
-        <>
-            <FormField
-                control={control}
-                name="name"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Name</FormLabel>
-                    <FormControl>
-                    <Input placeholder="Your Name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-            <FormField
-                control={control}
-                name="dob"
-                render={({ field }) => (
-                <FormItem className="flex flex-col">
-                    <FormLabel>Date of birth</FormLabel>
-                    <Popover>
-                    <PopoverTrigger asChild>
-                        <FormControl>
-                        <Button
-                            variant={"outline"}
-                            className={cn(
-                            "w-full pl-3 text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                            )}
-                        >
-                            {field.value ? (
-                            format(field.value, "PPP")
-                            ) : (
-                            <span>Pick a date</span>
-                            )}
-                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                        </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                        <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) =>
-                            date > new Date() || date < new Date("1900-01-01")
-                        }
-                        initialFocus
-                        />
-                    </PopoverContent>
-                    </Popover>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-            <FormField
-                control={control}
-                name="gender"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Gender</FormLabel>
-                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                        <SelectTrigger>
-                        <SelectValue placeholder="Select your gender" />
-                        </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                        <SelectItem value="male">Male</SelectItem>
-                        <SelectItem value="female">Female</SelectItem>
-                        <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                    </Select>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-            <FormField
-                control={control}
-                name="phoneNumber"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Mobile Number</FormLabel>
-                    <FormControl>
-                    <Input placeholder="+91 1234567890" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-            <FormField
-                control={control}
-                name="address"
-                render={({ field }) => (
-                <FormItem>
-                    <FormLabel>Address</FormLabel>
-                    <FormControl>
-                    <Textarea placeholder="Your full address" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                </FormItem>
-                )}
-            />
-        </>
-    )
-}
+  const { control } = useFormContext();
+  return (
+    <>
+      <FormField
+        control={control}
+        name="name"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Name</FormLabel>
+            <FormControl>
+              <Input placeholder="Your Name" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name="dob"
+        render={({ field }) => (
+          <FormItem className="flex flex-col">
+            <FormLabel>Date of birth</FormLabel>
+            <Popover>
+              <PopoverTrigger asChild>
+                <FormControl>
+                  <Button
+                    variant={'outline'}
+                    className={cn(
+                      'w-full pl-3 text-left font-normal',
+                      !field.value && 'text-muted-foreground'
+                    )}
+                  >
+                    {field.value ? (
+                      format(field.value, 'PPP')
+                    ) : (
+                      <span>Pick a date</span>
+                    )}
+                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                  </Button>
+                </FormControl>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={field.value}
+                  onSelect={field.onChange}
+                  disabled={(date) =>
+                    date > new Date() || date < new Date('1900-01-01')
+                  }
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name="gender"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Gender</FormLabel>
+            <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select your gender" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="male">Male</SelectItem>
+                <SelectItem value="female">Female</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name="phoneNumber"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Mobile Number</FormLabel>
+            <FormControl>
+              <Input placeholder="+91 1234567890" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name="address"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Address</FormLabel>
+            <FormControl>
+              <Textarea placeholder="Your full address" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </>
+  );
+};
 
 const Step2 = () => {
-    const { control } = useFormContext();
-    return (
-        <>
-            <FormField
-                control={control}
-                name="email"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                        <Input placeholder="m@example.com" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-            />
-            <FormField
-                control={control}
-                name="password"
-                render={({ field }) => (
-                    <FormItem>
-                    <FormLabel>Password</FormLabel>
-                    <FormControl>
-                        <Input type="password" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                    </FormItem>
-                )}
-            />
-        </>
-    )
-}
+  const { control } = useFormContext();
+  return (
+    <>
+      <FormField
+        control={control}
+        name="email"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Email</FormLabel>
+            <FormControl>
+              <Input placeholder="m@example.com" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={control}
+        name="password"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Password</FormLabel>
+            <FormControl>
+              <Input type="password" {...field} />
+            </FormControl>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+    </>
+  );
+};
 
 function SignupForm() {
   const auth = useAuth();
@@ -269,18 +311,24 @@ function SignupForm() {
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
     defaultValues: {
-      name: "",
-      email: "",
-      password: "",
-      phoneNumber: "",
-      address: "",
+      name: '',
+      email: '',
+      password: '',
+      phoneNumber: '',
+      address: '',
     },
   });
 
   const { trigger } = form;
 
   const handleNextStep = async () => {
-    const isValid = await trigger(["name", "dob", "gender", "phoneNumber", "address"]);
+    const isValid = await trigger([
+      'name',
+      'dob',
+      'gender',
+      'phoneNumber',
+      'address',
+    ]);
     if (isValid) {
       setStep(2);
     }
@@ -289,11 +337,15 @@ function SignupForm() {
   const onSubmit = async (values: z.infer<typeof signupSchema>) => {
     setIsSubmitting(true);
     try {
-      const userCredential = await createUserWithEmailAndPassword(auth, values.email, values.password);
+      const userCredential = await createUserWithEmailAndPassword(
+        auth,
+        values.email,
+        values.password
+      );
       const user = userCredential.user;
 
       if (user) {
-        const userProfileRef = doc(firestore, "users", user.uid);
+        const userProfileRef = doc(firestore, 'users', user.uid);
         const userProfileData = {
           name: values.name,
           email: values.email,
@@ -307,20 +359,20 @@ function SignupForm() {
         setDocumentNonBlocking(userProfileRef, userProfileData, { merge: true });
       }
     } catch (error: any) {
-      let description = "An unexpected error occurred. Please try again.";
+      let description = 'An unexpected error occurred. Please try again.';
       if (error.code === 'auth/email-already-in-use') {
-        description = "This email is already in use. Please try logging in.";
+        description = 'This email is already in use. Please try logging in.';
       } else if (error.message) {
         description = error.message;
       }
-      
+
       toast({
-        variant: "destructive",
-        title: "Sign Up Failed",
+        variant: 'destructive',
+        title: 'Sign Up Failed',
         description: description,
       });
     } finally {
-        setIsSubmitting(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -329,23 +381,28 @@ function SignupForm() {
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
         {step === 1 && <Step1 />}
         {step === 2 && <Step2 />}
-        
+
         {step === 1 && (
-            <Button type="button" onClick={handleNextStep} className="w-full">
-                Save & Continue
-            </Button>
+          <Button type="button" onClick={handleNextStep} className="w-full">
+            Save & Continue
+          </Button>
         )}
-        
+
         {step === 2 && (
-            <div className="flex gap-4">
-                <Button type="button" variant="outline" onClick={() => setStep(1)} className="w-full">
-                    Back
-                </Button>
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
-                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Create Account
-                </Button>
-            </div>
+          <div className="flex gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setStep(1)}
+              className="w-full"
+            >
+              Back
+            </Button>
+            <Button type="submit" className="w-full" disabled={isSubmitting}>
+              {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Create Account
+            </Button>
+          </div>
         )}
       </form>
     </Form>
@@ -358,7 +415,7 @@ export default function AuthPage() {
   const searchParams = useSearchParams();
   const redirectUrl = searchParams.get('redirect') || '/marketplace';
 
-  const [activeTab, setActiveTab] = useState("login");
+  const [activeTab, setActiveTab] = useState('login');
 
   useEffect(() => {
     if (user) {
@@ -367,16 +424,24 @@ export default function AuthPage() {
   }, [user, router, redirectUrl]);
 
   return (
-    <div className="container mx-auto py-12 px-4 flex justify-center items-center min-h-[60vh]">
+    <div className="container mx-auto flex min-h-[60vh] items-center justify-center py-12 px-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="font-headline text-2xl">Welcome to EcoCity</CardTitle>
+          <CardTitle className="font-headline text-2xl">
+            Welcome to EcoCity
+          </CardTitle>
           <CardDescription>
-            {activeTab === 'login' ? 'Enter your credentials to access your account.' : 'Join EcoCity and start your green journey today.'}
+            {activeTab === 'login'
+              ? 'Enter your credentials to access your account.'
+              : 'Join EcoCity and start your green journey today.'}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs
+            value={activeTab}
+            onValueChange={setActiveTab}
+            className="w-full"
+          >
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="login">Login</TabsTrigger>
               <TabsTrigger value="signup">Sign Up</TabsTrigger>
