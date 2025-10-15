@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useForm } from "react-hook-form";
+import { useForm, useFormContext } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -31,12 +31,12 @@ const loginSchema = z.object({
 
 const signupSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  email: z.string().email({ message: "Invalid email address." }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
   dob: z.date({ required_error: "A date of birth is required." }),
   gender: z.enum(["male", "female", "other"], { required_error: "Please select a gender."}),
   phoneNumber: z.string().min(1, { message: "Mobile number is required." }).regex(/^\+?[1-9]\d{1,14}$/, { message: "Invalid phone number."}),
   address: z.string().min(10, { message: "Address must be at least 10 characters." }),
+  email: z.string().email({ message: "Invalid email address." }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters." }),
 });
 
 function LoginForm({ onSwitchToSignup }: { onSwitchToSignup: () => void }) {
@@ -115,11 +115,156 @@ function LoginForm({ onSwitchToSignup }: { onSwitchToSignup: () => void }) {
   );
 }
 
+const Step1 = () => {
+    const { control } = useFormContext();
+    return (
+        <>
+            <FormField
+                control={control}
+                name="name"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Name</FormLabel>
+                    <FormControl>
+                    <Input placeholder="Your Name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+            <FormField
+                control={control}
+                name="dob"
+                render={({ field }) => (
+                <FormItem className="flex flex-col">
+                    <FormLabel>Date of birth</FormLabel>
+                    <Popover>
+                    <PopoverTrigger asChild>
+                        <FormControl>
+                        <Button
+                            variant={"outline"}
+                            className={cn(
+                            "w-full pl-3 text-left font-normal",
+                            !field.value && "text-muted-foreground"
+                            )}
+                        >
+                            {field.value ? (
+                            format(field.value, "PPP")
+                            ) : (
+                            <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                        </Button>
+                        </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                        mode="single"
+                        selected={field.value}
+                        onSelect={field.onChange}
+                        disabled={(date) =>
+                            date > new Date() || date < new Date("1900-01-01")
+                        }
+                        initialFocus
+                        />
+                    </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+            <FormField
+                control={control}
+                name="gender"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Gender</FormLabel>
+                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                        <SelectTrigger>
+                        <SelectValue placeholder="Select your gender" />
+                        </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                    </Select>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+            <FormField
+                control={control}
+                name="phoneNumber"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Mobile Number</FormLabel>
+                    <FormControl>
+                    <Input placeholder="+91 1234567890" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+            <FormField
+                control={control}
+                name="address"
+                render={({ field }) => (
+                <FormItem>
+                    <FormLabel>Address</FormLabel>
+                    <FormControl>
+                    <Textarea placeholder="Your full address" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                </FormItem>
+                )}
+            />
+        </>
+    )
+}
+
+const Step2 = () => {
+    const { control } = useFormContext();
+    return (
+        <>
+            <FormField
+                control={control}
+                name="email"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                        <Input placeholder="m@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+            />
+            <FormField
+                control={control}
+                name="password"
+                render={({ field }) => (
+                    <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                        <Input type="password" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                    </FormItem>
+                )}
+            />
+        </>
+    )
+}
+
 function SignupForm() {
   const auth = useAuth();
   const firestore = useFirestore();
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [step, setStep] = useState(1);
 
   const form = useForm<z.infer<typeof signupSchema>>({
     resolver: zodResolver(signupSchema),
@@ -131,6 +276,15 @@ function SignupForm() {
       address: "",
     },
   });
+
+  const { trigger } = form;
+
+  const handleNextStep = async () => {
+    const isValid = await trigger(["name", "dob", "gender", "phoneNumber", "address"]);
+    if (isValid) {
+      setStep(2);
+    }
+  };
 
   const onSubmit = async (values: z.infer<typeof signupSchema>) => {
     setIsSubmitting(true);
@@ -165,145 +319,34 @@ function SignupForm() {
         title: "Sign Up Failed",
         description: description,
       });
-      setIsSubmitting(false); // Only set to false on error
+    } finally {
+        setIsSubmitting(false);
     }
   };
 
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Name</FormLabel>
-              <FormControl>
-                <Input placeholder="Your Name" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="email"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Email</FormLabel>
-              <FormControl>
-                <Input placeholder="m@example.com" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="password"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <Input type="password" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="dob"
-          render={({ field }) => (
-            <FormItem className="flex flex-col">
-              <FormLabel>Date of birth</FormLabel>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <FormControl>
-                    <Button
-                      variant={"outline"}
-                      className={cn(
-                        "w-full pl-3 text-left font-normal",
-                        !field.value && "text-muted-foreground"
-                      )}
-                    >
-                      {field.value ? (
-                        format(field.value, "PPP")
-                      ) : (
-                        <span>Pick a date</span>
-                      )}
-                      <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                    </Button>
-                  </FormControl>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={field.value}
-                    onSelect={field.onChange}
-                    disabled={(date) =>
-                      date > new Date() || date < new Date("1900-01-01")
-                    }
-                    initialFocus
-                  />
-                </PopoverContent>
-              </Popover>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="gender"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Gender</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your gender" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  <SelectItem value="male">Male</SelectItem>
-                  <SelectItem value="female">Female</SelectItem>
-                  <SelectItem value="other">Other</SelectItem>
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="phoneNumber"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Mobile Number</FormLabel>
-              <FormControl>
-                <Input placeholder="+91 1234567890" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="address"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Address</FormLabel>
-              <FormControl>
-                <Textarea placeholder="Your full address" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <Button type="submit" className="w-full" disabled={isSubmitting}>
-          {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Sign Up
-        </Button>
+        {step === 1 && <Step1 />}
+        {step === 2 && <Step2 />}
+        
+        {step === 1 && (
+            <Button type="button" onClick={handleNextStep} className="w-full">
+                Save & Continue
+            </Button>
+        )}
+        
+        {step === 2 && (
+            <div className="flex gap-4">
+                <Button type="button" variant="outline" onClick={() => setStep(1)} className="w-full">
+                    Back
+                </Button>
+                <Button type="submit" className="w-full" disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Create Account
+                </Button>
+            </div>
+        )}
       </form>
     </Form>
   );
@@ -350,4 +393,3 @@ export default function AuthPage() {
     </div>
   );
 }
-
