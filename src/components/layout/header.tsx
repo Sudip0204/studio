@@ -61,7 +61,7 @@ export function Header() {
               <ShoppingCart className="h-6 w-6 text-foreground/70 hover:text-primary" />
               {cart.length > 0 && (
                 <span className="absolute -top-2 -right-2 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                  {cart.length}
+                  {cart.reduce((acc, item) => acc + item.quantity, 0)}
                 </span>
               )}
             </Link>
