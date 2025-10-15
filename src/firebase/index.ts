@@ -2,7 +2,7 @@
 
 import { firebaseConfig } from '@/firebase/config';
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, browserLocalPersistence, setPersistence } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore'
 
 // IMPORTANT: DO NOT MODIFY THIS FUNCTION
@@ -33,9 +33,13 @@ export function initializeFirebase() {
 }
 
 export function getSdks(firebaseApp: FirebaseApp) {
+  const auth = getAuth(firebaseApp);
+  // Set persistence to local storage to remember the user.
+  setPersistence(auth, browserLocalPersistence);
+  
   return {
     firebaseApp,
-    auth: getAuth(firebaseApp),
+    auth: auth,
     firestore: getFirestore(firebaseApp)
   };
 }
