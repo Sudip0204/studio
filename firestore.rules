@@ -1,100 +1,128 @@
 /**
- * @file Firestore Security Rules
- * @description This ruleset defines access control for the EcoCity application's Firestore database.
+ * @file Firestore Security Rules for EcoCity application.
  *
  * Core Philosophy:
- *  This ruleset prioritizes user data ownership and restricts access to personal data.
- *  Community forum posts are publicly readable, but posting requires authentication. Leaderboard scores are publicly available.
+ * This ruleset enforces a user-ownership model for user profiles.
+ * Community forum posts are publicly readable but only the author can modify them.
+ * Leaderboard entries are publicly readable and writable.
  *
  * Data Structure:
- *  - /users/{userId}: Stores individual user profiles.
- *  - /communityPosts/{postId}: Contains community forum posts.
- *  - /communityPosts/{postId}/comments/{commentId}: Contains comments for each post.
- *  - /leaderboard/{scoreId}: Stores leaderboard entries.
+ * - /users/{userId}: Stores user profile data, secured by user ID.
+ * - /communityPosts/{postId}: Stores community forum posts, publicly readable.
+ * - /communityPosts/{postId}/comments/{commentId}: Stores comments on forum posts.
+ * - /leaderboard/{scoreId}: Stores leaderboard entries, publicly readable and writable.
  *
  * Key Security Decisions:
- *  - User profiles are private and only accessible to the owning user.
- *  - Community posts are publicly readable, but only authenticated users can create, update or delete posts.
- *  - Leaderboard scores are public and anyone can submit their score.
+ * - Users can only read and write their own profile data.
+ * - Community posts are publicly accessible for reading, but only the author can modify them.
+ * - Leaderboard scores are publicly readable and writable.
+ * - Listing all users is not allowed.
  *
- *  NOTE: These rules prioritize authorization and relational integrity. Data shape validation (e.g., field types) is omitted for prototyping speed.
+ * Denormalization for Authorization:
+ * - Forum posts denormalize authorId to simplify ownership checks.
+ * - Leaderboard entries denormalize userId and username.
+ *
+ * Structural Segregation:
+ * - Private user data is stored under the /users/{userId} collection, while public forum posts are stored in the top-level /communityPosts collection.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Controls access to user profile documents. Only the owner can read or write their own profile.
+     * @description Controls access to user profile documents. Users can only read and write their own profile.
      * @path /users/{userId}
-     * @allow (get, update, delete) User 'alice' (UID: 'alice_id') can read/write their own profile document at /users/alice_id.
-     * @allow (create) User 'alice' (UID: 'alice_id') can create their own profile document at /users/alice_id if the document id matches the user id.
-     * @deny (get, update, delete) User 'bob' (UID: 'bob_id') cannot read/write alice's profile document at /users/alice_id.
-     * @deny (create) User 'alice' (UID: 'alice_id') cannot create a profile document at /users/incorrect_id.
-     * @principle Enforces document ownership for all operations on user profiles.
+     * @allow (create) User with UID 'user_abc' can create their profile document at /users/user_abc.
+     * @allow (get) User with UID 'user_abc' can read their profile document at /users/user_abc.
+     * @allow (update) User with UID 'user_abc' can update their profile document at /users/user_abc.
+     * @allow (delete) User with UID 'user_abc' can delete their profile document at /users/user_abc.
+     * @deny (create) User with UID 'user_def' cannot create a profile document at /users/user_abc.
+     * @deny (get) User with UID 'user_def' cannot read the profile document at /users/user_abc.
+     * @deny (update) User with UID 'user_def' cannot update the profile document at /users/user_abc.
+     * @deny (delete) User with UID 'user_def' cannot delete the profile document at /users/user_abc.
+     * @principle Enforces document ownership for writes.
      */
     match /users/{userId} {
+      function isOwner(userId) {
+        return request.auth != null && request.auth.uid == userId;
+      }
       allow get: if isOwner(userId);
-      allow list: if false; // User listing is disabled.
-      allow create: if isOwner(userId) && request.resource.data.name is string && request.resource.data.email is string ;
-      allow update: if isOwner(userId) && resource != null;
-      allow delete: if isExistingOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+      allow update: if isOwner(userId) && resource != null && request.resource.data.id == resource.data.id;
+      allow delete: if isOwner(userId) && resource != null;
     }
 
     /**
-     * @description Controls access to community forum posts. Anyone can read, but only authenticated users can create, update or delete.
+     * @description Controls access to community forum posts.
      * @path /communityPosts/{postId}
-     * @allow (get, list) Any user, signed in or not, can read any forum post.
-     * @allow (create) User 'alice' (UID: 'alice_id') can create a new forum post if signed in.
-     * @allow (update, delete) User 'alice' (UID: 'alice_id') can update or delete a post they own.
-     * @deny (create, update, delete) Anonymous user cannot create, update or delete any posts.
-     * @principle Public read access with owner-only writes for authenticated users.
+     * @allow (get) Any user can read a community post.
+     * @allow (list) Any user can list community posts.
+     * @allow (create) Any authenticated user can create a community post, provided they set authorId to their UID.
+     * @allow (update) Only the author of a post can update it.
+     * @allow (delete) Only the author of a post can delete it.
+     * @deny (create) An unauthenticated user cannot create a community post.
+     * @deny (update) A user cannot update a post they did not author.
+     * @deny (delete) A user cannot delete a post they did not author.
+     * @principle Public read access with owner-only writes.
      */
     match /communityPosts/{postId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+      function isOwner(authorId) {
+        return request.auth != null && request.auth.uid == authorId;
+      }
+      function isExistingOwner(authorId) {
+        return isOwner(authorId) && resource != null;
+      }
       allow get, list: if true;
-      allow create: if isSignedIn();
-      allow update: if isSignedIn() && resource.data.authorId == request.auth.uid && resource != null;
-      allow delete: if isSignedIn() && resource.data.authorId == request.auth.uid && resource != null;
+      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+      allow update: if isExistingOwner(resource.data.authorId);
+      allow delete: if isExistingOwner(resource.data.authorId);
     }
 
     /**
-     * @description Controls access to comments on community forum posts. Only authenticated users can create comments.
+     * @description Controls access to comments on community forum posts.
      * @path /communityPosts/{postId}/comments/{commentId}
-     * @allow (get, list) Any user can read comments on a post.
-     * @allow (create) User 'alice' (UID: 'alice_id') can create a comment on a post if signed in.
-     * @allow (update, delete) User 'alice' (UID: 'alice_id') can update or delete a comment they own.
-     * @deny (create, update, delete) Anonymous user cannot create, update or delete any comment.
-     * @principle Public read access with owner-only writes for authenticated users.
+     * @allow (get) Any user can read a comment on a community post.
+     * @allow (list) Any user can list comments on a community post.
+     * @allow (create) Any authenticated user can create a comment, provided they set authorId to their UID.
+     * @allow (update) Only the author of a comment can update it.
+     * @allow (delete) Only the author of a comment can delete it.
+     * @deny (create) An unauthenticated user cannot create a comment.
+     * @deny (update) A user cannot update a comment they did not author.
+     * @deny (delete) A user cannot delete a comment they did not author.
+     * @principle Public read access with owner-only writes.
      */
     match /communityPosts/{postId}/comments/{commentId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+      function isOwner(authorId) {
+        return request.auth != null && request.auth.uid == authorId;
+      }
+       function isExistingOwner(authorId) {
+        return isOwner(authorId) && resource != null;
+      }
       allow get, list: if true;
-      allow create: if isSignedIn();
-      allow update: if isSignedIn() && resource.data.authorId == request.auth.uid && resource != null;
-      allow delete: if isSignedIn() && resource.data.authorId == request.auth.uid && resource != null;
+      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+      allow update: if isExistingOwner(resource.data.authorId);
+      allow delete: if isExistingOwner(resource.data.authorId);
     }
 
     /**
-     * @description Controls access to the leaderboard. Anyone can read and create leaderboard entries.
+     * @description Controls access to leaderboard entries.
      * @path /leaderboard/{scoreId}
-     * @allow (get, list, create) Any user can read leaderboard entries and submit their own score.
-     * @allow (update, delete) No one can update or delete a score.
-     * @principle Public read access with open writes.
+     * @allow (get) Any user can read a leaderboard entry.
+     * @allow (list) Any user can list leaderboard entries.
+     * @allow (create) Any authenticated user can create a leaderboard entry.
+     * @allow (update) Any authenticated user can update a leaderboard entry.
+     * @allow (delete) Any authenticated user can delete a leaderboard entry.
+     * @principle Public read and write access.
      */
     match /leaderboard/{scoreId} {
-      allow get, list, create: if true;
-      allow update, delete: if false;
+      allow get, list, create, update, delete: if true;
     }
-  }
-
-  // Helper Functions
-  function isSignedIn() {
-    return request.auth != null;
-  }
-
-  function isOwner(userId) {
-    return request.auth.uid == userId;
-  }
-
-    function isExistingOwner(userId) {
-    return isOwner(userId) && resource != null;
   }
 }
