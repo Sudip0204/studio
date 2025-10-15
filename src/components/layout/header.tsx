@@ -19,6 +19,7 @@ const navLinks = [
   { href: "/ai-identifier", label: "AI Identifier" },
   { href: "/recycling-centers", label: "Recycling Centers" },
   { href: "/marketplace", label: "Marketplace" },
+  { href: "/gamification", label: "Gamification" },
 ];
 
 export function Header() {
