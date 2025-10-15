@@ -1,85 +1,135 @@
+/**
+ * @file Firestore Security Rules
+ * @description This ruleset enforces a strict user-ownership model for user profiles
+ * and a public-read, owner-write model for forum posts. Leaderboard entries are
+ * publicly accessible for reading but only authenticated users can create them.
+ *
+ * Data Structure:
+ * - /users/{userId}: User profiles, accessible only to the owning user.
+ * - /communityPosts/{postId}: Public forum posts, writable only by the author.
+ * - /communityPosts/{postId}/comments/{commentId}: Comments on forum posts, writable only by the author.
+ * - /leaderboard/{scoreId}: Leaderboard entries; publicly readable, but writeable only by authenticated users.
+ *
+ * Key Security Decisions:
+ * - User listing is disallowed to protect privacy.
+ * - Leaderboard entries are publicly readable.
+ * - All write operations are explicitly secured with authorization checks.
+ * - The rules prioritize authorization and access control. Input validation is relaxed to facilitate rapid prototyping.
+ */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Controls access to user profile documents.
+     * @description Controls access to user profile documents. Only the user can read and write their own profile.
      * @path /users/{userId}
-     * @allow (get, create, update, delete, list) if the user is the owner of the profile.
-     * @deny (get, list) if the user is not authenticated.
-     * @deny (create, update, delete) if the user is not the owner of the profile.
-     * @principle Enforces document ownership for writes and restricts access to a user's own data tree.
+     * @allow (get, create, update, delete): Authenticated user accessing their own profile.
+     * @deny (get, create, update, delete): Any other user attempting to access this profile.
+     * @principle Enforces document ownership for all operations.
      */
     match /users/{userId} {
-      // Verify identity
+      // User must be signed in
       function isSignedIn() {
         return request.auth != null;
       }
 
-      // Define owner
+      // User must own the profile
       function isOwner(userId) {
         return request.auth.uid == userId;
       }
 
-      allow get: if isSignedIn() && isOwner(userId);
-      allow list: if isSignedIn() && isOwner(userId);
+      // Validate user owns existing profile
+      function isExistingOwner(userId) {
+        return isSignedIn() && isOwner(userId) && resource != null;
+      }
 
-      allow create: if isSignedIn() && isOwner(userId);
-      allow update: if isSignedIn() && isOwner(userId) ;
-      allow delete: if isSignedIn() && isOwner(userId);
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Controls access to community forum posts.
+     * @description Manages access to community forum posts. Anyone can read, but only the author can create, update, or delete.
      * @path /communityPosts/{postId}
-     * @allow (get, list) to anyone.
-     * @allow (create, update, delete) to authenticated users who are the owners of the post.
-     * @deny (create, update, delete) to unauthenticated users.
-     * @principle Allows public read access with owner-only writes, enforcing document ownership for writes.
+     * @allow (get, list): Public read access for all users.
+     * @allow (create): Authenticated user creating a new post with their ID as the authorId.
+     * @allow (update, delete): Only the original author can modify or remove their post.
+     * @deny (create): User attempts to create a post with an authorId that doesn't match their own.
+     * @deny (update, delete): User other than the author attempts to modify or remove a post.
+     * @principle Public read with owner-only writes.
      */
     match /communityPosts/{postId} {
+      // User must be signed in
       function isSignedIn() {
         return request.auth != null;
       }
 
-      allow get, list: if true;
+      // User must own the post
+      function isOwner(authorId) {
+        return isSignedIn() && request.auth.uid == authorId;
+      }
 
+      // Validate user owns existing post
+      function isExistingOwner(authorId) {
+        return isSignedIn() && isOwner(authorId) && resource != null;
+      }
+
+      allow get, list: if true;
       allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
-      allow update: if isSignedIn() && resource.data.authorId == request.auth.uid;
-      allow delete: if isSignedIn() && resource.data.authorId == request.auth.uid;
+      allow update: if isExistingOwner(resource.data.authorId);
+      allow delete: if isExistingOwner(resource.data.authorId);
     }
 
     /**
-     * @description Controls access to comments on community forum posts.
+     * @description Controls access to comments on forum posts. Only the author can create, update, or delete their comments.
      * @path /communityPosts/{postId}/comments/{commentId}
-     * @allow (get, list) to anyone.
-     * @allow (create, update, delete) to authenticated users who are the owners of the comment.
-     * @deny (create, update, delete) to unauthenticated users.
-     * @principle Allows public read access with owner-only writes, enforcing document ownership for writes.
+     * @allow (get, list): Public read access for all users.
+     * @allow (create): Authenticated user creating a new comment with their ID as the authorId.
+     * @allow (update, delete): Only the original author can modify or remove their comment.
+     * @deny (create): User attempts to create a comment with an authorId that doesn't match their own.
+     * @deny (update, delete): User other than the author attempts to modify or remove a comment.
+     * @principle Public read with owner-only writes.
      */
     match /communityPosts/{postId}/comments/{commentId} {
+      // User must be signed in
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      // User must own the comment
+      function isOwner(authorId) {
+        return isSignedIn() && request.auth.uid == authorId;
+      }
+
+      // Validate user owns existing comment
+      function isExistingOwner(authorId) {
+        return isSignedIn() && isOwner(authorId) && resource != null;
+      }
+
+      allow get, list: if true;
+      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
+      allow update: if isExistingOwner(resource.data.authorId);
+      allow delete: if isExistingOwner(resource.data.authorId);
+    }
+
+    /**
+     * @description Manages access to leaderboard entries. Anyone can read, but only authenticated users can create entries.
+     * @path /leaderboard/{scoreId}
+     * @allow (get, list): Public read access for all users.
+     * @allow (create): Authenticated user creating a new leaderboard entry.
+     * @deny (update, delete): No updates or deletes are allowed on leaderboard entries.
+     * @principle Public read, authenticated create-only.
+     */
+    match /leaderboard/{scoreId} {
+      // User must be signed in
       function isSignedIn() {
         return request.auth != null;
       }
 
       allow get, list: if true;
-
-      allow create: if isSignedIn() && request.resource.data.authorId == request.auth.uid;
-      allow update: if isSignedIn() && resource.data.authorId == request.auth.uid;
-      allow delete: if isSignedIn() && resource.data.authorId == request.auth.uid;
-    }
-
-    /**
-     * @description Controls access to leaderboard entries.
-     * @path /leaderboard/{scoreId}
-     * @allow (get, list) to anyone.
-     * @deny (create, update, delete) to everyone.
-     * @principle Allows public read access and deny all writes
-     */
-    match /leaderboard/{scoreId} {
-      allow get, list: if true;
-
-      allow create: if false;
+      allow create: if isSignedIn();
       allow update: if false;
       allow delete: if false;
     }
