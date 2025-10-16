@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useUser, useAuth } from '@/firebase';
@@ -11,6 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PersonalInformation } from './personal-information';
 import { ManageAddresses } from './manage-addresses';
 import { Skeleton } from '@/components/ui/skeleton';
+import RewardsPage from './rewards/page';
 
 function AccountSettings() {
   return (
@@ -79,9 +81,10 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent className="p-0">
              <Tabs defaultValue="personal-info" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 rounded-none">
+                <TabsList className="grid w-full grid-cols-4 rounded-none">
                     <TabsTrigger value="personal-info">Personal Information</TabsTrigger>
                     <TabsTrigger value="addresses">Manage Addresses</TabsTrigger>
+                    <TabsTrigger value="rewards">My Rewards</TabsTrigger>
                     <TabsTrigger value="settings">Account Settings</TabsTrigger>
                 </TabsList>
 
@@ -91,6 +94,10 @@ export default function ProfilePage() {
 
                  <TabsContent value="addresses">
                     <ManageAddresses userId={user.uid} />
+                </TabsContent>
+
+                 <TabsContent value="rewards">
+                    <RewardsPage />
                 </TabsContent>
                 
                  <TabsContent value="settings">

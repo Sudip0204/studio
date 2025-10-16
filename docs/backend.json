@@ -52,6 +52,23 @@
         "isDefault": { "type": "boolean" }
       },
       "required": ["name", "phoneNumber", "pincode", "addressLine", "city", "state"]
+    },
+    "Reward": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Reward",
+      "type": "object",
+      "description": "Represents a reward coupon for a user.",
+      "properties": {
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "code": { "type": "string" },
+        "discountType": { "type": "string", "enum": ["percentage", "fixed"] },
+        "discountValue": { "type": "number" },
+        "expiryDate": { "type": "string", "format": "date-time" },
+        "isUsed": { "type": "boolean" },
+        "source": { "type": "string" }
+      },
+      "required": ["title", "code", "discountType", "discountValue", "expiryDate"]
     }
   },
   "auth": {
@@ -71,6 +88,13 @@
         "definition": {
           "schema": { "$ref": "#/entities/UserAddress" },
           "description": "Stores a user's saved shipping addresses."
+        }
+      },
+      {
+        "path": "/users/{userId}/rewards/{rewardId}",
+        "definition": {
+            "schema": { "$ref": "#/entities/Reward" },
+            "description": "Stores reward coupons earned by the user."
         }
       }
     ]
