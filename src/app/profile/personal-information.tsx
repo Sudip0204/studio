@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -144,7 +143,7 @@ export function PersonalInformation({ user }: { user: User }) {
             <FormField control={form.control} name="email" render={({ field }) => (
                 <FormItem>
                     <FormLabel>Email Address</FormLabel>
-                    <FormControl><Input type="email" disabled {...field} /></FormControl>
+                    <FormControl><Input type="email" {...field} /></FormControl>
                     <FormMessage />
                 </FormItem>
             )} />
