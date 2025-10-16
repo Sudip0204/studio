@@ -9,6 +9,8 @@ import {
   Award,
   Trophy,
   Users,
+  Footprints,
+  Gamepad2,
 } from "lucide-react";
 
 const features = [
@@ -36,6 +38,18 @@ const features = [
     description: "Buy/sell second-hand items.",
     href: "/marketplace",
   },
+  {
+    icon: <Footprints className="h-8 w-8 text-primary" />,
+    title: "Carbon Calculator",
+    description: "Measure your environmental impact.",
+    href: "/carbon-calculator",
+  },
+  {
+    icon: <Gamepad2 className="h-8 w-8 text-primary" />,
+    title: "Gamification",
+    description: "Play eco-games and earn points.",
+    href: "/gamification",
+  },
 ];
 
 export function FeaturesSection() {
@@ -51,7 +65,7 @@ export function FeaturesSection() {
             Our platform offers a suite of tools designed to make sustainable living accessible and rewarding for everyone.
           </p>
         </div>
-        <div className="mx-auto grid grid-cols-1 gap-6 pt-12 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto grid grid-cols-1 gap-6 pt-12 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3">
           {features.map((feature) => (
             <Link href={feature.href} key={feature.title} className="group">
               <Card className="h-full transform transition-transform duration-300 group-hover:-translate-y-2 group-hover:shadow-xl">
