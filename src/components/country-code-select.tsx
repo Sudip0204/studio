@@ -54,8 +54,6 @@ const countryCodes = [
     { code: '+235', country: 'Chad', flag: '🇹🇩' },
     { code: '+56', country: 'Chile', flag: '🇨🇱' },
     { code: '+86', country: 'China', flag: '🇨🇳' },
-    { code: '+61', country: 'Christmas Island', flag: '🇨🇽' },
-    { code: '+61', country: 'Cocos Islands', flag: '🇨🇨' },
     { code: '+57', country: 'Colombia', flag: '🇨🇴' },
     { code: '+269', country: 'Comoros', flag: '🇰🇲' },
     { code: '+682', country: 'Cook Islands', flag: '🇨🇰' },
@@ -70,8 +68,6 @@ const countryCodes = [
     { code: '+253', country: 'Djibouti', flag: '🇩🇯' },
     { code: '+1-767', country: 'Dominica', flag: '🇩🇲' },
     { code: '+1-809', country: 'Dominican Republic', flag: '🇩🇴' },
-    { code: '+1-829', country: 'Dominican Republic', flag: '🇩🇴' },
-    { code: '+1-849', country: 'Dominican Republic', flag: '🇩🇴' },
     { code: '+670', country: 'East Timor', flag: '🇹🇱' },
     { code: '+593', country: 'Ecuador', flag: '🇪🇨' },
     { code: '+20', country: 'Egypt', flag: '🇪🇬' },
@@ -169,7 +165,6 @@ const countryCodes = [
     { code: '+227', country: 'Niger', flag: '🇳🇪' },
     { code: '+234', country: 'Nigeria', flag: '🇳🇬' },
     { code: '+683', country: 'Niue', flag: '🇳🇺' },
-    { code: '+672', country: 'Norfolk Island', flag: '🇳🇫' },
     { code: '+850', country: 'North Korea', flag: '🇰🇵' },
     { code: '+1-670', country: 'Northern Mariana Islands', flag: '🇲🇵' },
     { code: '+47', country: 'Norway', flag: '🇳🇴' },
@@ -185,7 +180,6 @@ const countryCodes = [
     { code: '+48', country: 'Poland', flag: '🇵🇱' },
     { code: '+351', country: 'Portugal', flag: '🇵🇹' },
     { code: '+1-787', country: 'Puerto Rico', flag: '🇵🇷' },
-    { code: '+1-939', country: 'Puerto Rico', flag: '🇵🇷' },
     { code: '+974', country: 'Qatar', flag: '🇶🇦' },
     { code: '+242', country: 'Republic of the Congo', flag: '🇨🇬' },
     { code: '+262', country: 'Reunion', flag: '🇷🇪' },
@@ -244,7 +238,6 @@ const countryCodes = [
     { code: '+380', country: 'Ukraine', flag: '🇺🇦' },
     { code: '+971', country: 'United Arab Emirates', flag: '🇦🇪' },
     { code: '+44', country: 'United Kingdom', flag: '🇬🇧' },
-    { code: '+1', country: 'United States', flag: '🇺🇸' },
     { code: '+598', country: 'Uruguay', flag: '🇺🇾' },
     { code: '+998', country: 'Uzbekistan', flag: '🇺🇿' },
     { code: '+678', country: 'Vanuatu', flag: '🇻🇺' },
@@ -264,7 +257,7 @@ interface CountryCodeSelectProps {
 }
 
 export function CountryCodeSelect({ onValueChange, defaultValue }: CountryCodeSelectProps) {
-  // Remove duplicates based on country code for rendering, but keep all for selection logic if needed
+  // Remove duplicates based on country code for rendering.
   const uniqueCountryCodesForRendering = Array.from(new Map(countryCodes.map(item => [item.code, item])).values());
   
   return (
@@ -273,8 +266,8 @@ export function CountryCodeSelect({ onValueChange, defaultValue }: CountryCodeSe
         <SelectValue placeholder="Code" />
       </SelectTrigger>
       <SelectContent>
-        {countryCodes.map((item) => (
-          <SelectItem key={`${item.country}-${item.code}`} value={item.code}>
+        {uniqueCountryCodesForRendering.map((item) => (
+          <SelectItem key={item.code} value={item.code}>
             <span className="flex items-center gap-2">
               <span>{item.flag}</span>
               <span>{item.code}</span>
