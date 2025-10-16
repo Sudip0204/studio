@@ -54,8 +54,6 @@ const countryCodes = [
     { code: '+235', country: 'Chad', flag: '🇹🇩' },
     { code: '+56', country: 'Chile', flag: '🇨🇱' },
     { code: '+86', country: 'China', flag: '🇨🇳' },
-    { code: '+61', country: 'Christmas Island', flag: '🇨🇽' },
-    { code: '+61', country: 'Cocos Islands', flag: '🇨🇨' },
     { code: '+57', country: 'Colombia', flag: '🇨🇴' },
     { code: '+269', country: 'Comoros', flag: '🇰🇲' },
     { code: '+682', country: 'Cook Islands', flag: '🇨🇰' },
@@ -70,8 +68,6 @@ const countryCodes = [
     { code: '+253', country: 'Djibouti', flag: '🇩🇯' },
     { code: '+1-767', country: 'Dominica', flag: '🇩🇲' },
     { code: '+1-809', country: 'Dominican Republic', flag: '🇩🇴' },
-    { code: '+1-829', country: 'Dominican Republic', flag: '🇩🇴' },
-    { code: '+1-849', country: 'Dominican Republic', flag: '🇩🇴' },
     { code: '+670', country: 'East Timor', flag: '🇹🇱' },
     { code: '+593', country: 'Ecuador', flag: '🇪🇨' },
     { code: '+20', country: 'Egypt', flag: '🇪🇬' },
@@ -182,11 +178,9 @@ const countryCodes = [
     { code: '+595', country: 'Paraguay', flag: '🇵🇾' },
     { code: '+51', country: 'Peru', flag: '🇵🇪' },
     { code: '+63', country: 'Philippines', flag: '🇵🇭' },
-    { code: '+64', country: 'Pitcairn', flag: '🇵🇳' },
     { code: '+48', country: 'Poland', flag: '🇵🇱' },
     { code: '+351', country: 'Portugal', flag: '🇵🇹' },
     { code: '+1-787', country: 'Puerto Rico', flag: '🇵🇷' },
-    { code: '+1-939', country: 'Puerto Rico', flag: '🇵🇷' },
     { code: '+974', country: 'Qatar', flag: '🇶🇦' },
     { code: '+242', country: 'Republic of the Congo', flag: '🇨🇬' },
     { code: '+262', country: 'Reunion', flag: '🇷🇪' },
@@ -283,3 +277,5 @@ export function CountryCodeSelect({ onValueChange, defaultValue }: CountryCodeSe
     </Select>
   );
 }
+
+    
