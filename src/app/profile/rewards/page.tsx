@@ -116,6 +116,46 @@ const addDummyRewards = (firestore: any, userId: string) => {
       isUsed: false,
       source: 'Old Promotion',
     },
+    {
+      title: "Planet Protector's Perk",
+      description: 'A special discount for being an active member.',
+      code: 'PLANET25',
+      discountType: 'percentage',
+      discountValue: 25,
+      expiryDate: new Date(Date.now() + 35 * 24 * 60 * 60 * 1000),
+      isUsed: false,
+      source: 'Monthly Reward',
+    },
+    {
+      title: 'Upcycle Your Style',
+      description: '₹300 off any upcycled clothing item.',
+      code: 'STYLE300',
+      discountType: 'fixed',
+      discountValue: 300,
+      expiryDate: new Date(Date.now() + 40 * 24 * 60 * 60 * 1000),
+      isUsed: false,
+      source: 'Fashion Week',
+    },
+    {
+      title: 'Home Decor Delight',
+      description: '20% off any item in the Home Decor category.',
+      code: 'DECOR20',
+      discountType: 'percentage',
+      discountValue: 20,
+      expiryDate: new Date(Date.now() + 22 * 24 * 60 * 60 * 1000),
+      isUsed: false,
+      source: 'Home & Garden Event',
+    },
+    {
+      title: 'Green Thumb Bonus',
+      description: '₹150 off your next purchase for composting.',
+      code: 'COMPOST150',
+      discountType: 'fixed',
+      discountValue: 150,
+      expiryDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
+      isUsed: false,
+      source: 'Composting Goal',
+    },
   ];
   
   rewards.forEach(reward => {
@@ -136,11 +176,23 @@ export default function RewardsPage() {
 
   useEffect(() => {
     // Add dummy rewards once for the logged-in user if they have no rewards
-    if (user && firestore && rewards?.length === 0 && !areRewardsLoading && !hasAddedDummies) {
+    if (user && firestore && rewards && rewards.length < 10 && !areRewardsLoading && !hasAddedDummies) {
+        // Clear existing rewards before adding new ones to prevent duplicates on refresh
+        rewards.forEach(reward => {
+          const rewardDocRef = doc(firestore, 'users', user.uid, 'rewards', reward.id);
+          deleteDocumentNonBlocking(rewardDocRef);
+        });
         addDummyRewards(firestore, user.uid);
         setHasAddedDummies(true);
     }
   }, [user, firestore, rewards, areRewardsLoading, hasAddedDummies]);
+
+  // Add this new hook to prevent adding dummies again on re-render
+  useEffect(() => {
+    if (rewards && rewards.length > 0) {
+      setHasAddedDummies(true);
+    }
+  }, [rewards]);
 
 
   const handleCopyCode = (code: string) => {
