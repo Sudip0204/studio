@@ -75,7 +75,47 @@ const addDummyRewards = (firestore: any, userId: string) => {
       expiryDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
       isUsed: false,
       source: 'Marketplace Seller',
-    }
+    },
+    {
+      title: '15% Off All Electronics',
+      description: 'Save on refurbished gadgets.',
+      code: 'ECOTECH15',
+      discountType: 'percentage',
+      discountValue: 15,
+      expiryDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000),
+      isUsed: false,
+      source: 'E-Waste Recycle',
+    },
+    {
+      title: '₹100 Off Personal Care',
+      description: 'Discount on eco-friendly personal care items.',
+      code: 'SELFCARE100',
+      discountType: 'fixed',
+      discountValue: 100,
+      expiryDate: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000),
+      isUsed: false,
+      source: 'First Purchase',
+    },
+    {
+      title: 'Buy 1 Get 1 Free on Books',
+      description: 'Share the love of reading.',
+      code: 'BOOKWORM',
+      discountType: 'bogo',
+      discountValue: 1, // Represents BOGO
+      expiryDate: new Date(Date.now() + 50 * 24 * 60 * 60 * 1000),
+      isUsed: false,
+      source: 'Reading Challenge',
+    },
+    {
+      title: '50% Off Everything (Expired)',
+      description: 'A massive discount from a past promotion.',
+      code: 'FLASH50',
+      discountType: 'percentage',
+      discountValue: 50,
+      expiryDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
+      isUsed: false,
+      source: 'Old Promotion',
+    },
   ];
   
   rewards.forEach(reward => {
