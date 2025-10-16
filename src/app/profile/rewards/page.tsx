@@ -55,6 +55,26 @@ const addDummyRewards = (firestore: any, userId: string) => {
         expiryDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
         isUsed: true,
         source: 'Special Offer',
+    },
+    {
+      title: 'Free Shipping',
+      description: 'Enjoy free shipping on your next marketplace order.',
+      code: 'ECOSHIP',
+      discountType: 'shipping',
+      discountValue: 100, // Represents 100% off shipping
+      expiryDate: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000),
+      isUsed: false,
+      source: 'Community Goal',
+    },
+    {
+      title: '₹200 Off Furniture',
+      description: 'Get ₹200 off any furniture item.',
+      code: 'FURNISH200',
+      discountType: 'fixed',
+      discountValue: 200,
+      expiryDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+      isUsed: false,
+      source: 'Marketplace Seller',
     }
   ];
   
@@ -91,6 +111,14 @@ export default function RewardsPage() {
     });
   };
 
+  const handleApplyCode = (code: string) => {
+    toast({
+        title: "Coupon Applied!",
+        description: `Code "${code}" has been applied to your cart.`,
+    });
+    // Here you would typically redirect to the cart or update the cart context
+  }
+
   if (isUserLoading || areRewardsLoading) {
     return (
         <div className="p-6">
@@ -102,7 +130,7 @@ export default function RewardsPage() {
                             <Skeleton className="h-4 w-full mt-2" />
                         </CardHeader>
                         <CardContent>
-                             <Skeleton className="h-10 w-1/2" />
+                             <Skeleton className="h-10 w-full" />
                         </CardContent>
                         <CardFooter>
                             <Skeleton className="h-4 w-1/3" />
@@ -142,17 +170,37 @@ export default function RewardsPage() {
                   <CardDescription>{reward.description}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
-                    <div 
-                        className={cn(
-                            "border-2 border-dashed rounded-lg p-3 flex items-center justify-center cursor-pointer",
-                            isDisabled ? 'border-muted-foreground/30' : 'border-primary/50 hover:bg-primary/10'
-                        )}
-                        onClick={() => !isDisabled && handleCopyCode(reward.code)}
-                    >
-                        <span className={cn(
-                            "font-mono text-lg font-bold tracking-widest",
-                             isDisabled ? 'text-muted-foreground' : 'text-primary'
-                        )}>{reward.code}</span>
+                    <div className="flex flex-col sm:flex-row items-center gap-2">
+                        <div 
+                            className={cn(
+                                "border-2 border-dashed rounded-lg p-3 flex-grow text-center",
+                                isDisabled ? 'border-muted-foreground/30' : 'border-primary/50'
+                            )}
+                        >
+                            <span className={cn(
+                                "font-mono text-lg font-bold tracking-widest",
+                                isDisabled ? 'text-muted-foreground' : 'text-primary'
+                            )}>{reward.code}</span>
+                        </div>
+                        <div className="flex-shrink-0 flex gap-2 w-full sm:w-auto">
+                            <Button
+                                variant="outline"
+                                size="sm"
+                                className="flex-1"
+                                onClick={() => !isDisabled && handleCopyCode(reward.code)}
+                                disabled={isDisabled}
+                            >
+                                Copy
+                            </Button>
+                            <Button
+                                size="sm"
+                                className="flex-1"
+                                disabled={isDisabled}
+                                onClick={() => handleApplyCode(reward.code)}
+                            >
+                                Apply
+                            </Button>
+                        </div>
                     </div>
                 </CardContent>
                 <CardFooter className="text-xs text-muted-foreground justify-between">
