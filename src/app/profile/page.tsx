@@ -13,6 +13,7 @@ import { PersonalInformation } from './personal-information';
 import { ManageAddresses } from './manage-addresses';
 import { Skeleton } from '@/components/ui/skeleton';
 import RewardsPage from './rewards/page';
+import { SellerDashboard } from './seller-dashboard';
 
 function AccountSettings() {
   return (
@@ -81,10 +82,11 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent className="p-0">
              <Tabs defaultValue="personal-info" className="w-full">
-                <TabsList className="grid w-full grid-cols-4 rounded-none">
+                <TabsList className="grid w-full grid-cols-5 rounded-none">
                     <TabsTrigger value="personal-info">Personal Information</TabsTrigger>
                     <TabsTrigger value="addresses">Manage Addresses</TabsTrigger>
                     <TabsTrigger value="rewards">My Rewards</TabsTrigger>
+                    <TabsTrigger value="seller-dashboard">Seller Dashboard</TabsTrigger>
                     <TabsTrigger value="settings">Account Settings</TabsTrigger>
                 </TabsList>
 
@@ -98,6 +100,10 @@ export default function ProfilePage() {
 
                  <TabsContent value="rewards">
                     <RewardsPage />
+                </TabsContent>
+
+                <TabsContent value="seller-dashboard">
+                    <SellerDashboard user={user} />
                 </TabsContent>
                 
                  <TabsContent value="settings">
