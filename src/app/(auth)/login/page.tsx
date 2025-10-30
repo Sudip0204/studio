@@ -32,7 +32,10 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useToast } from '@/hooks/use-toast';
 import { useEffect, useState } from 'react';
 import { CalendarIcon, Loader2 } from 'lucide-react';
-import { createUserWithEmailAndPassword } from 'firebase/auth';
+import {
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+} from 'firebase/auth';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useFirestore } from '@/firebase';
 import { Textarea } from '@/components/ui/textarea';
@@ -95,28 +98,30 @@ function LoginForm({ onSwitchToSignup }: { onSwitchToSignup: () => void }) {
 
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     setIsSubmitting(true);
-    try {
-      // We are not awaiting this to avoid blocking UI, auth state is handled by the provider
-      initiateEmailSignIn(auth, values.email, values.password);
-    } catch (error: any) {
-      let description = 'An unexpected error occurred. Please try again.';
-      if (
-        error.code === 'auth/user-not-found' ||
-        error.code === 'auth/wrong-password' ||
-        error.code === 'auth/invalid-credential'
-      ) {
-        description = 'Invalid email or password. Please try again or sign up.';
-        onSwitchToSignup(); // Switch to signup tab on user-not-found
-      } else if (error.message) {
-        description = error.message;
+    signInWithEmailAndPassword(auth, values.email, values.password).catch(
+      (error: any) => {
+        let description = 'An unexpected error occurred. Please try again.';
+        if (
+          error.code === 'auth/user-not-found' ||
+          error.code === 'auth/wrong-password' ||
+          error.code === 'auth/invalid-credential'
+        ) {
+          description =
+            'Invalid email or password. Please try again or sign up.';
+          if (error.code === 'auth/user-not-found') {
+            onSwitchToSignup(); // Switch to signup tab on user-not-found
+          }
+        } else if (error.message) {
+          description = error.message;
+        }
+        toast({
+          variant: 'destructive',
+          title: 'Login Failed',
+          description: description,
+        });
+        setIsSubmitting(false); // only set to false on error
       }
-      toast({
-        variant: 'destructive',
-        title: 'Login Failed',
-        description: description,
-      });
-      setIsSubmitting(false); // only set to false on error
-    }
+    );
   };
 
   return (
@@ -472,3 +477,5 @@ export default function AuthPage() {
     </div>
   );
 }
+
+    
