@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -6,7 +5,7 @@ import Image from 'next/image';
 import { User } from 'firebase/auth';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Edit, Trash2, Package, PackageOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { EditProductForm } from './edit-product-form';
@@ -17,7 +16,7 @@ type Product = {
     price: number;
     description: string;
     image: string;
-    seller: string;
+    seller: string; // This is the seller's uid
     dataAiHint: string;
     category: string;
     condition: string;
@@ -33,7 +32,7 @@ export function SellerDashboard({ user }: { user: User }) {
   const fetchUserProducts = () => {
     try {
       const allProducts = JSON.parse(localStorage.getItem('userProducts') || '[]');
-      const userProducts = allProducts.filter((p: Product) => p.seller === user.displayName);
+      const userProducts = allProducts.filter((p: Product) => p.seller === user.uid);
       setProducts(userProducts);
     } catch (error) {
       console.error("Failed to load products from localStorage", error);
@@ -41,10 +40,8 @@ export function SellerDashboard({ user }: { user: User }) {
   };
 
   useEffect(() => {
-    if (user.displayName) {
-      fetchUserProducts();
-    }
-  }, [user.displayName]);
+    fetchUserProducts();
+  }, [user.uid]);
 
   const handleDelete = (productId: number) => {
     if (window.confirm('Are you sure you want to delete this product?')) {
