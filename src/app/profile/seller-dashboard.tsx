@@ -6,7 +6,7 @@ import { User } from 'firebase/auth';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Edit, Trash2, Package, PackageOpen } from 'lucide-react';
+import { Edit, Trash2, PackageOpen } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { EditProductForm } from './edit-product-form';
 
@@ -16,7 +16,7 @@ type Product = {
     price: number;
     description: string;
     image: string;
-    seller: string; // This is the seller's uid
+    seller: string;
     dataAiHint: string;
     category: string;
     condition: string;
@@ -77,6 +77,7 @@ export function SellerDashboard({ user }: { user: User }) {
         </div>
       </div>
       
+      {/* Dialog for editing a product */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
         <DialogContent className="sm:max-w-[600px]">
             <DialogHeader>
@@ -89,43 +90,43 @@ export function SellerDashboard({ user }: { user: User }) {
                 />
             )}
         </DialogContent>
-      
-        {products.length > 0 ? (
-          <div className="grid md:grid-cols-2 gap-6">
-            {products.map((product) => (
-              <Card key={product.id} className="flex flex-col">
-                <CardContent className="p-4 flex gap-4">
-                  <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md">
-                    <Image src={product.image} alt={product.name} fill className="object-cover" />
-                  </div>
-                  <div className="flex-grow">
-                    <p className="font-semibold">{product.name}</p>
-                    <p className="text-sm text-primary font-bold">₹{product.price}</p>
-                    <p className="text-xs text-muted-foreground">{product.category} - {product.condition}</p>
-                    <div className="flex gap-2 mt-4">
-                      <Button variant="outline" size="sm" onClick={() => handleEdit(product)}>
-                        <Edit className="mr-2 h-4 w-4" /> Edit
-                      </Button>
-                      <Button variant="destructive" size="sm" onClick={() => handleDelete(product.id)}>
-                        <Trash2 className="mr-2 h-4 w-4" /> Delete
-                      </Button>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16 border-2 border-dashed rounded-lg">
-            <div className="mx-auto bg-primary/10 rounded-full p-4 w-fit mb-4">
-                <PackageOpen className="h-10 w-10 text-primary" />
-            </div>
-            <h3 className="text-xl font-bold">No Listings Yet</h3>
-            <p className="text-muted-foreground mt-2">You haven't listed any items for sale.</p>
-          </div>
-        )}
       </Dialog>
 
+      {/* The list of products, which is now outside the dialog */}
+      {products.length > 0 ? (
+        <div className="grid md:grid-cols-2 gap-6">
+          {products.map((product) => (
+            <Card key={product.id} className="flex flex-col">
+              <CardContent className="p-4 flex gap-4">
+                <div className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md">
+                  <Image src={product.image} alt={product.name} fill className="object-cover" />
+                </div>
+                <div className="flex-grow">
+                  <p className="font-semibold">{product.name}</p>
+                  <p className="text-sm text-primary font-bold">₹{product.price}</p>
+                  <p className="text-xs text-muted-foreground">{product.category} - {product.condition}</p>
+                  <div className="flex gap-2 mt-4">
+                    <Button variant="outline" size="sm" onClick={() => handleEdit(product)}>
+                      <Edit className="mr-2 h-4 w-4" /> Edit
+                    </Button>
+                    <Button variant="destructive" size="sm" onClick={() => handleDelete(product.id)}>
+                      <Trash2 className="mr-2 h-4 w-4" /> Delete
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      ) : (
+        <div className="text-center py-16 border-2 border-dashed rounded-lg">
+          <div className="mx-auto bg-primary/10 rounded-full p-4 w-fit mb-4">
+              <PackageOpen className="h-10 w-10 text-primary" />
+          </div>
+          <h3 className="text-xl font-bold">No Listings Yet</h3>
+          <p className="text-muted-foreground mt-2">You haven't listed any items for sale.</p>
+        </div>
+      )}
     </div>
   );
 }
