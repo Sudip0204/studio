@@ -118,15 +118,9 @@ export default function CartPage() {
   }
 
   const handleConfirmPayment = () => {
-    // Simulate order success
-    toast({
-        title: "Order Placed Successfully!",
-        description: "Thank you for your purchase. Your items will be shipped soon."
-    });
-    // Here you would typically clear the cart and redirect
-    // clearCart();
-    // router.push('/profile/orders');
+    // Simulate order success by redirecting to a confirmation page
     setIsPaymentDialogOpen(false);
+    router.push('/marketplace/order-confirmation');
   }
 
 
