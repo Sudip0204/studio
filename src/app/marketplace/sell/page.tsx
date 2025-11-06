@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -53,11 +53,12 @@ export default function SellItemPage() {
     },
   });
 
-  if (!isUserLoading && !user) {
-    router.push('/login?redirect=/marketplace/sell');
-    return null; 
-  }
-  
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login?redirect=/marketplace/sell');
+    }
+  }, [isUserLoading, user, router]);
+
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -119,6 +120,14 @@ export default function SellItemPage() {
     } finally {
         setIsSubmitting(false);
     }
+  }
+
+  if (isUserLoading || !user) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
   }
 
   return (
@@ -295,5 +304,3 @@ export default function SellItemPage() {
     </div>
   );
 }
-
-    
