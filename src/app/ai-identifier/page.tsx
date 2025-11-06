@@ -25,12 +25,13 @@ const ParticleBackground = () => {
     if (!ctx) return;
 
     let animationFrameId: number;
-    let particles: any[] = [];
-    const numberOfParticles = 50;
+    const particles: Particle[] = [];
+    const numberOfParticles = 40;
+    const colors = ['rgba(139, 195, 74, 0.6)', 'rgba(104, 159, 56, 0.6)', 'rgba(212, 203, 184, 0.6)']; // Shades of green and beige
 
     const resizeCanvas = () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
     };
     
     resizeCanvas();
@@ -40,47 +41,59 @@ const ParticleBackground = () => {
       x: number;
       y: number;
       size: number;
+      speedX: number;
       speedY: number;
       angle: number;
       spin: number;
+      color: string;
+      opacity: number;
 
       constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 5 + 2; // Leaf size
-        this.speedY = Math.random() * 1.5 + 0.5; // Fall speed
+        this.size = Math.random() * 15 + 10;
+        this.speedX = Math.random() * 2 - 1;
+        this.speedY = Math.random() * 1.5 + 0.5;
         this.angle = Math.random() * 360;
-        this.spin = (Math.random() - 0.5) * 0.1;
+        this.spin = (Math.random() - 0.5) * 0.02;
+        this.color = colors[Math.floor(Math.random() * colors.length)];
+        this.opacity = this.size / 25;
       }
 
       update() {
         this.y += this.speedY;
+        this.x += this.speedX;
         this.angle += this.spin;
-        if (this.y > canvas.height) {
+
+        if (this.y > canvas.height + this.size) {
           this.y = -this.size;
           this.x = Math.random() * canvas.width;
+        }
+        if (this.x > canvas.width + this.size || this.x < -this.size) {
+            this.x = Math.random() * canvas.width;
+            this.y = -this.size;
         }
       }
 
       draw() {
         if (!ctx) return;
         ctx.save();
+        ctx.globalAlpha = this.opacity;
         ctx.translate(this.x, this.y);
         ctx.rotate(this.angle);
         ctx.beginPath();
-        // Simple leaf shape
+        // A more detailed leaf shape
         ctx.moveTo(0, -this.size);
-        ctx.quadraticCurveTo(this.size / 2, -this.size / 2, 0, 0);
-        ctx.quadraticCurveTo(-this.size / 2, -this.size / 2, 0, -this.size);
+        ctx.quadraticCurveTo(this.size, 0, 0, this.size);
+        ctx.quadraticCurveTo(-this.size, 0, 0, -this.size);
         ctx.closePath();
-        ctx.fillStyle = 'rgba(46, 125, 50, 0.4)'; // Calm, translucent green
+        ctx.fillStyle = this.color;
         ctx.fill();
         ctx.restore();
       }
     }
 
     const init = () => {
-      particles = [];
       for (let i = 0; i < numberOfParticles; i++) {
         particles.push(new Particle());
       }
@@ -104,7 +117,7 @@ const ParticleBackground = () => {
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="fixed top-0 left-0 -z-10 w-full h-full" />;
+  return <canvas ref={canvasRef} className="fixed top-0 left-0 -z-10 w-full h-full bg-beige-50" />;
 };
 
 
@@ -142,8 +155,6 @@ export default function AiIdentifierPage() {
     setClassificationResult(null);
 
     try {
-      // Simulate API delay
-      await new Promise(resolve => setTimeout(resolve, 2000));
       const result = await aiWasteClassification({ photoDataUri: selectedImage });
       setClassificationResult(result);
     } catch (error) {
@@ -162,7 +173,7 @@ export default function AiIdentifierPage() {
     `https://www.google.com/search?q=${encodeURIComponent(classificationResult.wasteType)}&tbm=isch` : null;
 
   return (
-    <div className="relative min-h-screen w-full overflow-hidden bg-background">
+    <div className="relative min-h-screen w-full overflow-x-hidden">
         <ParticleBackground />
 
         <div className="container mx-auto py-12 px-4 flex justify-center">
@@ -325,5 +336,3 @@ export default function AiIdentifierPage() {
     </div>
   );
 }
-
-    
