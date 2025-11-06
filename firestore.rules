@@ -3,17 +3,18 @@
  *
  * Core Philosophy:
  * This ruleset enforces a strict user-ownership model, where users can only
- * access their own profiles, addresses, and rewards.  It prioritizes secure
- * access over complex data validation in this prototyping phase.
+ * access their own profiles, addresses, rewards, and orders. It prioritizes
+ * secure access over complex data validation in this prototyping phase.
  *
  * Data Structure:
  * - /users/{userId}: Stores user profile data.
  * - /users/{userId}/addresses/{addressId}: Stores user addresses.
  * - /users/{userId}/rewards/{rewardId}: Stores user rewards.
+ * - /users/{userId}/orders/{orderId}: Stores user orders.
  *
  * Key Security Decisions:
- * - Users can only list rewards that belong to them, as per the provided error.
- * - Data validation is minimal, focusing on ownership and existence checks for writes.
+ * - Users can only perform CRUD operations on their own data.
+ * - `list` operations are generally restricted to subcollections where a user should see all of their own items (e.g., addresses, rewards, orders).
  *
  * Denormalization for Authorization: N/A, the data model is already structured for owner-based authorization.
  * Structural Segregation: N/A
@@ -25,12 +26,6 @@ service cloud.firestore {
     /**
      * @description Secure user profiles. Users can read and write their own profile.
      * @path /users/{userId}
-     * @allow (create) User with UID 'user123' can create their profile if request.auth.uid == 'user123'.
-     * @allow (get) User with UID 'user123' can read their profile.
-     * @deny (create) User with UID 'user456' cannot create a profile with ID 'user123'.
-     * @deny (update) User with UID 'user456' cannot update user profile with ID 'user123'.
-     * @deny (delete) User with UID 'user456' cannot delete user profile with ID 'user123'.
-     * @principle Enforces document ownership for writes.
      */
     match /users/{userId} {
       function isOwner(userId) {
@@ -42,7 +37,7 @@ service cloud.firestore {
       }
 
       allow get: if isOwner(userId);
-      allow list: if false;
+      allow list: if false; // Users should not be able to list all other users.
       allow create: if isOwner(userId);
       allow update: if isExistingOwner(userId);
       allow delete: if isExistingOwner(userId);
@@ -51,55 +46,38 @@ service cloud.firestore {
     /**
      * @description Secure user addresses. Users can manage their own addresses.
      * @path /users/{userId}/addresses/{addressId}
-     * @allow (create) User with UID 'user123' can create an address under their profile.
-     * @allow (get) User with UID 'user123' can read an address under their profile.
-     * @allow (list) User with UID 'user123' can list addresses under their profile.
-     * @deny (create) User with UID 'user456' cannot create an address under user 'user123'.
-     * @deny (update) User with UID 'user456' cannot update an address under user 'user123'.
-     * @deny (delete) User with UID 'user456' cannot delete an address under user 'user123'.
-     * @principle Enforces document ownership for writes.
      */
     match /users/{userId}/addresses/{addressId} {
       function isOwner(userId) {
         return request.auth.uid == userId;
       }
 
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
-      }
-
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      allow read, write: if isOwner(userId);
     }
 
     /**
      * @description Secure user rewards. Users can only access their own rewards.
      * @path /users/{userId}/rewards/{rewardId}
-     * @allow (create) User with UID 'user123' can create a reward under their profile.
-     * @allow (get) User with UID 'user123' can read a reward under their profile.
-     * @allow (list) User with UID 'user123' can list rewards under their profile.
-     * @deny (create) User with UID 'user456' cannot create a reward under user 'user123'.
-     * @deny (update) User with UID 'user456' cannot update a reward under user 'user123'.
-     * @deny (delete) User with UID 'user456' cannot delete a reward under user 'user123'.
-     * @principle Enforces document ownership for writes.
      */
     match /users/{userId}/rewards/{rewardId} {
       function isOwner(userId) {
         return request.auth.uid == userId;
       }
 
-      function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
+      allow read, write: if isOwner(userId);
+    }
+
+    /**
+     * @description Secure user orders. Users can only access their own orders.
+     * @path /users/{userId}/orders/{orderId}
+     */
+    match /users/{userId}/orders/{orderId} {
+      function isOwner(userId) {
+        return request.auth.uid == userId;
       }
 
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+      // Allow users to create, read, update, and delete their own orders.
+      allow read, write: if isOwner(userId);
     }
   }
 }
