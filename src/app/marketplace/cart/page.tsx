@@ -11,7 +11,7 @@ import { Separator } from '@/components/ui/separator';
 import { Loader2, Trash2, Heart, Plus, Minus, Info, ShieldCheck, Ticket, Gift, X, Home, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { collection, serverTimestamp } from 'firebase/firestore';
 import { format, isPast } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -335,3 +335,5 @@ export default function CartPage() {
     </div>
   );
 }
+
+    
