@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from 'react';
@@ -166,58 +167,64 @@ export default function AiIdentifierPage() {
 
         <div className="container mx-auto py-12 px-4 flex justify-center">
             <div className="w-full max-w-4xl space-y-8">
-                <Card className="overflow-hidden shadow-xl bg-stone-100/95 backdrop-blur-sm border-stone-200/80">
-                    <CardHeader className="text-center">
-                        <div className="mx-auto bg-primary/10 rounded-full p-4 w-fit mb-4">
-                        <Camera className="h-10 w-10 text-primary" />
-                        </div>
-                        <CardTitle className="font-headline text-3xl">AI Waste Identifier</CardTitle>
-                        <CardDescription className="text-lg">
-                        Upload a photo of a waste item, and our AI will classify it and tell you how to dispose of it properly.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        <div
-                            className="bg-background/50 rounded-lg p-4 border-2 border-dashed border-muted-foreground/30 hover:border-primary transition-colors cursor-pointer"
-                            onClick={() => fileInputRef.current?.click()}
-                        >
-                            <div className="relative aspect-video w-full overflow-hidden rounded-md flex items-center justify-center">
-                                {selectedImage ? (
-                                <Image src={selectedImage} alt="Selected waste item" layout="fill" objectFit="contain" />
-                                ) : (
-                                <div className="text-center text-muted-foreground">
-                                    <Upload className="mx-auto h-12 w-12" />
-                                    <p className="mt-2 font-semibold">Click to upload an image</p>
-                                    <p className="text-sm">or drag and drop</p>
-                                </div>
-                                )}
+                <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5 }}
+                >
+                    <Card className="overflow-hidden shadow-xl bg-stone-100/95 backdrop-blur-sm border-stone-200/80">
+                        <CardHeader className="text-center">
+                            <div className="mx-auto bg-primary/10 rounded-full p-4 w-fit mb-4">
+                            <Camera className="h-10 w-10 text-primary" />
                             </div>
-                            <input
-                                ref={fileInputRef}
-                                type="file"
-                                accept="image/*"
-                                onChange={handleImageChange}
-                                className="hidden"
-                            />
-                        </div>
+                            <CardTitle className="font-headline text-3xl">AI Waste Identifier</CardTitle>
+                            <CardDescription className="text-lg">
+                            Upload a photo of a waste item, and our AI will classify it and tell you how to dispose of it properly.
+                            </CardDescription>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                            <div
+                                className="bg-background/50 rounded-lg p-4 border-2 border-dashed border-muted-foreground/30 hover:border-primary transition-colors cursor-pointer"
+                                onClick={() => fileInputRef.current?.click()}
+                            >
+                                <div className="relative aspect-video w-full overflow-hidden rounded-md flex items-center justify-center">
+                                    {selectedImage ? (
+                                    <Image src={selectedImage} alt="Selected waste item" layout="fill" objectFit="contain" />
+                                    ) : (
+                                    <div className="text-center text-muted-foreground">
+                                        <Upload className="mx-auto h-12 w-12" />
+                                        <p className="mt-2 font-semibold">Click to upload an image</p>
+                                        <p className="text-sm">or drag and drop</p>
+                                    </div>
+                                    )}
+                                </div>
+                                <input
+                                    ref={fileInputRef}
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleImageChange}
+                                    className="hidden"
+                                />
+                            </div>
 
-                        <div className="flex justify-center">
-                            <Button onClick={handleClassify} disabled={isClassifying || !selectedImage} size="lg">
-                                {isClassifying ? (
-                                <>
-                                    <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                                    Classifying...
-                                </>
-                                ) : (
-                                <>
-                                    <Camera className="mr-2 h-5 w-5" />
-                                    Classify Waste
-                                </>
-                                )}
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
+                            <div className="flex justify-center">
+                                <Button onClick={handleClassify} disabled={isClassifying || !selectedImage} size="lg">
+                                    {isClassifying ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                                        Classifying...
+                                    </>
+                                    ) : (
+                                    <>
+                                        <Camera className="mr-2 h-5 w-5" />
+                                        Classify Waste
+                                    </>
+                                    )}
+                                </Button>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </motion.div>
 
                 <AnimatePresence>
                     {(isClassifying || classificationResult) && (
@@ -318,3 +325,5 @@ export default function AiIdentifierPage() {
     </div>
   );
 }
+
+    
