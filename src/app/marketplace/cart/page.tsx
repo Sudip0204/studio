@@ -1,16 +1,23 @@
 
 'use client';
 
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@/firebase';
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { useCart } from '@/context/cart-context';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, Trash2, Heart, Plus, Minus, Info, ShieldCheck } from 'lucide-react';
+import { Loader2, Trash2, Heart, Plus, Minus, Info, ShieldCheck, Ticket, Gift, X } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { collection } from 'firebase/firestore';
+import { format, isPast } from 'date-fns';
+import { cn } from '@/lib/utils';
+import { useToast } from '@/hooks/use-toast';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+
 
 function CartItem({ item, updateQuantity, removeFromCart }: any) {
   return (
@@ -44,10 +51,50 @@ function CartItem({ item, updateQuantity, removeFromCart }: any) {
   );
 }
 
+function CouponDialog({ onApplyCoupon, user }: { onApplyCoupon: (coupon: any) => void; user: any; }) {
+  const firestore = useFirestore();
+  const rewardsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'rewards') : null, [firestore, user]);
+  const { data: rewards, isLoading } = useCollection(rewardsRef);
+
+  const validRewards = useMemo(() => {
+    if (!rewards) return [];
+    return rewards.filter(reward => !reward.isUsed && !isPast(reward.expiryDate.toDate()));
+  }, [rewards]);
+  
+  return (
+    <DialogContent className="sm:max-w-[425px]">
+      <DialogHeader>
+        <DialogTitle>Select a Coupon</DialogTitle>
+      </DialogHeader>
+      <div className="space-y-4 max-h-[60vh] overflow-y-auto p-1">
+        {isLoading && <p>Loading coupons...</p>}
+        {!isLoading && validRewards.length === 0 && <p className="text-muted-foreground text-center">No valid coupons available.</p>}
+        {validRewards.map(coupon => (
+          <Card key={coupon.id} className="cursor-pointer hover:border-primary transition-colors" onClick={() => onApplyCoupon(coupon)}>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                 <Gift className="h-5 w-5 text-primary"/> {coupon.title}
+              </CardTitle>
+              <p className="text-sm text-muted-foreground">{coupon.description}</p>
+            </CardHeader>
+            <CardFooter className="text-xs justify-between">
+                <span>Code: <span className="font-mono font-bold">{coupon.code}</span></span>
+                <span>Expires: {format(coupon.expiryDate.toDate(), 'dd MMM yyyy')}</span>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
+    </DialogContent>
+  );
+}
+
 export default function CartPage() {
   const { user, isUserLoading } = useUser();
   const router = useRouter();
-  const { cart, updateQuantity, removeFromCart } = useCart();
+  const { cart, updateQuantity, removeFromCart, appliedCoupon, applyCoupon, removeCoupon } = useCart();
+  const [isCouponDialogOpen, setIsCouponDialogOpen] = useState(false);
+  const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -55,14 +102,54 @@ export default function CartPage() {
     }
   }, [user, isUserLoading, router]);
 
+  const handleApplyCoupon = (coupon: any) => {
+    applyCoupon(coupon);
+    setIsCouponDialogOpen(false);
+    toast({
+        title: "Coupon Applied!",
+        description: `You've applied the "${coupon.title}" coupon.`
+    })
+  }
+  
+  const handlePlaceOrder = () => {
+    // In a real app, you would integrate a payment gateway here.
+    // For now, we'll just show a confirmation dialog.
+    setIsPaymentDialogOpen(true);
+  }
+
+  const handleConfirmPayment = () => {
+    // Simulate order success
+    toast({
+        title: "Order Placed Successfully!",
+        description: "Thank you for your purchase. Your items will be shipped soon."
+    });
+    // Here you would typically clear the cart and redirect
+    // clearCart();
+    // router.push('/profile/orders');
+    setIsPaymentDialogOpen(false);
+  }
+
+
   const priceDetails = useMemo(() => {
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
-    const discount = Math.floor(subtotal * 0.1); // 10% discount for demo
+    let couponDiscount = 0;
+
+    if (appliedCoupon) {
+      if (appliedCoupon.discountType === 'percentage') {
+        couponDiscount = (subtotal * appliedCoupon.discountValue) / 100;
+      } else if (appliedCoupon.discountType === 'fixed') {
+        couponDiscount = appliedCoupon.discountValue;
+      }
+    }
+    
+    const demoDiscount = Math.floor(subtotal * 0.1); // 10% discount for demo, kept for UI consistency
+    const totalDiscount = demoDiscount + couponDiscount;
+
     const platformFee = totalItems > 0 ? 109 : 0;
-    const total = subtotal - discount + platformFee;
-    return { subtotal, discount, platformFee, total, totalItems };
-  }, [cart]);
+    const total = subtotal - totalDiscount + platformFee;
+    return { subtotal, totalDiscount, platformFee, total, totalItems, couponDiscount, demoDiscount };
+  }, [cart, appliedCoupon]);
 
   if (isUserLoading || !user) {
     return (
@@ -114,8 +201,16 @@ export default function CartPage() {
                             </div>
                              <div className="flex justify-between">
                                 <span>Discount</span>
-                                <span className="text-primary">- ₹{priceDetails.discount.toLocaleString()}</span>
+                                <span className="text-primary">- ₹{priceDetails.totalDiscount.toLocaleString()}</span>
                             </div>
+                            {appliedCoupon && (
+                                <div className="flex justify-between items-center text-xs pl-4 text-primary">
+                                    <span>Coupon: "{appliedCoupon.code}"</span>
+                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={removeCoupon}>
+                                        <X className="h-4 w-4"/>
+                                    </Button>
+                                </div>
+                            )}
                              <div className="flex justify-between">
                                 <span>Platform Fee</span>
                                 <span>₹{priceDetails.platformFee.toLocaleString()}</span>
@@ -127,8 +222,17 @@ export default function CartPage() {
                             </div>
                         </CardContent>
                         <CardFooter className="flex flex-col gap-4">
-                             <p className="text-sm font-semibold text-primary">You will save ₹{priceDetails.discount.toLocaleString()} on this order</p>
-                            <Button className="w-full" size="lg">Place Order</Button>
+                            <Dialog open={isCouponDialogOpen} onOpenChange={setIsCouponDialogOpen}>
+                                <DialogTrigger asChild>
+                                    <Button variant="outline" className="w-full" disabled={!!appliedCoupon}>
+                                        <Ticket className="mr-2"/>
+                                        {appliedCoupon ? 'Coupon Applied' : 'Apply Coupon'}
+                                    </Button>
+                                </DialogTrigger>
+                                {user && <CouponDialog user={user} onApplyCoupon={handleApplyCoupon} />}
+                            </Dialog>
+                             <p className="text-sm font-semibold text-primary">You will save ₹{priceDetails.totalDiscount.toLocaleString()} on this order</p>
+                            <Button className="w-full" size="lg" onClick={handlePlaceOrder}>Place Order</Button>
                         </CardFooter>
                     </Card>
                     <div className="flex items-center justify-center gap-2 text-muted-foreground text-sm">
@@ -138,6 +242,20 @@ export default function CartPage() {
                 </div>
             </div>
         </div>
+        <AlertDialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                <AlertDialogTitle>Confirm Your Order</AlertDialogTitle>
+                <AlertDialogDescription>
+                    You are about to place an order for a total of <span className="font-bold">₹{priceDetails.total.toLocaleString()}</span>. Please confirm to proceed with payment.
+                </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={handleConfirmPayment}>Confirm & Pay</AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
     </div>
   );
 }

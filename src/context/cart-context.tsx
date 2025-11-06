@@ -21,36 +21,60 @@ export type CartItem = Product & {
   quantity: number;
 };
 
+// Define a type for the coupon object
+export type Coupon = {
+  id: string;
+  title: string;
+  code: string;
+  discountType: 'percentage' | 'fixed';
+  discountValue: number;
+  // Add any other properties your coupon might have
+};
+
 interface CartContextType {
   cart: CartItem[];
   addToCart: (product: Product) => void;
   removeFromCart: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
   clearCart: () => void;
+  appliedCoupon: Coupon | null;
+  applyCoupon: (coupon: Coupon) => void;
+  removeCoupon: () => void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
   const [cart, setCart] = useState<CartItem[]>([]);
+  const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(null);
   const { user } = useUser();
 
   useEffect(() => {
     if (user) {
       const storedCart = localStorage.getItem(`cart_${user.uid}`);
+      const storedCoupon = localStorage.getItem(`coupon_${user.uid}`);
       if (storedCart) {
         setCart(JSON.parse(storedCart));
       }
+      if (storedCoupon) {
+        setAppliedCoupon(JSON.parse(storedCoupon));
+      }
     } else {
       setCart([]); // Clear cart on logout
+      setAppliedCoupon(null); // Clear coupon on logout
     }
   }, [user]);
 
   useEffect(() => {
     if (user) {
       localStorage.setItem(`cart_${user.uid}`, JSON.stringify(cart));
+      if (appliedCoupon) {
+        localStorage.setItem(`coupon_${user.uid}`, JSON.stringify(appliedCoupon));
+      } else {
+        localStorage.removeItem(`coupon_${user.uid}`);
+      }
     }
-  }, [cart, user]);
+  }, [cart, appliedCoupon, user]);
 
   const addToCart = (product: Product) => {
     setCart(prevCart => {
@@ -81,10 +105,19 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
 
   const clearCart = () => {
     setCart([]);
+    setAppliedCoupon(null);
+  };
+  
+  const applyCoupon = (coupon: Coupon) => {
+    setAppliedCoupon(coupon);
+  };
+
+  const removeCoupon = () => {
+    setAppliedCoupon(null);
   };
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart }}>
+    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart, appliedCoupon, applyCoupon, removeCoupon }}>
       {children}
     </CartContext.Provider>
   );
