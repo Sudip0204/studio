@@ -95,10 +95,12 @@
         "totalAmount": { "type": "number" },
         "status": { "type": "string", "enum": ["Placed", "Shipped", "Delivered", "Cancelled"] },
         "shippingAddress": { "type": "object" },
+        "paymentMethod": { "type": "string" },
+        "cancellationReason": { "type": ["string", "null"] },
         "appliedCoupon": { "type": "object" },
         "createdAt": { "type": "string", "format": "date-time" }
       },
-      "required": ["userId", "items", "totalAmount", "status", "createdAt"]
+      "required": ["userId", "items", "totalAmount", "status", "createdAt", "paymentMethod"]
     }
   },
   "auth": {

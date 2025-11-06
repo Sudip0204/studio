@@ -214,6 +214,8 @@ export default function CartPage() {
       totalAmount: priceDetails.total,
       status: "Placed",
       shippingAddress: selectedShippingAddress,
+      paymentMethod: "Simulated Payment",
+      cancellationReason: null,
       appliedCoupon: appliedCoupon ? { code: appliedCoupon.code, discountValue: appliedCoupon.discountValue, discountType: appliedCoupon.discountType } : null,
       createdAt: serverTimestamp(),
     };
@@ -335,5 +337,3 @@ export default function CartPage() {
     </div>
   );
 }
-
-    

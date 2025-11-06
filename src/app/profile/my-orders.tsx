@@ -2,15 +2,22 @@
 'use client';
 
 import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
+import { collection, query, orderBy, doc, updateDoc } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import Image from 'next/image';
 import { format } from 'date-fns';
-import { ShoppingBag, Package, Loader2 } from 'lucide-react';
+import { ShoppingBag, Package, Loader2, CreditCard, XCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '@/components/ui/separator';
+import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
+import { updateDocumentNonBlocking } from '@/firebase';
 
 const statusColors = {
   Placed: 'bg-blue-500',
@@ -19,9 +26,87 @@ const statusColors = {
   Cancelled: 'bg-red-500',
 };
 
+const cancellationReasons = [
+    "Ordered by mistake",
+    "Found a better price elsewhere",
+    "Item is no longer needed",
+    "Delivery is taking too long",
+    "Other",
+];
+
+function CancelOrderDialog({ orderId, userId, onCancelSuccess }: { orderId: string, userId: string, onCancelSuccess: () => void }) {
+    const firestore = useFirestore();
+    const { toast } = useToast();
+    const [reason, setReason] = useState('');
+    const [isOpen, setIsOpen] = useState(false);
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const handleCancelOrder = () => {
+        if (!reason) {
+            toast({ variant: 'destructive', title: 'Please select a reason' });
+            return;
+        }
+
+        setIsSubmitting(true);
+        const orderRef = doc(firestore, 'users', userId, 'orders', orderId);
+        updateDocumentNonBlocking(orderRef, {
+            status: 'Cancelled',
+            cancellationReason: reason,
+        });
+
+        setTimeout(() => {
+            toast({ title: "Order Cancelled", description: "Your order has been successfully cancelled." });
+            setIsSubmitting(false);
+            setIsOpen(false);
+            onCancelSuccess();
+        }, 1000); // Simulate network latency
+    };
+
+    return (
+        <Dialog open={isOpen} onOpenChange={setIsOpen}>
+            <DialogTrigger asChild>
+                <Button variant="destructive" size="sm">
+                    <XCircle className="mr-2 h-4 w-4" />
+                    Cancel Order
+                </Button>
+            </DialogTrigger>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Cancel Order</DialogTitle>
+                    <DialogDescription>
+                        Please let us know why you are cancelling this order. This helps us improve our service.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                    <RadioGroup value={reason} onValueChange={setReason}>
+                        <div className="space-y-2">
+                            {cancellationReasons.map((r) => (
+                                <div key={r} className="flex items-center space-x-2">
+                                    <RadioGroupItem value={r} id={`profile-${r}`} />
+                                    <Label htmlFor={`profile-${r}`}>{r}</Label>
+                                </div>
+                            ))}
+                        </div>
+                    </RadioGroup>
+                </div>
+                <DialogFooter>
+                    <Button variant="ghost" onClick={() => setIsOpen(false)}>Back</Button>
+                    <Button variant="destructive" onClick={handleCancelOrder} disabled={!reason || isSubmitting}>
+                        {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Confirm Cancellation
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 export function MyOrders({ userId }: { userId: string }) {
   const firestore = useFirestore();
-  const ordersRef = useMemoFirebase(() => collection(firestore, 'users', userId, 'orders'), [firestore, userId]);
+  const [version, setVersion] = useState(0);
+  const forceReRender = () => setVersion(v => v + 1);
+  
+  const ordersRef = useMemoFirebase(() => collection(firestore, 'users', userId, 'orders'), [firestore, userId, version]);
   const ordersQuery = useMemoFirebase(() => query(ordersRef, orderBy('createdAt', 'desc')), [ordersRef]);
   const { data: orders, isLoading } = useCollection(ordersQuery);
 
@@ -89,7 +174,21 @@ export function MyOrders({ userId }: { userId: string }) {
                                 <h4 className="font-semibold mb-2">Shipping Address</h4>
                                 <p className="text-sm text-muted-foreground">{order.shippingAddress.name}, {order.shippingAddress.addressLine}, {order.shippingAddress.city}, {order.shippingAddress.state} - {order.shippingAddress.pincode}</p>
                             </div>
+                            <div>
+                                <h4 className="font-semibold mb-2 flex items-center gap-2"><CreditCard className="h-5 w-5"/> Payment Method</h4>
+                                <p className="text-sm text-muted-foreground">{order.paymentMethod}</p>
+                            </div>
                        </div>
+                       {order.status === 'Placed' && (
+                         <CardFooter className="px-0 pt-6 justify-end">
+                             <CancelOrderDialog orderId={order.id} userId={userId} onCancelSuccess={forceReRender} />
+                         </CardFooter>
+                       )}
+                        {order.status === 'Cancelled' && order.cancellationReason && (
+                         <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                           <p className="text-sm text-red-800"><span className="font-semibold">Reason for cancellation:</span> {order.cancellationReason}</p>
+                         </div>
+                       )}
                     </div>
                   </AccordionContent>
                 </AccordionItem>
