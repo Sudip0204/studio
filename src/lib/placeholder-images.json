@@ -105,25 +105,25 @@
     {
       "id": "hazardous-waste",
       "description": "Image showing a collection of hazardous items like batteries, paint cans, and chemical bottles, clearly marked with hazard symbols.",
-      "imageUrl": "https://images.unsplash.com/photo-1617882354714-360e35322964?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxoYXphcmRvdXMlMjBtYXRlcmlhbHN8ZW58MHx8fHwxNzYyODU0NzM4fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1759159091245-fc043faacddc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxoYXphcmRvdXMlMjBtYXRlcmlhbHN8ZW58MHx8fHwxNzYyNDY5NTk4fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "hazardous materials"
     },
     {
       "id": "textile-waste",
       "description": "Image of a pile of old clothes and fabrics.",
-      "imageUrl": "https://images.unsplash.com/photo-1524404794194-16bae22718c0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxmYWJyaWMlMjBwaWxlfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1524404794194-16bae22718c0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxmYWJyaWMlMjBwaWxlfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "fabric pile"
     },
     {
       "id": "construction-waste",
       "description": "Image showing a pile of construction debris, including broken concrete, wood planks, and metal rods at a building site.",
-      "imageUrl": "https://images.unsplash.com/photo-1575823528423-3395b0ardo2a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb25zdHJ1Y3Rpb24lMjBkZWJyaXN8ZW58MHx8fHwxNzYyODU0Nzg0fDA&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1653202143301-7fb80a90010c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb25zdHJ1Y3Rpb24lMjBkZWJyaXN8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "construction debris"
     },
     {
       "id": "quiz-pizza-box",
       "description": "Image of a greasy pizza box",
-      "imageUrl": "https://images.unsplash.com/photo-1615887087343-6a32f45f27a4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cGl6emElMjBib3h8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1615887087343-6a32f45f27a4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cGl6emElMjBib3h8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "pizza box"
     },
     {
@@ -135,7 +135,7 @@
     {
       "id": "quiz-plastic-1",
       "description": "Image of a plastic water bottle with a #1 symbol",
-      "imageUrl": "https://images.unsplash.com/photo-1655079343782-f0fc4704753e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxwbGFzdGljJTIwYm90dGxlfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1655079343782-f0fc4704753e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxwbGFzdGljJTIwYm90dGxlfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "plastic bottle"
     },
     {
@@ -159,43 +159,43 @@
     {
       "id": "symbol-hdpe",
       "description": "Recycling symbol 2 for HDPE",
-      "imageUrl": "https://images.unsplash.com/photo-1762424361331-57c391d3befd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxyZWN5Y2xpbmclMjBzeW1ib2x8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1762424361331-57c391d3befd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxyZWN5Y2xpbmclMjBzeW1ib2x8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "recycling symbol"
     },
     {
       "id": "symbol-pvc",
       "description": "Recycling symbol 3 for PVC",
-      "imageUrl": "https://images.unsplash.com/photo-1669384537216-24740a56a2d5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxyZWN5Y2xpbmclMjBzeW1ib2x8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1669384537216-24740a56a2d5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxyZWN5Y2xpbmclMjBzeW1ib2x8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "recycling symbol"
     },
     {
       "id": "symbol-ldpe",
       "description": "Recycling symbol 4 for LDPE",
-      "imageUrl": "https://images.unsplash.com/photo-1652658379315-9ff6d19d8929?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cmVjeWNsaW5nJTIwc3ltYm9sfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1652658379315-9ff6d19d8929?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cmVjeWNsaW5nJTIwc3ltYm9sfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "recycling symbol"
     },
     {
       "id": "symbol-pp",
       "description": "Recycling symbol 5 for PP",
-      "imageUrl": "https://images.unsplash.com/photo-1652658379315-9ff6d19d8929?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cmVjeWNsaW5nJTIwc3ltYm9sfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1652658379315-9ff6d19d8929?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cmVjeWNsaW5nJTIwc3ltYm9sfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "recycling symbol"
     },
     {
       "id": "symbol-ps",
       "description": "Recycling symbol 6 for PS",
-      "imageUrl": "https://images.unsplash.com/photo-1762424361331-57c391d3befd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxyZWN5Y2xpbmclMjBzeW1ib2x8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1762424361331-57c391d3befd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxyZWN5Y2xpbmclMjBzeW1ib2x8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "recycling symbol"
     },
     {
       "id": "symbol-other",
       "description": "Recycling symbol 7 for Other",
-      "imageUrl": "https://images.unsplash.com/photo-1645520718652-9342896b0eec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxyZWN5Y2xpbmclMjBzeW1ib2x8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1645520718652-9342896b0eec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxyZWN5Y2xpbmclMjBzeW1ib2x8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "recycling symbol"
     },
     {
       "id": "waste-plastic",
       "description": "A plastic bottle as waste for the game.",
-      "imageUrl": "https://images.unsplash.com/photo-1586041828039-b8d193d6d1dc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwbGFzdGljJTIwYm90dGxlfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1586041828039-b8d193d6d1dc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwbGFzdGljJTIwYm90dGxlfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "plastic bottle"
     },
     {
@@ -213,13 +213,13 @@
     {
       "id": "carbon-emissions-info",
       "description": "An image representing carbon emissions, like factory smoke.",
-      "imageUrl": "https://images.unsplash.com/photo-1729858346171-5180c0d4e727?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxmYWN0b3J5JTIwZW1pc3Npb25zfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1729858346171-5180c0d4e727?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxmYWN0b3J5JTIwZW1pc3Npb25zfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "factory emissions"
     },
     {
       "id": "pollution-impact-info",
       "description": "An image showing the impact of pollution, like a smoggy city.",
-      "imageUrl": "https://images.unsplash.com/photo-1607432750402-48f85c94f63a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjaXR5JTIwcG9sbHV0aW9ufGVufDB8fHx8MTc2MjQzMDY5NHww&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1607432750402-48f85c94f63a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjaXR5JTIwcG9sbHV0aW9ufGVufDB8fHx8MTc2MjQzMDY5NHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "city pollution"
     },
     {
