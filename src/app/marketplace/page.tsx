@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useState, useEffect } from "react";
@@ -252,7 +251,7 @@ export default function MarketplacePage() {
             </p>
              <div className="mt-8 flex gap-4 justify-center">
                 <Button asChild size="lg">
-                    <Link href={user ? "/marketplace/sell" : "/login?redirect=/marketplace"}>
+                    <Link href={user ? "/marketplace/sell" : "/login?redirect=/marketplace/sell"}>
                         <PlusCircle className="mr-2" /> Sell Your Item
                     </Link>
                 </Button>
@@ -363,3 +362,5 @@ export default function MarketplacePage() {
     </div>
   );
 }
+
+    

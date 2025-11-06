@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useRef } from 'react';
@@ -55,7 +54,7 @@ export default function SellItemPage() {
   });
 
   if (!isUserLoading && !user) {
-    router.push('/login');
+    router.push('/login?redirect=/marketplace/sell');
     return null; 
   }
   
@@ -296,3 +295,5 @@ export default function SellItemPage() {
     </div>
   );
 }
+
+    
