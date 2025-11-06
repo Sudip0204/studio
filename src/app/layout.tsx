@@ -5,6 +5,7 @@ import { Header } from '@/components/layout/header';
 import { Footer } from '@/components/layout/footer';
 import { FirebaseClientProvider } from '@/firebase';
 import { CartProvider } from '@/context/cart-context';
+import { ParticleBackground } from '@/components/layout/particle-background';
 
 export const metadata: Metadata = {
   title: 'EcoCity - Join the Green Revolution',
@@ -26,9 +27,12 @@ export default function RootLayout({
       <body className="font-body antialiased">
         <FirebaseClientProvider>
           <CartProvider>
-            <Header />
-            <main>{children}</main>
-            <Footer />
+            <ParticleBackground />
+            <div className="relative z-10">
+                <Header />
+                <main>{children}</main>
+                <Footer />
+            </div>
           </CartProvider>
         </FirebaseClientProvider>
         <Toaster />
