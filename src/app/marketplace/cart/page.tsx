@@ -3,16 +3,16 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser, useFirestore, useCollection, useMemoFirebase, useDoc, addDocumentNonBlocking } from '@/firebase';
+import { useUser, useFirestore, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
 import { useCart } from '@/context/cart-context';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, Trash2, Heart, Plus, Minus, Info, ShieldCheck, Ticket, Gift, X } from 'lucide-react';
+import { Loader2, Trash2, Heart, Plus, Minus, Info, ShieldCheck, Ticket, Gift, X, Home, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { collection, doc, serverTimestamp } from 'firebase/firestore';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { collection, serverTimestamp } from 'firebase/firestore';
 import { format, isPast } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -88,6 +88,58 @@ function CouponDialog({ onApplyCoupon, user }: { onApplyCoupon: (coupon: any) =>
   );
 }
 
+function AddressSelectionDialog({ open, onOpenChange, onConfirm, userId }: { open: boolean, onOpenChange: (open: boolean) => void, onConfirm: (address: any) => void, userId: string }) {
+    const firestore = useFirestore();
+    const router = useRouter();
+    const addressesRef = useMemoFirebase(() => collection(firestore, 'users', userId, 'addresses'), [firestore, userId]);
+    const { data: addresses, isLoading } = useCollection(addressesRef);
+    const [selectedAddress, setSelectedAddress] = useState<any | null>(null);
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>Select Shipping Address</DialogTitle>
+                    <DialogDescription>Choose where you'd like your order to be delivered.</DialogDescription>
+                </DialogHeader>
+                <div className="max-h-[60vh] overflow-y-auto space-y-4 p-1">
+                    {isLoading && <p>Loading addresses...</p>}
+                    {!isLoading && addresses && addresses.length > 0 ? (
+                        addresses.map(address => (
+                            <Card 
+                                key={address.id} 
+                                className={cn("cursor-pointer transition-all", selectedAddress?.id === address.id && "border-primary ring-2 ring-primary")}
+                                onClick={() => setSelectedAddress(address)}
+                            >
+                                <CardContent className="p-4">
+                                    <p className="font-semibold">{address.name}</p>
+                                    <p className="text-sm text-muted-foreground">{address.addressLine}, {address.city}, {address.state} - {address.pincode}</p>
+                                    <p className="text-sm text-muted-foreground">Mobile: {address.phoneNumber}</p>
+                                </CardContent>
+                            </Card>
+                        ))
+                    ) : (
+                        !isLoading && (
+                            <div className="text-center py-8">
+                                <p className="text-muted-foreground mb-4">No shipping addresses found.</p>
+                                <Button onClick={() => router.push('/profile?tab=addresses')}>Add an Address</Button>
+                            </div>
+                        )
+                    )}
+                </div>
+                <DialogFooter>
+                    <Button 
+                        disabled={!selectedAddress}
+                        onClick={() => selectedAddress && onConfirm(selectedAddress)}
+                    >
+                        Continue to Payment <ArrowRight className="ml-2 h-4 w-4" />
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    );
+}
+
 export default function CartPage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
@@ -95,10 +147,9 @@ export default function CartPage() {
   const { cart, updateQuantity, removeFromCart, appliedCoupon, applyCoupon, removeCoupon } = useCart();
   const [isCouponDialogOpen, setIsCouponDialogOpen] = useState(false);
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
+  const [isAddressDialogOpen, setIsAddressDialogOpen] = useState(false);
+  const [selectedShippingAddress, setSelectedShippingAddress] = useState(null);
   const { toast } = useToast();
-
-  const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
-  const { data: userProfile } = useDoc(userProfileRef);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -128,7 +179,7 @@ export default function CartPage() {
       }
     }
     
-    const demoDiscount = Math.floor(subtotal * 0.1); // 10% discount for demo, kept for UI consistency
+    const demoDiscount = Math.floor(subtotal * 0.1);
     const totalDiscount = demoDiscount + couponDiscount;
 
     const platformFee = totalItems > 0 ? 109 : 0;
@@ -137,20 +188,17 @@ export default function CartPage() {
   }, [cart, appliedCoupon]);
 
   const handlePlaceOrder = () => {
-    if (!userProfile?.address) {
-       toast({
-        variant: "destructive",
-        title: "No Address Found",
-        description: "Please add a shipping address to your profile before placing an order."
-      });
-      router.push('/profile');
-      return;
-    }
+    setIsAddressDialogOpen(true);
+  }
+
+  const handleAddressSelected = (address: any) => {
+    setSelectedShippingAddress(address);
+    setIsAddressDialogOpen(false);
     setIsPaymentDialogOpen(true);
   }
 
   const handleConfirmPayment = async () => {
-    if (!user) return;
+    if (!user || !selectedShippingAddress) return;
     
     const ordersRef = collection(firestore, 'users', user.uid, 'orders');
     
@@ -165,7 +213,7 @@ export default function CartPage() {
       })),
       totalAmount: priceDetails.total,
       status: "Placed",
-      shippingAddress: userProfile?.address || 'No address provided',
+      shippingAddress: selectedShippingAddress,
       appliedCoupon: appliedCoupon ? { code: appliedCoupon.code, discountValue: appliedCoupon.discountValue, discountType: appliedCoupon.discountType } : null,
       createdAt: serverTimestamp(),
     };
@@ -175,7 +223,6 @@ export default function CartPage() {
     setIsPaymentDialogOpen(false);
     router.push('/marketplace/order-confirmation');
   }
-
 
   if (isUserLoading || !user) {
     return (
@@ -268,6 +315,9 @@ export default function CartPage() {
                 </div>
             </div>
         </div>
+        
+        {user && <AddressSelectionDialog open={isAddressDialogOpen} onOpenChange={setIsAddressDialogOpen} onConfirm={handleAddressSelected} userId={user.uid} />}
+
         <AlertDialog open={isPaymentDialogOpen} onOpenChange={setIsPaymentDialogOpen}>
             <AlertDialogContent>
                 <AlertDialogHeader>

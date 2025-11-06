@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useFirestore, useCollection, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +10,8 @@ import Image from 'next/image';
 import { format } from 'date-fns';
 import { ShoppingBag, Package, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Separator } from '@/components/ui/separator';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 const statusColors = {
   Placed: 'bg-blue-500',
@@ -19,26 +20,39 @@ const statusColors = {
   Cancelled: 'bg-red-500',
 };
 
-export function MyOrders({ userId }: { userId: string }) {
+export default function MyOrdersPage() {
+  const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
-  const ordersRef = useMemoFirebase(() => collection(firestore, 'users', userId, 'orders'), [firestore, userId]);
-  const ordersQuery = useMemoFirebase(() => query(ordersRef, orderBy('createdAt', 'desc')), [ordersRef]);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!isUserLoading && !user) {
+      router.push('/login?redirect=/my-orders');
+    }
+  }, [user, isUserLoading, router]);
+
+  const ordersRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'orders') : null, [firestore, user]);
+  const ordersQuery = useMemoFirebase(() => ordersRef ? query(ordersRef, orderBy('createdAt', 'desc')) : null, [ordersRef]);
   const { data: orders, isLoading } = useCollection(ordersQuery);
 
+  if (isUserLoading || !user) {
+    return (
+      <div className="flex h-screen items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
   return (
-    <div className="p-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="container mx-auto py-12 px-4 max-w-4xl">
+      <div className="flex justify-between items-center mb-8">
         <div>
-          <h3 className="text-xl font-bold font-headline">My Orders</h3>
+          <h1 className="text-3xl font-bold font-headline">My Orders</h1>
           <p className="text-muted-foreground">View your order history and track their status.</p>
         </div>
       </div>
 
-      {isLoading && (
-        <div className="flex justify-center items-center h-48">
-            <Loader2 className="h-8 w-8 animate-spin" />
-        </div>
-      )}
+      {isLoading && <p>Loading orders...</p>}
 
       {!isLoading && orders && orders.length > 0 ? (
         <div className="space-y-4">

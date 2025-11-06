@@ -6,8 +6,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Edit, LogOut } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { PersonalInformation } from './personal-information';
 import { ManageAddresses } from './manage-addresses';
@@ -20,6 +20,9 @@ export default function ProfilePage() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const initialTab = searchParams.get('tab') || "personal-info";
+  const [activeTab, setActiveTab] = useState(initialTab);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -30,6 +33,12 @@ export default function ProfilePage() {
   const handleLogout = () => {
     auth.signOut();
   };
+  
+  const onTabChange = (value: string) => {
+    setActiveTab(value);
+    // Update URL without reloading the page
+    window.history.pushState(null, '', `/profile?tab=${value}`);
+  }
 
   if (isUserLoading || !user) {
     return (
@@ -73,8 +82,8 @@ export default function ProfilePage() {
             </Button>
           </CardHeader>
           <CardContent className="p-0">
-             <Tabs defaultValue="personal-info" className="w-full">
-                <TabsList className="grid w-full grid-cols-5 rounded-none">
+             <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
+                <TabsList className="grid w-full grid-cols-1 sm:grid-cols-5 rounded-none">
                     <TabsTrigger value="personal-info">Personal Information</TabsTrigger>
                     <TabsTrigger value="my-orders">My Orders</TabsTrigger>
                     <TabsTrigger value="addresses">Manage Addresses</TabsTrigger>

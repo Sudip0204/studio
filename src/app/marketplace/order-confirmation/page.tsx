@@ -26,10 +26,10 @@ export default function OrderConfirmationPage() {
 
   // Clear the cart once the component has mounted and displayed the order
   useEffect(() => {
-    return () => {
-      clearCart();
-    };
-  }, [clearCart]);
+    clearCart();
+    // This empty dependency array ensures it runs once on mount
+    // The cleanup function will run on unmount.
+  }, []);
   
   const priceDetails = useMemo(() => {
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
