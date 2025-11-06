@@ -52,7 +52,7 @@ export default function SellItemPage() {
       location: '',
     },
   });
-
+  
   useEffect(() => {
     if (!isUserLoading && !user) {
       router.push('/login?redirect=/marketplace/sell');
@@ -233,11 +233,11 @@ export default function SellItemPage() {
                     render={({ field }) => (
                         <FormItem>
                         <FormLabel>Condition</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValue-change={field.onChange} defaultValue={field.value}>
                             <FormControl>
                             <SelectTrigger>
                                 <SelectValue placeholder="Select the item's condition" />
-                            </Trigger>
+                            </SelectTrigger>
                             </FormControl>
                             <SelectContent>
                                 {conditions.map(con => <SelectItem key={con} value={con}>{con}</SelectItem>)}
