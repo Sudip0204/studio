@@ -130,10 +130,10 @@ export function AccountSettings() {
                 </CardContent>
             </Card>
             
-            {/* Danger Zone */}
+            {/* Account Management */}
             <Card className="border-destructive/50">
                 <CardHeader>
-                    <CardTitle className="text-destructive">Danger Zone</CardTitle>
+                    <CardTitle>Account Management</CardTitle>
                     <CardDescription>These actions are permanent and cannot be undone.</CardDescription>
                 </CardHeader>
                 <CardContent>
