@@ -3,7 +3,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser, useFirestore, useCollection, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
+import { useUser, useFirestore, useCollection, useMemoFirebase, addDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
 import { useCart } from '@/context/cart-context';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -11,8 +11,8 @@ import { Separator } from '@/components/ui/separator';
 import { Loader2, Trash2, Heart, Plus, Minus, Info, ShieldCheck, Ticket, Gift, X, Home, ArrowRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
-import { collection, serverTimestamp } from 'firebase/firestore';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { collection, serverTimestamp, doc } from 'firebase/firestore';
 import { format, isPast } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -221,6 +221,12 @@ export default function CartPage() {
     };
 
     addDocumentNonBlocking(ordersRef, orderData);
+
+    // Mark the coupon as used
+    if (appliedCoupon) {
+      const couponRef = doc(firestore, 'users', user.uid, 'rewards', appliedCoupon.id);
+      updateDocumentNonBlocking(couponRef, { isUsed: true });
+    }
 
     setIsPaymentDialogOpen(false);
     router.push('/marketplace/order-confirmation');

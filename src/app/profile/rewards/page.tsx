@@ -2,7 +2,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useUser, useFirestore, useCollection, useMemoFirebase, addDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
+import { useUser, useFirestore, useCollection, useMemoFirebase, addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
 import { collection, doc, serverTimestamp, Timestamp } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,8 @@ import { cn } from '@/lib/utils';
 import { format, isPast } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useCart } from '@/context/cart-context';
+import { useRouter } from 'next/navigation';
 
 // Dummy function to add rewards for prototyping
 const addDummyRewards = (firestore: any, userId: string) => {
@@ -168,6 +170,8 @@ export default function RewardsPage() {
   const { user, isUserLoading } = useUser();
   const firestore = useFirestore();
   const { toast } = useToast();
+  const { cart, applyCoupon } = useCart();
+  const router = useRouter();
   
   const rewardsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'rewards') : null, [firestore, user]);
   const { data: rewards, isLoading: areRewardsLoading } = useCollection(rewardsRef);
@@ -196,6 +200,14 @@ export default function RewardsPage() {
 
 
   const handleCopyCode = (code: string) => {
+    if (cart.length === 0) {
+        toast({
+            variant: 'destructive',
+            title: "Your cart is empty!",
+            description: "Add valid items in the cart to redeem your coupon.",
+        });
+        return;
+    }
     navigator.clipboard.writeText(code);
     toast({
       title: "Code Copied!",
@@ -203,12 +215,21 @@ export default function RewardsPage() {
     });
   };
 
-  const handleApplyCode = (code: string) => {
+  const handleApplyCoupon = (coupon: any) => {
+    if (cart.length === 0) {
+        toast({
+            variant: 'destructive',
+            title: "Your cart is empty!",
+            description: "Add valid items in the cart to redeem your coupon.",
+        });
+        return;
+    }
+    applyCoupon(coupon);
     toast({
         title: "Coupon Applied!",
-        description: `Code "${code}" has been applied to your cart.`,
+        description: `Code "${coupon.code}" has been applied.`,
     });
-    // Here you would typically redirect to the cart or update the cart context
+    router.push('/marketplace/cart');
   }
 
   if (isUserLoading || areRewardsLoading) {
@@ -288,7 +309,7 @@ export default function RewardsPage() {
                                 size="sm"
                                 className="flex-1"
                                 disabled={isDisabled}
-                                onClick={() => handleApplyCode(reward.code)}
+                                onClick={() => handleApplyCoupon(reward)}
                             >
                                 Apply
                             </Button>
