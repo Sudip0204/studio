@@ -13,16 +13,7 @@ import { PersonalInformation } from './personal-information';
 import { ManageAddresses } from './manage-addresses';
 import { Skeleton } from '@/components/ui/skeleton';
 import RewardsPage from './rewards/page';
-import { SellerDashboard } from './seller-dashboard';
-
-function AccountSettings() {
-  return (
-    <div className="p-6">
-      <h3 className="text-lg font-medium">Account Settings</h3>
-      <p className="text-sm text-muted-foreground">Manage your account settings and preferences.</p>
-    </div>
-  )
-}
+import { AccountSettings } from './account-settings';
 
 export default function ProfilePage() {
   const { user, isUserLoading } = useUser();
@@ -111,5 +102,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    
