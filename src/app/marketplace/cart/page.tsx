@@ -229,6 +229,17 @@ export default function CartPage() {
     }
 
     setIsPaymentDialogOpen(false);
+
+    toast({
+        title: "Order Placed Successfully!",
+        description: "You can track your order in the 'My Orders' section of your profile.",
+        action: (
+          <Button asChild variant="secondary" size="sm">
+            <Link href="/profile?tab=my-orders">Track Order</Link>
+          </Button>
+        ),
+    });
+
     router.push('/marketplace/order-confirmation');
   }
 
