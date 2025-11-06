@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Footprints, Car, Plane, Home, Salad, ShoppingCart, Info, Lightbulb, BarChart3, TrendingDown, Repeat, Globe, Cloud, AlertTriangle } from 'lucide-react';
+import { Footprints, Car, Plane, Home, Salad, ShoppingCart, Info, Lightbulb, BarChart3, TrendingDown, Repeat, Globe, Cloud, AlertTriangle, Calculator } from 'lucide-react';
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -186,6 +186,40 @@ export default function CarbonCalculatorPage() {
                     </div>
                  )}
             </div>
+        </div>
+      </section>
+
+      <section className="bg-muted/30 py-16">
+        <div className="container mx-auto max-w-4xl">
+            <Card>
+                <CardHeader className="items-center text-center">
+                    <div className="p-3 rounded-full bg-primary/10 w-fit">
+                        <Calculator className="h-8 w-8 text-primary"/>
+                    </div>
+                    <CardTitle className="font-headline text-3xl mt-4">How We Calculate Your Footprint</CardTitle>
+                    <CardDescription>Our calculator uses a standard methodology to provide an estimate of your annual carbon footprint.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                    <div className="text-center p-4 bg-background rounded-lg border">
+                        <p className="font-mono text-lg font-bold text-primary">Activity Data × Emission Factor = Carbon Footprint</p>
+                    </div>
+                    <div className="space-y-4 text-muted-foreground">
+                        <p><strong className="text-foreground">Activity Data:</strong> This is the information you provide about your lifestyle, such as the distance you travel or the amount of electricity you use.</p>
+                        <p><strong className="text-foreground">Emission Factor:</strong> This is a scientifically determined value that quantifies the amount of greenhouse gases (like CO₂) emitted per unit of activity. For example, the kilograms of CO₂ released per kilometer driven in a petrol car. Our calculator uses established emission factors relevant to India.</p>
+                    </div>
+                     <div className="space-y-4">
+                        <h4 className="font-semibold text-lg">Example Calculation (Car Travel):</h4>
+                        <p className="text-muted-foreground">If you drive <strong className="text-foreground">50 km</strong> per week in a petrol car:</p>
+                        <ol className="list-decimal list-inside text-muted-foreground space-y-2">
+                           <li><span className="font-medium">Weekly Travel:</span> 50 km</li>
+                           <li><span className="font-medium">Emission Factor (Petrol Car):</span> ~0.17 kg CO₂e per km</li>
+                           <li><span className="font-medium">Weekly Emissions:</span> 50 km × 0.17 kg/km = 8.5 kg CO₂e</li>
+                           <li><span className="font-medium">Annual Emissions:</span> 8.5 kg/week × 52 weeks = 442 kg CO₂e</li>
+                        </ol>
+                        <p className="text-xs text-muted-foreground pt-2">This same principle is applied to your flights, electricity usage, diet, and shopping habits to estimate your total annual footprint.</p>
+                    </div>
+                </CardContent>
+            </Card>
         </div>
       </section>
 
