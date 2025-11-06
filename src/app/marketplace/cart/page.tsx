@@ -3,7 +3,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { useUser, useFirestore, useCollection, useMemoFirebase, useDoc, addDocumentNonBlocking } from '@/firebase';
 import { useCart } from '@/context/cart-context';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -12,7 +12,7 @@ import { Loader2, Trash2, Heart, Plus, Minus, Info, ShieldCheck, Ticket, Gift, X
 import Image from 'next/image';
 import Link from 'next/link';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { collection } from 'firebase/firestore';
+import { collection, doc, serverTimestamp } from 'firebase/firestore';
 import { format, isPast } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
@@ -90,11 +90,15 @@ function CouponDialog({ onApplyCoupon, user }: { onApplyCoupon: (coupon: any) =>
 
 export default function CartPage() {
   const { user, isUserLoading } = useUser();
+  const firestore = useFirestore();
   const router = useRouter();
   const { cart, updateQuantity, removeFromCart, appliedCoupon, applyCoupon, removeCoupon } = useCart();
   const [isCouponDialogOpen, setIsCouponDialogOpen] = useState(false);
   const [isPaymentDialogOpen, setIsPaymentDialogOpen] = useState(false);
   const { toast } = useToast();
+
+  const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+  const { data: userProfile } = useDoc(userProfileRef);
 
   useEffect(() => {
     if (!isUserLoading && !user) {
@@ -111,19 +115,6 @@ export default function CartPage() {
     })
   }
   
-  const handlePlaceOrder = () => {
-    // In a real app, you would integrate a payment gateway here.
-    // For now, we'll just show a confirmation dialog.
-    setIsPaymentDialogOpen(true);
-  }
-
-  const handleConfirmPayment = () => {
-    // Simulate order success by redirecting to a confirmation page
-    setIsPaymentDialogOpen(false);
-    router.push('/marketplace/order-confirmation');
-  }
-
-
   const priceDetails = useMemo(() => {
     const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
     const subtotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -144,6 +135,47 @@ export default function CartPage() {
     const total = subtotal - totalDiscount + platformFee;
     return { subtotal, totalDiscount, platformFee, total, totalItems, couponDiscount, demoDiscount };
   }, [cart, appliedCoupon]);
+
+  const handlePlaceOrder = () => {
+    if (!userProfile?.address) {
+       toast({
+        variant: "destructive",
+        title: "No Address Found",
+        description: "Please add a shipping address to your profile before placing an order."
+      });
+      router.push('/profile');
+      return;
+    }
+    setIsPaymentDialogOpen(true);
+  }
+
+  const handleConfirmPayment = async () => {
+    if (!user) return;
+    
+    const ordersRef = collection(firestore, 'users', user.uid, 'orders');
+    
+    const orderData = {
+      userId: user.uid,
+      items: cart.map(item => ({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: item.quantity,
+        image: item.image,
+      })),
+      totalAmount: priceDetails.total,
+      status: "Placed",
+      shippingAddress: userProfile?.address || 'No address provided',
+      appliedCoupon: appliedCoupon ? { code: appliedCoupon.code, discountValue: appliedCoupon.discountValue, discountType: appliedCoupon.discountType } : null,
+      createdAt: serverTimestamp(),
+    };
+
+    addDocumentNonBlocking(ordersRef, orderData);
+
+    setIsPaymentDialogOpen(false);
+    router.push('/marketplace/order-confirmation');
+  }
+
 
   if (isUserLoading || !user) {
     return (

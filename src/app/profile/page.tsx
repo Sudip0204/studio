@@ -14,6 +14,7 @@ import { ManageAddresses } from './manage-addresses';
 import { Skeleton } from '@/components/ui/skeleton';
 import RewardsPage from './rewards/page';
 import { AccountSettings } from './account-settings';
+import { MyOrders } from './my-orders';
 
 export default function ProfilePage() {
   const { user, isUserLoading } = useUser();
@@ -56,7 +57,7 @@ export default function ProfilePage() {
 
   return (
     <div className="bg-muted/40 min-h-screen">
-      <div className="container mx-auto py-12 px-4 max-w-5xl">
+      <div className="container mx-auto py-12 px-4 max-w-6xl">
         <Card className="overflow-hidden">
           <CardHeader className="flex flex-col md:flex-row items-center gap-6 bg-background">
             <Avatar className="h-24 w-24 border-4 border-background ring-2 ring-primary">
@@ -73,8 +74,9 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent className="p-0">
              <Tabs defaultValue="personal-info" className="w-full">
-                <TabsList className="grid w-full grid-cols-4 rounded-none">
+                <TabsList className="grid w-full grid-cols-5 rounded-none">
                     <TabsTrigger value="personal-info">Personal Information</TabsTrigger>
+                    <TabsTrigger value="my-orders">My Orders</TabsTrigger>
                     <TabsTrigger value="addresses">Manage Addresses</TabsTrigger>
                     <TabsTrigger value="rewards">My Rewards</TabsTrigger>
                     <TabsTrigger value="settings">Account Settings</TabsTrigger>
@@ -82,6 +84,10 @@ export default function ProfilePage() {
 
                 <TabsContent value="personal-info">
                     <PersonalInformation user={user} />
+                </TabsContent>
+
+                 <TabsContent value="my-orders">
+                    <MyOrders userId={user.uid} />
                 </TabsContent>
 
                  <TabsContent value="addresses">
