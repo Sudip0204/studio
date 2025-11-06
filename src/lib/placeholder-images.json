@@ -3,230 +3,230 @@
     {
       "id": "hero-background",
       "description": "A high-quality image of a clean, green environment, suitable for a hero banner.",
-      "imageUrl": "https://picsum.photos/seed/newglobe/1600/900",
+      "imageUrl": "https://images.unsplash.com/photo-1752773655363-df888b73b494?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxoYW5kcyUyMGdsb2JlfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "hands globe"
     },
     {
       "id": "about-mission",
       "description": "An image representing our mission, perhaps showing people working together on an environmental project.",
-      "imageUrl": "https://picsum.photos/seed/mission/800/600",
+      "imageUrl": "https://images.unsplash.com/photo-1757476623351-dd96696a004a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjb21tdW5pdHklMjBlbnZpcm9ubWVudHxlbnwwfHx8fDE3NjI0Njg3MzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "community environment"
     },
     {
       "id": "impact-map",
       "description": "A stylized world map to show user participation.",
-      "imageUrl": "https://picsum.photos/seed/worldmap/1200/600",
+      "imageUrl": "https://images.unsplash.com/photo-1723306743407-cb6ac8f19941?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx3b3JsZCUyMG1hcHxlbnwwfHx8fDE3NjIzOTg5MzF8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "world map"
     },
     {
       "id": "testimonial-1",
       "description": "Portrait of a smiling user for a testimonial.",
-      "imageUrl": "https://picsum.photos/seed/user1/100/100",
+      "imageUrl": "https://images.unsplash.com/photo-1635131902146-6957477a4ff4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxwZXJzb24lMjBzbWlsaW5nfGVufDB8fHx8MTc2MjQwNTcyNHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "person smiling"
     },
     {
       "id": "testimonial-2",
       "description": "Portrait of another smiling user for a testimonial.",
-      "imageUrl": "https://picsum.photos/seed/user2/100/100",
+      "imageUrl": "https://images.unsplash.com/photo-1590086782792-42dd2350140d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjIzNzk2MTR8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "person portrait"
     },
     {
       "id": "user-3",
       "description": "Avatar for a leaderboard user.",
-      "imageUrl": "https://picsum.photos/seed/user3/100/100",
+      "imageUrl": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NjIzNzk2MTR8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "person portrait"
     },
     {
       "id": "user-you",
       "description": "Avatar for the current leaderboard user.",
-      "imageUrl": "https://picsum.photos/seed/useryou/100/100",
+      "imageUrl": "https://images.unsplash.com/photo-1542596594-649edbc13630?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwZXJzb24lMjBoYXBweXxlbnwwfHx8fDE3NjI0NTI0OTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "person happy"
     },
     {
       "id": "user-5",
       "description": "Avatar for a leaderboard user.",
-      "imageUrl": "https://picsum.photos/seed/user5/100/100",
+      "imageUrl": "https://images.unsplash.com/photo-1607990281513-2c110a25bd8c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwZXJzb24lMjBwcm9maWxlfGVufDB8fHx8MTc2MjQ0NzMxMHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "person profile"
     },
     {
       "id": "user-6",
       "description": "Avatar for a leaderboard user.",
-      "imageUrl": "https://picsum.photos/seed/user6/100/100",
+      "imageUrl": "https://images.unsplash.com/photo-1595529057255-ffd9e267d037?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxwZXJzb24lMjBzZXJpb3VzfGVufDB8fHx8MTc2MjM5NzQ3NXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "person serious"
     },
     {
       "id": "user-7",
       "description": "Avatar for a leaderboard user.",
-      "imageUrl": "https://picsum.photos/seed/user7/100/100",
+      "imageUrl": "https://images.unsplash.com/photo-1648218943004-5ec604ef627a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwZXJzb24lMjBnbGFzc2VzfGVufDB8fHx8MTc2MjM5NzQ3NXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "person glasses"
     },
     {
       "id": "recycling-guide-hero",
       "description": "An inspiring image about recycling for the guide page hero.",
-      "imageUrl": "https://picsum.photos/seed/guidehero/1600/600",
+      "imageUrl": "https://images.unsplash.com/photo-1579756423478-02bc82a97679?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxyZWN5Y2xpbmclMjBpdGVtc3xlbnwwfHx8fDE3NjI0Njg3MzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "recycling items"
     },
     {
       "id": "organic-waste",
       "description": "Image of organic waste like fruit peels and food scraps.",
-      "imageUrl": "https://picsum.photos/seed/organic/400/300",
+      "imageUrl": "https://images.unsplash.com/photo-1719399924262-ebb6f2a8de80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjb21wb3N0JTIwcGlsZXxlbnwwfHx8fDE3NjI0Njg3MzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "compost pile"
     },
     {
       "id": "plastic-waste",
       "description": "Image of various plastic bottles and containers.",
-      "imageUrl": "https://picsum.photos/seed/plastic/400/300",
+      "imageUrl": "https://images.unsplash.com/photo-1571727153934-b9e0059b7ab2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwbGFzdGljJTIwYm90dGxlc3xlbnwwfHx8fDE3NjI0MzMwNTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "plastic bottles"
     },
     {
       "id": "paper-waste",
       "description": "Image of stacked newspapers and cardboard.",
-      "imageUrl": "https://picsum.photos/seed/paper/400/300",
+      "imageUrl": "https://images.unsplash.com/photo-1757716437132-ba6356390498?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxzdGFja2VkJTIwcGFwZXJ8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "stacked paper"
     },
     {
       "id": "glass-waste",
       "description": "Image of colorful glass bottles and jars.",
-      "imageUrl": "https://picsum.photos/seed/glass/400/300",
+      "imageUrl": "https://images.unsplash.com/photo-1571250315503-ecb14720ad5d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxnbGFzcyUyMGJvdHRsZXN8ZW58MHx8fHwxNzYyNDMzMDU3fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "glass bottles"
     },
     {
       "id": "metal-waste",
       "description": "Image of aluminum cans and metal scraps.",
-      "imageUrl": "https://picsum.photos/seed/metal/400/300",
+      "imageUrl": "https://images.unsplash.com/photo-1654781639392-af182d6e4417?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtZXRhbCUyMGNhbnN8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "metal cans"
     },
     {
       "id": "ewaste",
       "description": "Image of old electronic devices like phones and laptops.",
-      "imageUrl": "https://picsum.photos/seed/ewaste/400/300",
+      "imageUrl": "https://images.unsplash.com/photo-1612965110642-d2ed35011901?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxlbGVjdHJvbmljJTIwd2FzdGV8ZW58MHx8fHwxNzYyNDMzMDU2fDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "electronic waste"
     },
     {
       "id": "hazardous-waste",
       "description": "Image of containers with hazard symbols.",
-      "imageUrl": "https://picsum.photos/seed/hazardous/400/300",
+      "imageUrl": "https://images.unsplash.com/photo-1638294835410-1f238127dfd8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjaGVtaWNhbCUyMGNvbnRhaW5lcnN8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "chemical containers"
     },
     {
       "id": "textile-waste",
       "description": "Image of a pile of old clothes and fabrics.",
-      "imageUrl": "https://picsum.photos/seed/textile/400/300",
+      "imageUrl": "https://images.unsplash.com/photo-1524404794194-16bae22718c0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxmYWJyaWMlMjBwaWxlfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "fabric pile"
     },
     {
       "id": "construction-waste",
       "description": "Image of construction debris like bricks and wood.",
-      "imageUrl": "https://picsum.photos/seed/construction/400/300",
+      "imageUrl": "https://images.unsplash.com/photo-1632124739813-a2e97e1e3fec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxjb25zdHJ1Y3Rpb24lMjBkZWJyaXN8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "construction debris"
     },
     {
       "id": "quiz-pizza-box",
       "description": "Image of a greasy pizza box",
-      "imageUrl": "https://picsum.photos/seed/pizzabox/400/225",
+      "imageUrl": "https://images.unsplash.com/photo-1615887087343-6a32f45f27a4?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cGl6emElMjBib3h8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "pizza box"
     },
     {
       "id": "quiz-batteries",
       "description": "Image of used AA batteries",
-      "imageUrl": "https://picsum.photos/seed/batteries/400/225",
+      "imageUrl": "https://images.unsplash.com/photo-1653116204460-4ab39d6c0b2b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxiYXR0ZXJpZXMlMjBwaWxlfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "batteries pile"
     },
     {
       "id": "quiz-plastic-1",
       "description": "Image of a plastic water bottle with a #1 symbol",
-      "imageUrl": "https://picsum.photos/seed/petebottle/400/225",
+      "imageUrl": "https://images.unsplash.com/photo-1655079343782-f0fc4704753e?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxwbGFzdGljJTIwYm90dGxlfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "plastic bottle"
     },
     {
       "id": "quiz-coffee-cup",
       "description": "Image of a disposable coffee cup",
-      "imageUrl": "https://picsum.photos/seed/coffeecup/400/225",
+      "imageUrl": "https://images.unsplash.com/photo-1653296586997-73f61ed69720?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwYXBlciUyMGNvZmZlZSUyMGN1cHxlbnwwfHx8fDE3NjI0Njg3MzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "paper coffee cup"
     },
     {
       "id": "quiz-textiles",
       "description": "Image of old, torn clothes",
-      "imageUrl": "https://picsum.photos/seed/oldclothes/400/225",
+      "imageUrl": "https://images.unsplash.com/photo-1698586252650-f0d15ff0c8da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxjbG90aGVzJTIwcGlsZXxlbnwwfHx8fDE3NjI0NjMyNzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "clothes pile"
     },
     {
       "id": "symbol-pet",
       "description": "Recycling symbol 1 for PET",
-      "imageUrl": "https://picsum.photos/seed/symbol1/100/100",
+      "imageUrl": "https://images.unsplash.com/photo-1697827672081-4158ffd14d69?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxyZWN5Y2xpbmclMjBzeW1ib2x8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "recycling symbol"
     },
     {
       "id": "symbol-hdpe",
       "description": "Recycling symbol 2 for HDPE",
-      "imageUrl": "https://picsum.photos/seed/symbol2/100/100",
+      "imageUrl": "https://images.unsplash.com/photo-1762424361331-57c391d3befd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxyZWN5Y2xpbmclMjBzeW1ib2x8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "recycling symbol"
     },
     {
       "id": "symbol-pvc",
       "description": "Recycling symbol 3 for PVC",
-      "imageUrl": "https://picsum.photos/seed/symbol3/100/100",
+      "imageUrl": "https://images.unsplash.com/photo-1669384537216-24740a56a2d5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxyZWN5Y2xpbmclMjBzeW1ib2x8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "recycling symbol"
     },
     {
       "id": "symbol-ldpe",
       "description": "Recycling symbol 4 for LDPE",
-      "imageUrl": "https://picsum.photos/seed/symbol4/100/100",
+      "imageUrl": "https://images.unsplash.com/photo-1652658379315-9ff6d19d8929?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cmVjeWNsaW5nJTIwc3ltYm9sfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "recycling symbol"
     },
     {
       "id": "symbol-pp",
       "description": "Recycling symbol 5 for PP",
-      "imageUrl": "https://picsum.photos/seed/symbol5/100/100",
+      "imageUrl": "https://images.unsplash.com/photo-1652658379315-9ff6d19d8929?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cmVjeWNsaW5nJTIwc3ltYm9sfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "recycling symbol"
     },
     {
       "id": "symbol-ps",
       "description": "Recycling symbol 6 for PS",
-      "imageUrl": "https://picsum.photos/seed/symbol6/100/100",
+      "imageUrl": "https://images.unsplash.com/photo-1762424361331-57c391d3befd?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxyZWN5Y2xpbmclMjBzeW1ib2x8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "recycling symbol"
     },
     {
       "id": "symbol-other",
       "description": "Recycling symbol 7 for Other",
-      "imageUrl": "https://picsum.photos/seed/symbol7/100/100",
+      "imageUrl": "https://images.unsplash.com/photo-1645520718652-9342896b0eec?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxyZWN5Y2xpbmclMjBzeW1ib2x8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "recycling symbol"
     },
     {
       "id": "waste-plastic",
       "description": "A plastic bottle as waste for the game.",
-      "imageUrl": "https://picsum.photos/seed/wasteplastic/64/64",
+      "imageUrl": "https://images.unsplash.com/photo-1586041828039-b8d193d6d1dc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwbGFzdGljJTIwYm90dGxlfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "plastic bottle"
     },
     {
       "id": "waste-paper",
       "description": "A crumpled paper ball for the game.",
-      "imageUrl": "https://picsum.photos/seed/wastepaper/64/64",
+      "imageUrl": "https://images.unsplash.com/photo-1603484477859-abe6a73f9366?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjcnVtcGxlZCUyMHBhcGVyfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "crumpled paper"
     },
     {
       "id": "waste-can",
       "description": "An aluminum can for the game.",
-      "imageUrl": "https://picsum.photos/seed/wastecan/64/64",
+      "imageUrl": "https://images.unsplash.com/photo-1696739696228-eee49592ff07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxzb2RhJTIwY2FufGVufDB8fHx8MTc2MjM5NjYzMHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "soda can"
     },
     {
       "id": "carbon-emissions-info",
       "description": "An image representing carbon emissions, like factory smoke.",
-      "imageUrl": "https://picsum.photos/seed/carbon1/800/600",
-      "imageHint": "factory smoke"
+      "imageUrl": "https://images.unsplash.com/photo-1729858346171-5180c0d4e727?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxmYWN0b3J5JTIwZW1pc3Npb25zfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "factory emissions"
     },
     {
       "id": "pollution-impact-info",
       "description": "An image showing the impact of pollution, like a smoggy city.",
-      "imageUrl": "https://picsum.photos/seed/carbon2/800/600",
-      "imageHint": "city smog"
+      "imageUrl": "https://images.unsplash.com/photo-1607432750402-48f85c94f63a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjaXR5JTIwcG9sbHV0aW9ufGVufDB8fHx8MTc2MjQzMDY5NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "city pollution"
     },
     {
       "id": "global-issue-info",
       "description": "An image representing the global nature of climate change.",
-      "imageUrl": "https://picsum.photos/seed/carbon3/800/600",
-      "imageHint": "earth globe"
+      "imageUrl": "https://images.unsplash.com/photo-1624412175968-c0cd30bea6ea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxlYXJ0aCUyMHdhcm1pbmd8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "earth warming"
     }
   ]
 }
