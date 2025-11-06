@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useRef } from 'react';
@@ -228,7 +229,7 @@ export default function SellItemPage() {
                             <FormControl>
                             <SelectTrigger>
                                 <SelectValue placeholder="Select the item's condition" />
-                            </SelectTrigger>
+                            </Trigger>
                             </FormControl>
                             <SelectContent>
                                 {conditions.map(con => <SelectItem key={con} value={con}>{con}</SelectItem>)}

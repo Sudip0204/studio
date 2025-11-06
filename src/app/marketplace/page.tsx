@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useEffect } from "react";
@@ -318,7 +319,7 @@ export default function MarketplacePage() {
                         <div className="flex-grow"></div>
                         <div className="flex justify-between items-center mt-4 pt-4 border-t">
                             <p className="font-bold text-xl text-primary">₹{product.price}</p>
-                            <div className="flex gap-2">
+                            <div className="flex items-center gap-2">
                                 <Button variant="default" size="sm" onClick={() => handleAddToCart(product)}>
                                     Add to cart
                                 </Button>
