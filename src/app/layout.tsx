@@ -27,12 +27,12 @@ export default function RootLayout({
       <body className="font-body antialiased">
         <FirebaseClientProvider>
           <CartProvider>
-            <ParticleBackground />
+            <Header />
             <div className="relative z-10">
-                <Header />
+                <ParticleBackground />
                 <main>{children}</main>
-                <Footer />
             </div>
+            <Footer />
           </CartProvider>
         </FirebaseClientProvider>
         <Toaster />
