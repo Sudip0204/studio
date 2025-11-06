@@ -27,7 +27,7 @@ const ParticleBackground = () => {
     let animationFrameId: number;
     const particles: Particle[] = [];
     const numberOfParticles = 40;
-    const colors = ['rgba(139, 195, 74, 0.6)', 'rgba(104, 159, 56, 0.6)', 'rgba(212, 203, 184, 0.6)']; // Shades of green and beige
+    const colors = ['rgba(139, 195, 74, 0.6)', 'rgba(212, 203, 184, 0.6)']; // Shades of green and beige
 
     const resizeCanvas = () => {
       canvas.width = window.innerWidth;
@@ -51,9 +51,9 @@ const ParticleBackground = () => {
       constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 15 + 10;
-        this.speedX = Math.random() * 2 - 1;
-        this.speedY = Math.random() * 1.5 + 0.5;
+        this.size = Math.random() * 15 + 10; // Leaves of different sizes
+        this.speedX = Math.random() * 2 - 1; // Horizontal drift
+        this.speedY = Math.random() * 1.5 + 0.5; // Falling speed
         this.angle = Math.random() * 360;
         this.spin = (Math.random() - 0.5) * 0.02;
         this.color = colors[Math.floor(Math.random() * colors.length)];
@@ -65,6 +65,7 @@ const ParticleBackground = () => {
         this.x += this.speedX;
         this.angle += this.spin;
 
+        // Reset particle when it goes off screen
         if (this.y > canvas.height + this.size) {
           this.y = -this.size;
           this.x = Math.random() * canvas.width;
@@ -183,7 +184,7 @@ export default function AiIdentifierPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5 }}
                 >
-                    <Card className="overflow-hidden shadow-xl bg-stone-100/95 backdrop-blur-sm border-stone-200/80">
+                    <Card className="overflow-hidden shadow-xl bg-beige-100/95 backdrop-blur-sm border-stone-200/80">
                         <CardHeader className="text-center">
                             <div className="mx-auto bg-primary/10 rounded-full p-4 w-fit mb-4">
                             <Camera className="h-10 w-10 text-primary" />
@@ -245,7 +246,7 @@ export default function AiIdentifierPage() {
                             exit={{ opacity: 0, y: 20 }}
                             transition={{ duration: 0.3 }}
                         >
-                            <Card className="shadow-xl bg-stone-100/95 backdrop-blur-sm border-stone-200/80">
+                            <Card className="shadow-xl bg-beige-100/95 backdrop-blur-sm border-stone-200/80">
                                 <CardHeader>
                                 <CardTitle className="font-headline text-2xl">Classification Result</CardTitle>
                                 </CardHeader>
