@@ -10,7 +10,7 @@ import { Separator } from '@/components/ui/separator';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
-import { Sun, Moon, Monitor } from 'lucide-react';
+import { Sun, Moon, Monitor, Palette, Leaf, Droplet } from 'lucide-react';
 
 export function AccountSettings() {
     const { toast } = useToast();
@@ -33,14 +33,13 @@ export function AccountSettings() {
 
     const handleThemeChange = (selectedTheme: string) => {
         setTheme(selectedTheme);
-        // Logic to actually change the theme would go here
-        // For example, adding/removing 'dark' class to the html element
-        if (selectedTheme === 'system') {
-            document.documentElement.classList.remove('dark', 'light');
-        } else {
-            document.documentElement.classList.remove('dark', 'light');
+        document.documentElement.classList.remove('dark', 'theme-green', 'theme-blue');
+        if (selectedTheme !== 'system' && selectedTheme !== 'light') {
             document.documentElement.classList.add(selectedTheme);
+        } else if (selectedTheme === 'dark') {
+            document.documentElement.classList.add('dark');
         }
+        
         toast({
             title: 'Theme Updated',
             description: `Switched to ${selectedTheme.charAt(0).toUpperCase() + selectedTheme.slice(1)} theme.`,
@@ -100,6 +99,11 @@ export function AccountSettings() {
                                 <SelectValue placeholder="Select theme" />
                             </SelectTrigger>
                             <SelectContent>
+                                <SelectItem value="system">
+                                     <div className="flex items-center gap-2">
+                                        <Monitor className="h-4 w-4" /> System
+                                    </div>
+                                </SelectItem>
                                 <SelectItem value="light">
                                     <div className="flex items-center gap-2">
                                         <Sun className="h-4 w-4" /> Light
@@ -110,9 +114,14 @@ export function AccountSettings() {
                                         <Moon className="h-4 w-4" /> Dark
                                     </div>
                                 </SelectItem>
-                                <SelectItem value="system">
-                                     <div className="flex items-center gap-2">
-                                        <Monitor className="h-4 w-4" /> System
+                                <SelectItem value="theme-green">
+                                    <div className="flex items-center gap-2">
+                                        <Leaf className="h-4 w-4" /> Green
+                                    </div>
+                                </SelectItem>
+                                <SelectItem value="theme-blue">
+                                    <div className="flex items-center gap-2">
+                                        <Droplet className="h-4 w-4" /> Blue
                                     </div>
                                 </SelectItem>
                             </SelectContent>
