@@ -4,7 +4,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { ShoppingCart, PlusCircle, User, ListFilter } from "lucide-react";
+import { ShoppingCart, PlusCircle, User, ListFilter, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useUser } from "@/firebase";
@@ -24,6 +24,17 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { useCart } from "@/context/cart-context";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
@@ -31,14 +42,14 @@ import { useRouter } from "next/navigation";
 
 // Expanded placeholder data for products
 const initialProducts = [
-  { id: 1, name: "Upcycled Denim Jacket", price: 3600, description: "A stylish jacket made from reclaimed denim, perfect for a cool evening.", image: "https://picsum.photos/seed/product1/300/300", seller: "GreenThreads", dataAiHint: "denim jacket", category: "Clothing", condition: "Good", location: "Mumbai Central" },
-  { id: 2, name: "Recycled Glass Vases", price: 2000, description: "Beautiful, handcrafted vases made from 100% recycled glass bottles. Each one is unique.", image: "https://picsum.photos/seed/product2/300/300", seller: "EcoDecor", dataAiHint: "glass vase", category: "Home Decor", condition: "New", location: "Andheri East" },
-  { id: 3, name: "Handmade Wooden Bowl", price: 2400, description: "A unique serving bowl carved from sustainably sourced mango wood. Ideal for salads or fruits.", image: "https://picsum.photos/seed/product3/300/300", seller: "ArtisanWood", dataAiHint: "wooden bowl", category: "Kitchenware", condition: "New", location: "Bandra West" },
-  { id: 4, name: "Vintage Leather Bag", price: 4800, description: "A classic, pre-loved leather messenger bag with a timeless design and durable construction.", image: "https://picsum.photos/seed/product4/300/300", seller: "RetroFinds", dataAiHint: "leather bag", category: "Accessories", condition: "Fair", location: "Dadar" },
-  { id: 5, name: "Bamboo Toothbrush Set", price: 960, description: "A set of four eco-friendly bamboo toothbrushes. A great alternative to plastic.", image: "https://picsum.photos/seed/product5/300/300", seller: "EcoEssentials", dataAiHint: "bamboo toothbrush", category: "Personal Care", condition: "New", location: "Thane" },
-  { id: 6, name: "Second-hand Novel Set", price: 1440, description: "A collection of five popular, pre-loved novels in excellent condition for your reading pleasure.", image: "https://picsum.photos/seed/product6/300/300", seller: "BookCycle", dataAiHint: "books pile", category: "Books", condition: "Used", location: "Colaba" },
-  { id: 7, name: "Refurbished Smartphone", price: 12000, description: "A high-quality, professionally refurbished smartphone with a new battery and a 6-month warranty.", image: "https://picsum.photos/seed/product7/300/300", seller: "GadgetCycle", dataAiHint: "smartphone hand", category: "Electronics", condition: "Good", location: "Goregaon" },
-  { id: 8, name: "Upcycled Tire Chair", price: 6000, description: "A unique and surprisingly comfortable statement chair made from upcycled car tires. Perfect for a patio.", image: "https://picsum.photos/seed/product8/300/300", seller: "RevolveDesigns", dataAiHint: "tire chair", category: "Furniture", condition: "Used", location: "Chembur" },
+  { id: 1, name: "Upcycled Denim Jacket", price: 3600, description: "A stylish jacket made from reclaimed denim, perfect for a cool evening.", image: "https://picsum.photos/seed/product1/300/300", seller: "GreenThreads", sellerId: "system", dataAiHint: "denim jacket", category: "Clothing", condition: "Good", location: "Mumbai Central" },
+  { id: 2, name: "Recycled Glass Vases", price: 2000, description: "Beautiful, handcrafted vases made from 100% recycled glass bottles. Each one is unique.", image: "https://picsum.photos/seed/product2/300/300", seller: "EcoDecor", sellerId: "system", dataAiHint: "glass vase", category: "Home Decor", condition: "New", location: "Andheri East" },
+  { id: 3, name: "Handmade Wooden Bowl", price: 2400, description: "A unique serving bowl carved from sustainably sourced mango wood. Ideal for salads or fruits.", image: "https://picsum.photos/seed/product3/300/300", seller: "ArtisanWood", sellerId: "system", dataAiHint: "wooden bowl", category: "Kitchenware", condition: "New", location: "Bandra West" },
+  { id: 4, name: "Vintage Leather Bag", price: 4800, description: "A classic, pre-loved leather messenger bag with a timeless design and durable construction.", image: "https://picsum.photos/seed/product4/300/300", seller: "RetroFinds", sellerId: "system", dataAiHint: "leather bag", category: "Accessories", condition: "Fair", location: "Dadar" },
+  { id: 5, name: "Bamboo Toothbrush Set", price: 960, description: "A set of four eco-friendly bamboo toothbrushes. A great alternative to plastic.", image: "https://picsum.photos/seed/product5/300/300", seller: "EcoEssentials", sellerId: "system", dataAiHint: "bamboo toothbrush", category: "Personal Care", condition: "New", location: "Thane" },
+  { id: 6, name: "Second-hand Novel Set", price: 1440, description: "A collection of five popular, pre-loved novels in excellent condition for your reading pleasure.", image: "https://picsum.photos/seed/product6/300/300", seller: "BookCycle", sellerId: "system", dataAiHint: "books pile", category: "Books", condition: "Used", location: "Colaba" },
+  { id: 7, name: "Refurbished Smartphone", price: 12000, description: "A high-quality, professionally refurbished smartphone with a new battery and a 6-month warranty.", image: "https://picsum.photos/seed/product7/300/300", seller: "GadgetCycle", sellerId: "system", dataAiHint: "smartphone hand", category: "Electronics", condition: "Good", location: "Goregaon" },
+  { id: 8, name: "Upcycled Tire Chair", price: 6000, description: "A unique and surprisingly comfortable statement chair made from upcycled car tires. Perfect for a patio.", image: "https://picsum.photos/seed/product8/300/300", seller: "RevolveDesigns", sellerId: "system", dataAiHint: "tire chair", category: "Furniture", condition: "Used", location: "Chembur" },
 ];
 
 const categories = ["Electronics", "Furniture", "Clothing", "Books", "Home Decor", "Kitchenware", "Accessories", "Personal Care"];
@@ -193,6 +204,31 @@ export default function MarketplacePage() {
     });
   };
 
+  const handleDeleteProduct = (productId: number) => {
+    // Update state
+    const updatedProductsState = products.filter(p => p.id !== productId);
+    setProducts(updatedProductsState);
+
+    // Update localStorage
+    try {
+        const storedProducts = JSON.parse(localStorage.getItem('userProducts') || '[]');
+        const updatedStoredProducts = storedProducts.filter((p: any) => p.id !== productId);
+        localStorage.setItem('userProducts', JSON.stringify(updatedStoredProducts));
+
+        toast({
+            title: "Product Deleted",
+            description: "Your item has been removed from the marketplace.",
+        });
+    } catch (error) {
+        console.error("Failed to delete product from localStorage", error);
+        toast({
+            variant: "destructive",
+            title: "Error",
+            description: "Could not remove the product from storage.",
+        });
+    }
+  };
+
   const filteredProducts = products.filter(product => {
     const categoryMatch = selectedCategories.length === 0 || selectedCategories.includes(product.category);
     const conditionMatch = selectedConditions.length === 0 || selectedConditions.includes(product.condition);
@@ -282,9 +318,34 @@ export default function MarketplacePage() {
                         <div className="flex-grow"></div>
                         <div className="flex justify-between items-center mt-4 pt-4 border-t">
                             <p className="font-bold text-xl text-primary">₹{product.price}</p>
-                            <Button variant="default" size="sm" onClick={() => handleAddToCart(product)}>
-                                Add to cart
-                            </Button>
+                            <div className="flex gap-2">
+                                <Button variant="default" size="sm" onClick={() => handleAddToCart(product)}>
+                                    Add to cart
+                                </Button>
+                                {user && user.uid === product.sellerId && (
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild>
+                                            <Button variant="destructive" size="icon" title="Delete item">
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                            <AlertDialogHeader>
+                                                <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                                <AlertDialogDescription>
+                                                    This action cannot be undone. This will permanently delete your product listing.
+                                                </AlertDialogDescription>
+                                            </AlertDialogHeader>
+                                            <AlertDialogFooter>
+                                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                                <AlertDialogAction onClick={() => handleDeleteProduct(product.id)}>
+                                                    Delete
+                                                </AlertDialogAction>
+                                            </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                )}
+                            </div>
                         </div>
                     </CardContent>
                     </Card>
@@ -301,5 +362,3 @@ export default function MarketplacePage() {
     </div>
   );
 }
-
-    

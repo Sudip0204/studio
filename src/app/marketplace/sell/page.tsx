@@ -74,6 +74,16 @@ export default function SellItemPage() {
   async function onSubmit(values: ProductFormValues) {
     setIsSubmitting(true);
     
+    if (!user) {
+        toast({
+            variant: "destructive",
+            title: "Authentication Error",
+            description: "You must be logged in to list an item.",
+        });
+        setIsSubmitting(false);
+        return;
+    }
+
     try {
         const newProduct = {
             id: Date.now(), // Use timestamp for unique ID in this prototype
@@ -82,6 +92,7 @@ export default function SellItemPage() {
             description: values.description,
             image: values.image, // This is now a data URL
             seller: user?.displayName || "Anonymous",
+            sellerId: user.uid, // Add the user's UID
             dataAiHint: values.name.toLowerCase().split(' ').slice(0, 2).join(' '),
             category: values.category,
             condition: values.condition,
