@@ -7,17 +7,19 @@ export function HeroSection() {
   const heroImage = PlaceHolderImages.find(p => p.id === 'hero-background');
   
   return (
-    <section className="relative h-[80vh] min-h-[500px] w-full">
-      {heroImage && (
-        <Image
-          src={heroImage.imageUrl}
-          alt={heroImage.description}
-          fill
-          className="object-cover"
-          priority
-          data-ai-hint={heroImage.imageHint}
-        />
-      )}
+    <section className="relative h-[80vh] min-h-[500px] w-full overflow-hidden">
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute top-1/2 left-1/2 w-full h-full min-w-full min-h-full object-cover transform -translate-x-1/2 -translate-y-1/2"
+        poster={heroImage?.imageUrl}
+      >
+        {/* Provide multiple sources for different formats for better browser compatibility */}
+        <source src="https://videos.pexels.com/video-files/3835632/3835632-hd_1920_1080_25fps.mp4" type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-black/20" />
       <div className="relative z-10 flex h-full flex-col items-center justify-center text-center text-white">
         <div className="container px-4 md:px-6">
