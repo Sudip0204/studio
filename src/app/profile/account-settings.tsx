@@ -11,9 +11,12 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { Sun, Moon, Monitor, Palette, Leaf, Droplet } from 'lucide-react';
+import { useAuth } from '@/firebase';
+import { deleteUser } from 'firebase/auth';
 
 export function AccountSettings() {
     const { toast } = useToast();
+    const auth = useAuth();
     const [notifications, setNotifications] = useState({
         newsletter: true,
         marketplace: true,
@@ -46,13 +49,28 @@ export function AccountSettings() {
         });
     };
 
-    const handleDeleteAccount = () => {
-        // In a real app, this would trigger a series of backend operations.
-        toast({
-            variant: 'destructive',
-            title: 'Account Deletion Initiated',
-            description: 'Your account is scheduled for deletion. You will be logged out.',
-        });
+    const handleDeleteAccount = async () => {
+        const user = auth.currentUser;
+        if (user) {
+            try {
+                await deleteUser(user);
+                toast({
+                    title: 'Account Deleted',
+                    description: 'Your account has been permanently deleted.',
+                });
+                // The onAuthStateChanged listener will handle the logout.
+            } catch (error: any) {
+                let description = 'An error occurred while deleting your account.';
+                if (error.code === 'auth/requires-recent-login') {
+                    description = 'This is a sensitive operation. Please log out and log back in before deleting your account.';
+                }
+                toast({
+                    variant: 'destructive',
+                    title: 'Deletion Failed',
+                    description: description,
+                });
+            }
+        }
     };
 
     return (
