@@ -1,12 +1,12 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useUser, useFirestore, useCollection, useMemoFirebase, addDocumentNonBlocking, deleteDocumentNonBlocking, updateDocumentNonBlocking } from '@/firebase';
-import { collection, doc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { useEffect, useState, useMemo } from 'react';
+import { useUser, useFirestore, useCollection, useDoc, useMemoFirebase, addDocumentNonBlocking } from '@/firebase';
+import { collection, doc, serverTimestamp, Timestamp, query, where, getDocs } from 'firebase/firestore';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Ticket, Gift, Sparkles, AlertTriangle, Info } from 'lucide-react';
+import { Ticket, Gift, Sparkles, AlertTriangle, Info, Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format, isPast } from 'date-fns';
 import { useToast } from '@/hooks/use-toast';
@@ -14,157 +14,17 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { useCart } from '@/context/cart-context';
 import { useRouter } from 'next/navigation';
 
-// Dummy function to add rewards for prototyping
-const addDummyRewards = (firestore: any, userId: string) => {
-  const rewardsRef = collection(firestore, 'users', userId, 'rewards');
-  const rewards = [
-    {
-      title: '10% Off Your Next Purchase',
-      description: 'Get 10% off any item in the marketplace.',
-      code: 'ECOTEN',
-      discountType: 'percentage',
-      discountValue: 10,
-      expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days from now
-      isUsed: false,
-      source: 'Welcome Gift',
-    },
-    {
-      title: '₹50 Fixed Discount',
-      description: 'A flat ₹50 discount on your next order above ₹500.',
-      code: 'GREEN50',
-      discountType: 'fixed',
-      discountValue: 50,
-      expiryDate: new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days from now
-      isUsed: false,
-      source: 'First Recycle',
-    },
-    {
-        title: 'Expired Coupon',
-        description: 'This coupon has expired.',
-        code: 'OLDNEWS',
-        discountType: 'percentage',
-        discountValue: 20,
-        expiryDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000), // 2 days ago
-        isUsed: false,
-        source: 'Past Event',
-    },
-     {
-        title: 'Used Coupon',
-        description: 'You have already used this coupon.',
-        code: 'USEDUP',
-        discountType: 'fixed',
-        discountValue: 100,
-        expiryDate: new Date(Date.now() + 15 * 24 * 60 * 60 * 1000),
-        isUsed: true,
-        source: 'Special Offer',
-    },
-    {
-      title: 'Free Shipping',
-      description: 'Enjoy free shipping on your next marketplace order.',
-      code: 'ECOSHIP',
-      discountType: 'shipping',
-      discountValue: 100, // Represents 100% off shipping
-      expiryDate: new Date(Date.now() + 45 * 24 * 60 * 60 * 1000),
-      isUsed: false,
-      source: 'Community Goal',
-    },
-    {
-      title: '₹200 Off Furniture',
-      description: 'Get ₹200 off any furniture item.',
-      code: 'FURNISH200',
-      discountType: 'fixed',
-      discountValue: 200,
-      expiryDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
-      isUsed: false,
-      source: 'Marketplace Seller',
-    },
-    {
-      title: '15% Off All Electronics',
-      description: 'Save on refurbished gadgets.',
-      code: 'ECOTECH15',
-      discountType: 'percentage',
-      discountValue: 15,
-      expiryDate: new Date(Date.now() + 20 * 24 * 60 * 60 * 1000),
-      isUsed: false,
-      source: 'E-Waste Recycle',
-    },
-    {
-      title: '₹100 Off Personal Care',
-      description: 'Discount on eco-friendly personal care items.',
-      code: 'SELFCARE100',
-      discountType: 'fixed',
-      discountValue: 100,
-      expiryDate: new Date(Date.now() + 25 * 24 * 60 * 60 * 1000),
-      isUsed: false,
-      source: 'First Purchase',
-    },
-    {
-      title: 'Buy 1 Get 1 Free on Books',
-      description: 'Share the love of reading.',
-      code: 'BOOKWORM',
-      discountType: 'bogo',
-      discountValue: 1, // Represents BOGO
-      expiryDate: new Date(Date.now() + 50 * 24 * 60 * 60 * 1000),
-      isUsed: false,
-      source: 'Reading Challenge',
-    },
-    {
-      title: '50% Off Everything (Expired)',
-      description: 'A massive discount from a past promotion.',
-      code: 'FLASH50',
-      discountType: 'percentage',
-      discountValue: 50,
-      expiryDate: new Date(Date.now() - 10 * 24 * 60 * 60 * 1000), // 10 days ago
-      isUsed: false,
-      source: 'Old Promotion',
-    },
-    {
-      title: "Planet Protector's Perk",
-      description: 'A special discount for being an active member.',
-      code: 'PLANET25',
-      discountType: 'percentage',
-      discountValue: 25,
-      expiryDate: new Date(Date.now() + 35 * 24 * 60 * 60 * 1000),
-      isUsed: false,
-      source: 'Monthly Reward',
-    },
-    {
-      title: 'Upcycle Your Style',
-      description: '₹300 off any upcycled clothing item.',
-      code: 'STYLE300',
-      discountType: 'fixed',
-      discountValue: 300,
-      expiryDate: new Date(Date.now() + 40 * 24 * 60 * 60 * 1000),
-      isUsed: false,
-      source: 'Fashion Week',
-    },
-    {
-      title: 'Home Decor Delight',
-      description: '20% off any item in the Home Decor category.',
-      code: 'DECOR20',
-      discountType: 'percentage',
-      discountValue: 20,
-      expiryDate: new Date(Date.now() + 22 * 24 * 60 * 60 * 1000),
-      isUsed: false,
-      source: 'Home & Garden Event',
-    },
-    {
-      title: 'Green Thumb Bonus',
-      description: '₹150 off your next purchase for composting.',
-      code: 'COMPOST150',
-      discountType: 'fixed',
-      discountValue: 150,
-      expiryDate: new Date(Date.now() + 90 * 24 * 60 * 60 * 1000),
-      isUsed: false,
-      source: 'Composting Goal',
-    },
-  ];
-  
-  rewards.forEach(reward => {
-    addDocumentNonBlocking(rewardsRef, reward);
-  });
-};
-
+// Base rewards that can be unlocked
+const allPossibleRewards = [
+  { id: 'ECOTEN', title: '10% Off Your Next Purchase', description: 'Get 10% off any item in the marketplace.', discountType: 'percentage', discountValue: 10, source: 'Milestone', pointsRequired: 100 },
+  { id: 'GREEN50', title: '₹50 Fixed Discount', description: 'A flat ₹50 discount on your next order above ₹500.', discountType: 'fixed', discountValue: 50, source: 'Milestone', pointsRequired: 250 },
+  { id: 'ECOSHIP', title: 'Free Shipping', description: 'Enjoy free shipping on your next marketplace order.', discountType: 'shipping', discountValue: 100, source: 'Milestone', pointsRequired: 500 },
+  { id: 'FURNISH200', title: '₹200 Off Furniture', description: 'Get ₹200 off any furniture item.', discountType: 'fixed', discountValue: 200, source: 'Milestone', pointsRequired: 1000 },
+  { id: 'ECOTECH15', title: '15% Off All Electronics', description: 'Save on refurbished gadgets.', discountType: 'percentage', discountValue: 15, source: 'Milestone', pointsRequired: 1500 },
+  { id: 'PLANET25', title: "Planet Protector's Perk", description: 'A special 25% discount for being an active member.', discountType: 'percentage', discountValue: 25, source: 'Milestone', pointsRequired: 2500 },
+  { id: 'STYLE300', title: 'Upcycle Your Style', description: '₹300 off any upcycled clothing item.', discountType: 'fixed', discountValue: 300, source: 'Milestone', pointsRequired: 4000 },
+  { id: 'DECOR20', title: 'Home Decor Delight', description: '20% off any item in the Home Decor category.', discountType: 'percentage', discountValue: 20, source: 'Milestone', pointsRequired: 5000 },
+];
 
 export default function RewardsPage() {
   const { user, isUserLoading } = useUser();
@@ -172,31 +32,56 @@ export default function RewardsPage() {
   const { toast } = useToast();
   const { cart, applyCoupon } = useCart();
   const router = useRouter();
-  
+
+  const userRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [firestore, user]);
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc<any>(userRef);
+
   const rewardsRef = useMemoFirebase(() => user ? collection(firestore, 'users', user.uid, 'rewards') : null, [firestore, user]);
-  const { data: rewards, isLoading: areRewardsLoading } = useCollection(rewardsRef);
+  const { data: unlockedRewards, isLoading: areRewardsLoading } = useCollection(rewardsRef);
   
-  const [hasAddedDummies, setHasAddedDummies] = useState(false);
+  const [lastCheckedPoints, setLastCheckedPoints] = useState(0);
 
+  // Effect to check for new unlockable rewards when user's points change
   useEffect(() => {
-    // Add dummy rewards once for the logged-in user if they have no rewards
-    if (user && firestore && rewards && rewards.length < 10 && !areRewardsLoading && !hasAddedDummies) {
-        // Clear existing rewards before adding new ones to prevent duplicates on refresh
-        rewards.forEach(reward => {
-          const rewardDocRef = doc(firestore, 'users', user.uid, 'rewards', reward.id);
-          deleteDocumentNonBlocking(rewardDocRef);
-        });
-        addDummyRewards(firestore, user.uid);
-        setHasAddedDummies(true);
+    if (!userProfile || !rewardsRef) return;
+    
+    const currentPoints = userProfile.ecoPoints || 0;
+    
+    // Only run if points have increased since last check
+    if (currentPoints > lastCheckedPoints) {
+      const checkAndAddRewards = async () => {
+        for (const reward of allPossibleRewards) {
+          if (currentPoints >= reward.pointsRequired) {
+            // Check if user already has this reward by its ID/code
+            const rewardQuery = query(rewardsRef, where('code', '==', reward.id));
+            const existing = await getDocs(rewardQuery);
+            
+            if (existing.empty) {
+                // User has enough points and doesn't have the reward yet, so add it
+                addDocumentNonBlocking(rewardsRef, {
+                    title: reward.title,
+                    description: reward.description,
+                    code: reward.id,
+                    discountType: reward.discountType,
+                    discountValue: reward.discountValue,
+                    expiryDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 days expiry
+                    isUsed: false,
+                    source: reward.source,
+                    pointsRequired: reward.pointsRequired,
+                });
+                 toast({
+                    title: "New Reward Unlocked!",
+                    description: `You've unlocked: "${reward.title}"`,
+                });
+            }
+          }
+        }
+      };
+      
+      checkAndAddRewards();
+      setLastCheckedPoints(currentPoints);
     }
-  }, [user, firestore, rewards, areRewardsLoading, hasAddedDummies]);
-
-  // Add this new hook to prevent adding dummies again on re-render
-  useEffect(() => {
-    if (rewards && rewards.length > 0) {
-      setHasAddedDummies(true);
-    }
-  }, [rewards]);
+  }, [userProfile, rewardsRef, toast, lastCheckedPoints]);
 
 
   const handleCopyCode = (code: string) => {
@@ -232,7 +117,20 @@ export default function RewardsPage() {
     router.push('/marketplace/cart');
   }
 
-  if (isUserLoading || areRewardsLoading) {
+  const sortedRewards = useMemo(() => {
+    if (!unlockedRewards) return [];
+    return unlockedRewards.sort((a, b) => {
+      const aIsDisabled = a.isUsed || isPast(a.expiryDate.toDate());
+      const bIsDisabled = b.isUsed || isPast(b.expiryDate.toDate());
+      if (aIsDisabled && !bIsDisabled) return 1;
+      if (!aIsDisabled && bIsDisabled) return -1;
+      return b.expiryDate.toDate().getTime() - a.expiryDate.toDate().getTime();
+    });
+  }, [unlockedRewards]);
+
+  const currentEcoPoints = userProfile?.ecoPoints || 0;
+
+  if (isUserLoading || isProfileLoading) {
     return (
         <div className="p-6">
             <div className="grid md:grid-cols-2 gap-6">
@@ -263,14 +161,17 @@ export default function RewardsPage() {
           <p className="text-muted-foreground">Your collection of exclusive discounts and offers.</p>
         </div>
         <div className="text-right">
-            <p className="text-sm text-muted-foreground">Total Points</p>
-            <p className="text-2xl font-bold text-primary">1,250 pts</p>
+            <p className="text-sm text-muted-foreground">EcoPoints</p>
+            <p className="text-2xl font-bold text-primary">{currentEcoPoints.toLocaleString()}</p>
         </div>
       </div>
       
-      {rewards && rewards.length > 0 ? (
+      <h4 className="font-headline text-lg font-semibold mb-4">Unlocked Rewards</h4>
+      {areRewardsLoading ? (
+         <p>Loading your rewards...</p>
+      ) : sortedRewards.length > 0 ? (
         <div className="grid md:grid-cols-2 gap-6">
-          {rewards.map((reward) => {
+          {sortedRewards.map((reward) => {
             const hasExpired = isPast(reward.expiryDate.toDate());
             const isDisabled = reward.isUsed || hasExpired;
             return (
@@ -345,6 +246,24 @@ export default function RewardsPage() {
             <p className="text-muted-foreground mt-2">Keep participating in EcoCity activities to earn exclusive coupons!</p>
         </div>
       )}
+
+      <h4 className="font-headline text-lg font-semibold mt-12 mb-4">Future Rewards</h4>
+      <div className="grid md:grid-cols-2 gap-6">
+        {allPossibleRewards.filter(r => r.pointsRequired > currentEcoPoints).map(reward => (
+             <Card key={reward.id} className="bg-muted/30 border-dashed">
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 text-muted-foreground">
+                        <Lock className="h-6 w-6"/>
+                        <span>{reward.title}</span>
+                    </CardTitle>
+                    <CardDescription>{reward.description}</CardDescription>
+                </CardHeader>
+                <CardFooter>
+                    <p className="text-sm font-semibold text-primary">Unlocks at {reward.pointsRequired.toLocaleString()} EcoPoints</p>
+                </CardFooter>
+            </Card>
+        ))}
+      </div>
     </div>
   );
 }

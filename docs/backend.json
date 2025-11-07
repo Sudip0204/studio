@@ -30,7 +30,8 @@
         "phoneNumber": { "type": "string" },
         "photoURL": { "type": "string", "format": "uri" },
         "createdAt": { "type": "string", "format": "date-time" },
-        "rewardPoints": { "type": "number" },
+        "ecoPoints": { "type": "number", "description": "Points earned by the user for engagement." },
+        "timeSpent": { "type": "number", "description": "Total time spent on the site in seconds." },
         "dob": { "type": "string", "format": "date" },
         "gender": { "type": "string" },
         "address": { "type": "string" },
@@ -67,9 +68,10 @@
         "discountValue": { "type": "number" },
         "expiryDate": { "type": "string", "format": "date-time" },
         "isUsed": { "type": "boolean" },
-        "source": { "type": "string" }
+        "source": { "type": "string" },
+        "pointsRequired": { "type": "number", "description": "EcoPoints required to unlock this reward." }
       },
-      "required": ["title", "code", "discountType", "discountValue", "expiryDate"]
+      "required": ["title", "code", "discountType", "discountValue", "expiryDate", "pointsRequired"]
     },
     "Order": {
       "$schema": "http://json-schema.org/draft-07/schema#",

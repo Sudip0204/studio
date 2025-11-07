@@ -8,7 +8,7 @@ import Image from 'next/image';
 import { Award, Play, RotateCw, Maximize, Minimize } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser, useFirestore, useDoc, updateDocumentNonBlocking, setDocumentNonBlocking, useMemoFirebase } from '@/firebase';
-import { doc } from 'firebase/firestore';
+import { doc, increment } from 'firebase/firestore';
 
 // Game constants
 const GRID_SIZE = 20;
@@ -207,10 +207,17 @@ export function EcoSnakeGame() {
   }, [gameTick, isGameStarted, isGameOver]);
 
   useEffect(() => {
-    if (isGameOver && userProfileRef && user) {
-        const userUpdateData = { lastRunScore: score, lastRunTimestamp: new Date() };
+    if (isGameOver && userProfileRef && user && score > 0) {
+        // Award EcoPoints based on score (e.g., 1 point per 10 score)
+        const ecoPointsEarned = Math.floor(score / 10);
+        const userUpdateData: any = { 
+            lastRunScore: score, 
+            lastRunTimestamp: new Date(),
+            ecoPoints: increment(ecoPointsEarned)
+        };
+        
         if (score > highScore) {
-            Object.assign(userUpdateData, { highestScore: score });
+            userUpdateData.highestScore = score;
             const leaderboardRef = doc(firestore, 'leaderboard', user.uid);
             const leaderboardData = {
                 name: userProfile?.name || user.displayName || 'Anonymous',
@@ -328,5 +335,3 @@ export function EcoSnakeGame() {
     </div>
   );
 }
-
-    
