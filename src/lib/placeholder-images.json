@@ -57,7 +57,7 @@
     {
       "id": "user-7",
       "description": "Avatar for a leaderboard user.",
-      "imageUrl": "https://images.unsplash.com/photo-1648218943004-5ec604ef627a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwZXJzb24lMjBnbGFzc2VzfGVufDB8fHx8MTc2MjM5NzQ3NXww&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1648218943004-5ec604ef627a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwZXJzb24lMjBnbGFzc2VzfGVufDB8fHx8MTc2MjM5NzQ3NXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "person glasses"
     },
     {
@@ -117,7 +117,7 @@
     {
       "id": "construction-waste",
       "description": "A new, verified image showing construction debris clearly.",
-      "imageUrl": "https://images.unsplash.com/photo-1606115915155-0a1b6c3102c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb25zdHJ1Y3Rpb24lMjB3YXN0ZXxlbnwwfHx8fDE3NjI1Mzc1Njl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://i.postimg.cc/PJV31PTq/C-D-Waste.jpg",
       "imageHint": "construction waste"
     },
     {
