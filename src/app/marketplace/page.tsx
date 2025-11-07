@@ -163,29 +163,32 @@ export default function MarketplacePage() {
 
 
   useEffect(() => {
-    // Filter the chair out from the initial list
-    const filteredInitialProducts = initialProducts.filter(p => p.name !== "Upcycled Tire Chair");
-    let allProducts = [...filteredInitialProducts];
-    
+    // Forcefully remove the chair from local storage on every load.
     try {
-        const storedProducts = JSON.parse(localStorage.getItem('userProducts') || '[]');
-        const filteredStoredProducts = storedProducts.filter((p: any) => p.name !== "Upcycled Tire Chair");
+        let storedProducts = JSON.parse(localStorage.getItem('userProducts') || '[]');
+        const updatedStoredProducts = storedProducts.filter((p: any) => p.name !== "Upcycled Tire Chair");
+        if (storedProducts.length !== updatedStoredProducts.length) {
+            localStorage.setItem('userProducts', JSON.stringify(updatedStoredProducts));
+        }
+        storedProducts = updatedStoredProducts;
         
-        // Update localStorage with the filtered list to prevent it from reappearing
-        localStorage.setItem('userProducts', JSON.stringify(filteredStoredProducts));
-
-        // Combine initial products with user-added products
+        // Now, combine the lists, ensuring the initial list is also filtered.
+        const filteredInitialProducts = initialProducts.filter(p => p.name !== "Upcycled Tire Chair");
+        
+        const allProducts = [...filteredInitialProducts];
         const existingIds = new Set(allProducts.map(p => p.id));
-        for (const p of filteredStoredProducts) {
+        for (const p of storedProducts) {
             if (!existingIds.has(p.id)) {
                 allProducts.push(p);
             }
         }
+        setProducts(allProducts);
+
     } catch (error) {
-        console.error("Failed to parse products from localStorage", error);
+        console.error("Failed to process products from localStorage", error);
+        // Fallback to only initial products if storage is corrupt
+        setProducts(initialProducts.filter(p => p.name !== "Upcycled Tire Chair"));
     }
-    
-    setProducts(allProducts);
   }, []);
 
   const handleReset = () => {
@@ -212,14 +215,10 @@ export default function MarketplacePage() {
   };
 
   const handleDeleteProduct = (productId: number) => {
-    // Update component state first for immediate UI feedback
     const updatedProductsState = products.filter(p => p.id !== productId);
     setProducts(updatedProductsState);
   
-    // Then, update localStorage
     try {
-      // We need to check both initial products and user-added products
-      // But we only want to remove from user-added products storage
       const storedProducts = JSON.parse(localStorage.getItem('userProducts') || '[]');
       const updatedStoredProducts = storedProducts.filter((p: any) => p.id !== productId);
       localStorage.setItem('userProducts', JSON.stringify(updatedStoredProducts));
@@ -235,8 +234,6 @@ export default function MarketplacePage() {
         title: "Error",
         description: "Could not remove the product from storage.",
       });
-      // Optional: Revert state if localStorage fails, though less common
-      // setProducts(products); // Re-adds the product to the view
     }
   };
 
