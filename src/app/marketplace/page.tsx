@@ -42,13 +42,13 @@ import { useRouter } from "next/navigation";
 
 // Expanded placeholder data for products
 const initialProducts = [
-  { id: 1, name: "Upcycled Denim Jacket", price: 3600, description: "A stylish jacket made from reclaimed denim, perfect for a cool evening.", image: "https://images.unsplash.com/photo-1595950653106-6c9ebd614d3a?q=80&w=1974&auto=format&fit=crop", seller: "GreenThreads", sellerId: "system", dataAiHint: "denim jacket", category: "Clothing", condition: "Good", location: "Mumbai Central" },
-  { id: 2, name: "Recycled Glass Vases", price: 2000, description: "Beautiful, handcrafted vases made from 100% recycled glass bottles. Each one is unique.", image: "https://images.unsplash.com/photo-1579039329792-d3a776104c8f?q=80&w=1964&auto=format&fit=crop", seller: "EcoDecor", sellerId: "system", dataAiHint: "glass vase", category: "Home Decor", condition: "New", location: "Andheri East" },
-  { id: 3, name: "Handmade Wooden Bowl", price: 2400, description: "A unique serving bowl carved from sustainably sourced mango wood. Ideal for salads or fruits.", image: "https://images.unsplash.com/photo-1585499192328-55d346b0b55c?q=80&w=1974&auto=format&fit=crop", seller: "ArtisanWood", sellerId: "system", dataAiHint: "wooden bowl", category: "Kitchenware", condition: "New", location: "Bandra West" },
+  { id: 1, name: "Upcycled Denim Jacket", price: 3600, description: "A stylish jacket made from reclaimed denim, perfect for a cool evening.", image: "https://i.postimg.cc/pdpkf2yK/Upcycled-Denim-Jacket.jpg", seller: "GreenThreads", sellerId: "system", dataAiHint: "denim jacket", category: "Clothing", condition: "Good", location: "Mumbai Central" },
+  { id: 2, name: "Recycled Glass Vases", price: 2000, description: "Beautiful, handcrafted vases made from 100% recycled glass bottles. Each one is unique.", image: "https://i.postimg.cc/vmB20r2p/Recycled-Glass-Vases.jpg", seller: "EcoDecor", sellerId: "system", dataAiHint: "glass vase", category: "Home Decor", condition: "New", location: "Andheri East" },
+  { id: 3, name: "Handmade Wooden Bowl", price: 2400, description: "A unique serving bowl carved from sustainably sourced mango wood. Ideal for salads or fruits.", image: "https://i.postimg.cc/MTn4p7y7/Handmade-Wooden-Bowl.avif", seller: "ArtisanWood", sellerId: "system", dataAiHint: "wooden bowl", category: "Kitchenware", condition: "New", location: "Bandra West" },
   { id: 4, name: "Vintage Leather Bag", price: 4800, description: "A classic, pre-loved leather messenger bag with a timeless design and durable construction.", image: "https://images.unsplash.com/photo-1547949003-9792a18a2601?q=80&w=2070&auto=format&fit=crop", seller: "RetroFinds", sellerId: "system", dataAiHint: "leather bag", category: "Accessories", condition: "Fair", location: "Dadar" },
-  { id: 5, name: "Bamboo Toothbrush Set", price: 960, description: "A set of four eco-friendly bamboo toothbrushes. A great alternative to plastic.", image: "https://images.unsplash.com/photo-1587847386047-9ce475a85590?q=80&w=2070&auto=format&fit=crop", seller: "EcoEssentials", sellerId: "system", dataAiHint: "bamboo toothbrush", category: "Personal Care", condition: "New", location: "Thane" },
-  { id: 6, name: "Second-hand Novel Set", price: 1440, description: "A collection of five popular, pre-loved novels in excellent condition for your reading pleasure.", image: "https://images.unsplash.com/photo-1550399105-c4db5fb85c18?q=80&w=2071&auto=format&fit=crop", seller: "BookCycle", sellerId: "system", dataAiHint: "books pile", category: "Books", condition: "Used", location: "Colaba" },
-  { id: 7, name: "Refurbished Smartphone", price: 12000, description: "A high-quality, professionally refurbished smartphone with a new battery and a 6-month warranty.", image: "https://images.unsplash.com/photo-1587560699334-cc426240a24f?q=80&w=2070&auto=format&fit=crop", seller: "GadgetCycle", sellerId: "system", dataAiHint: "smartphone hand", category: "Electronics", condition: "Good", location: "Goregaon" },
+  { id: 5, name: "Bamboo Toothbrush Set", price: 960, description: "A set of four eco-friendly bamboo toothbrushes. A great alternative to plastic.", image: "https://i.postimg.cc/Sx4wfzh0/Bamboo-Toothbrush-Set.webp", seller: "EcoEssentials", sellerId: "system", dataAiHint: "bamboo toothbrush", category: "Personal Care", condition: "New", location: "Thane" },
+  { id: 6, name: "Second-hand Novel Set", price: 1440, description: "A collection of five popular, pre-loved novels in excellent condition for your reading pleasure.", image: "https://i.postimg.cc/HkLtmp0Y/Second-hand-Novel-Set.jpg", seller: "BookCycle", sellerId: "system", dataAiHint: "books pile", category: "Books", condition: "Used", location: "Colaba" },
+  { id: 7, name: "Refurbished Smartphone", price: 12000, description: "A high-quality, professionally refurbished smartphone with a new battery and a 6-month warranty.", image: "https://i.postimg.cc/v86kRvYr/Refurbished-Smartphone.webp", seller: "GadgetCycle", sellerId: "system", dataAiHint: "smartphone hand", category: "Electronics", condition: "Good", location: "Goregaon" },
 ];
 
 const categories = ["Electronics", "Furniture", "Clothing", "Books", "Home Decor", "Kitchenware", "Accessories", "Personal Care"];
@@ -163,21 +163,33 @@ export default function MarketplacePage() {
 
 
   useEffect(() => {
+    const allProducts = [...initialProducts];
+    
+    // Add the "Upcycled Tire Chair" if it's in localStorage from a previous session
     try {
-      const storedProducts = JSON.parse(localStorage.getItem('userProducts') || '[]');
-      // Combine initial products with user-added products, ensuring no duplicates
-      const allProducts = [...initialProducts];
-      const existingIds = new Set(allProducts.map(p => p.id));
-      for (const p of storedProducts) {
-        if (!existingIds.has(p.id)) {
-          allProducts.push(p);
+        const storedProducts = JSON.parse(localStorage.getItem('userProducts') || '[]');
+        const chair = storedProducts.find((p: any) => p.name === "Upcycled Tire Chair");
+        if (chair && !allProducts.some(p => p.id === chair.id)) {
+            allProducts.push({
+                ...chair,
+                image: "https://i.postimg.cc/R0k1wKk0/Upcycled-Tire-Chair.jpg"
+            });
         }
-      }
-      setProducts(allProducts);
+        
+        // Combine initial products with any other user-added products
+        const existingIds = new Set(allProducts.map(p => p.id));
+        for (const p of storedProducts) {
+            if (!existingIds.has(p.id)) {
+                allProducts.push(p);
+            }
+        }
+
     } catch (error) {
-      console.error("Failed to parse products from localStorage", error);
-      setProducts(initialProducts);
+        console.error("Failed to parse products from localStorage", error);
     }
+    
+    setProducts(allProducts);
+
   }, []);
 
   const handleReset = () => {
