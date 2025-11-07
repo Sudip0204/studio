@@ -71,6 +71,7 @@ export function EditProductForm({ product, onFinished }: EditProductFormProps) {
             const allProducts = JSON.parse(localStorage.getItem('userProducts') || '[]');
             const updatedProducts = allProducts.map((p: Product) => {
                 if (p.id === product.id) {
+                    // Correctly merge the existing product data with the new form values
                     return { ...p, ...values };
                 }
                 return p;
