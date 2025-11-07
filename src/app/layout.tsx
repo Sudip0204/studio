@@ -23,13 +23,13 @@ function ActivityTracker() {
   useEffect(() => {
     if (!userRef) return;
     
-    // Update time spent every 30 seconds
+    // Update time spent every 5 minutes (300 seconds) to reduce Firestore writes
     const interval = setInterval(() => {
       updateDocumentNonBlocking(userRef, {
-        timeSpent: increment(30),
-        ecoPoints: increment(1) // Award 1 EcoPoint every 30 seconds
+        timeSpent: increment(300),
+        ecoPoints: increment(10) // Award 10 EcoPoints every 5 minutes
       });
-    }, 30000); 
+    }, 300000); 
 
     return () => clearInterval(interval);
   }, [userRef]);
