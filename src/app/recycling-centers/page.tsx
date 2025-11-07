@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Haversine formula to calculate distance between two lat/lng points
 const haversineDistance = (
@@ -33,6 +34,8 @@ const haversineDistance = (
 
   return R * c;
 };
+
+const allMaterials = Array.from(new Set(recyclingCenters.flatMap(center => center.acceptedMaterials)));
 
 export default function RecyclingCentersPage() {
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -164,16 +167,19 @@ export default function RecyclingCentersPage() {
                     </div>
                 </div>
                 <div>
-                     <label htmlFor="filter-search" className="text-sm font-medium">Filter by Name or Material</label>
+                     <label htmlFor="filter-search" className="text-sm font-medium">Filter by Material</label>
                      <div className="relative mt-2">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input 
-                            id="filter-search"
-                            placeholder="e.g., Green-First or E-waste" 
-                            className="pl-10" 
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                        />
+                         <Select value={searchQuery} onValueChange={(value) => setSearchQuery(value === 'all' ? '' : value)}>
+                            <SelectTrigger>
+                                <SelectValue placeholder="Select a material" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="all">All Materials</SelectItem>
+                                {allMaterials.map(material => (
+                                    <SelectItem key={material} value={material}>{material}</SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
                 </div>
             </CardContent>
