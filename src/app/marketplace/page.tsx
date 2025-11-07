@@ -49,7 +49,6 @@ const initialProducts = [
   { id: 5, name: "Bamboo Toothbrush Set", price: 960, description: "A set of four eco-friendly bamboo toothbrushes. A great alternative to plastic.", image: "https://images.unsplash.com/photo-1587847386047-9ce475a85590?q=80&w=2070&auto=format&fit=crop", seller: "EcoEssentials", sellerId: "system", dataAiHint: "bamboo toothbrush", category: "Personal Care", condition: "New", location: "Thane" },
   { id: 6, name: "Second-hand Novel Set", price: 1440, description: "A collection of five popular, pre-loved novels in excellent condition for your reading pleasure.", image: "https://images.unsplash.com/photo-1550399105-c4db5fb85c18?q=80&w=2071&auto=format&fit=crop", seller: "BookCycle", sellerId: "system", dataAiHint: "books pile", category: "Books", condition: "Used", location: "Colaba" },
   { id: 7, name: "Refurbished Smartphone", price: 12000, description: "A high-quality, professionally refurbished smartphone with a new battery and a 6-month warranty.", image: "https://images.unsplash.com/photo-1587560699334-cc426240a24f?q=80&w=2070&auto=format&fit=crop", seller: "GadgetCycle", sellerId: "system", dataAiHint: "smartphone hand", category: "Electronics", condition: "Good", location: "Goregaon" },
-  { id: 8, name: "Upcycled Tire Chair", price: 6000, description: "A unique and surprisingly comfortable statement chair made from upcycled car tires. Perfect for a patio.", image: "https://i.imgur.com/81P584n.jpeg", seller: "RevolveDesigns", sellerId: "system", dataAiHint: "tire chair", category: "Furniture", condition: "Used", location: "Chembur" },
 ];
 
 const categories = ["Electronics", "Furniture", "Clothing", "Books", "Home Decor", "Kitchenware", "Accessories", "Personal Care"];
@@ -362,3 +361,5 @@ export default function MarketplacePage() {
     </div>
   );
 }
+
+    
