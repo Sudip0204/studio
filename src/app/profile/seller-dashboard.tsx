@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -16,6 +17,7 @@ type Product = {
     price: number;
     description: string;
     image: string;
+    sellerId: string;
     seller: string;
     dataAiHint: string;
     category: string;
@@ -32,7 +34,7 @@ export function SellerDashboard({ user }: { user: User }) {
   const fetchUserProducts = () => {
     try {
       const allProducts = JSON.parse(localStorage.getItem('userProducts') || '[]');
-      const userProducts = allProducts.filter((p: Product) => p.seller === user.uid);
+      const userProducts = allProducts.filter((p: Product) => p.sellerId === user.uid);
       setProducts(userProducts);
     } catch (error) {
       console.error("Failed to load products from localStorage", error);

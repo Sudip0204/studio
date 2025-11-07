@@ -209,7 +209,7 @@ export default function MarketplacePage() {
     const updatedProductsState = products.filter(p => p.id !== productId);
     setProducts(updatedProductsState);
 
-    // Update localStorage
+    // Update localStorage for user-added products
     try {
         const storedProducts = JSON.parse(localStorage.getItem('userProducts') || '[]');
         const updatedStoredProducts = storedProducts.filter((p: any) => p.id !== productId);

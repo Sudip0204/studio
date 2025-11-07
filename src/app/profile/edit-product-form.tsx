@@ -36,6 +36,7 @@ type Product = {
     price: number;
     description: string;
     image: string;
+    sellerId: string;
     seller: string;
     dataAiHint: string;
     category: string;

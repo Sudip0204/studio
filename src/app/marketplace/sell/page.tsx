@@ -233,7 +233,7 @@ export default function SellItemPage() {
                     render={({ field }) => (
                         <FormItem>
                         <FormLabel>Condition</FormLabel>
-                        <Select onValue-change={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
                             <FormControl>
                             <SelectTrigger>
                                 <SelectValue placeholder="Select the item's condition" />
