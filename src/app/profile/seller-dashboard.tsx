@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -24,6 +23,31 @@ type Product = {
     condition: string;
     location: string;
 };
+
+interface EditProductDialogProps {
+    product: Product | null;
+    open: boolean;
+    onOpenChange: (open: boolean) => void;
+    onFinished: () => void;
+}
+
+function EditProductDialog({ product, open, onOpenChange, onFinished }: EditProductDialogProps) {
+    if (!product) return null;
+
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-[600px]">
+                <DialogHeader>
+                    <DialogTitle>Edit Product</DialogTitle>
+                </DialogHeader>
+                <EditProductForm
+                    product={product}
+                    onFinished={onFinished}
+                />
+            </DialogContent>
+        </Dialog>
+    );
+}
 
 export function SellerDashboard({ user }: { user: User }) {
   const [products, setProducts] = useState<Product[]>([]);
@@ -79,22 +103,13 @@ export function SellerDashboard({ user }: { user: User }) {
         </div>
       </div>
       
-      {/* Dialog for editing a product */}
-      <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-            <DialogHeader>
-                <DialogTitle>Edit Product</DialogTitle>
-            </DialogHeader>
-            {editingProduct && (
-                <EditProductForm 
-                    product={editingProduct} 
-                    onFinished={handleFormFinished}
-                />
-            )}
-        </DialogContent>
-      </Dialog>
+      <EditProductDialog
+        product={editingProduct}
+        open={isFormOpen}
+        onOpenChange={setIsFormOpen}
+        onFinished={handleFormFinished}
+      />
 
-      {/* The list of products, which is now outside the dialog */}
       {products.length > 0 ? (
         <div className="grid md:grid-cols-2 gap-6">
           {products.map((product) => (
