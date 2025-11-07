@@ -163,25 +163,29 @@ export default function MarketplacePage() {
 
 
   useEffect(() => {
-    let allProducts = [...initialProducts];
+    // Filter the chair out from the initial list
+    const filteredInitialProducts = initialProducts.filter(p => p.name !== "Upcycled Tire Chair");
+    let allProducts = [...filteredInitialProducts];
     
     try {
         const storedProducts = JSON.parse(localStorage.getItem('userProducts') || '[]');
+        const filteredStoredProducts = storedProducts.filter((p: any) => p.name !== "Upcycled Tire Chair");
         
-        // Combine initial products with any other user-added products, filtering out the chair
+        // Update localStorage with the filtered list to prevent it from reappearing
+        localStorage.setItem('userProducts', JSON.stringify(filteredStoredProducts));
+
+        // Combine initial products with user-added products
         const existingIds = new Set(allProducts.map(p => p.id));
-        for (const p of storedProducts) {
-            if (!existingIds.has(p.id) && p.name !== "Upcycled Tire Chair") {
+        for (const p of filteredStoredProducts) {
+            if (!existingIds.has(p.id)) {
                 allProducts.push(p);
             }
         }
-
     } catch (error) {
         console.error("Failed to parse products from localStorage", error);
     }
     
     setProducts(allProducts);
-
   }, []);
 
   const handleReset = () => {
