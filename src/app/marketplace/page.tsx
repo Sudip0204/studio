@@ -164,19 +164,17 @@ export default function MarketplacePage() {
 
 
   useEffect(() => {
-    // Forcefully remove the chair from local storage on every load.
+    // Forcefully remove the specific "chair chai chair" product from local storage on every load.
     try {
         let storedProducts = JSON.parse(localStorage.getItem('userProducts') || '[]');
-        const updatedStoredProducts = storedProducts.filter((p: any) => p.name !== "Upcycled Tire Chair");
+        const updatedStoredProducts = storedProducts.filter((p: any) => p.description !== "chair chai chair");
         if (storedProducts.length !== updatedStoredProducts.length) {
             localStorage.setItem('userProducts', JSON.stringify(updatedStoredProducts));
         }
         storedProducts = updatedStoredProducts;
         
-        // Now, combine the lists, ensuring the initial list is also filtered.
-        const filteredInitialProducts = initialProducts.filter(p => p.name !== "Upcycled Tire Chair");
-        
-        const allProducts = [...filteredInitialProducts];
+        // Now, combine the lists.
+        const allProducts = [...initialProducts];
         const existingIds = new Set(allProducts.map(p => p.id));
         for (const p of storedProducts) {
             if (!existingIds.has(p.id)) {
@@ -188,7 +186,7 @@ export default function MarketplacePage() {
     } catch (error) {
         console.error("Failed to process products from localStorage", error);
         // Fallback to only initial products if storage is corrupt
-        setProducts(initialProducts.filter(p => p.name !== "Upcycled Tire Chair"));
+        setProducts(initialProducts);
     }
   }, []);
 
@@ -376,4 +374,5 @@ export default function MarketplacePage() {
     
 
     
+
 
