@@ -1,6 +1,7 @@
 
 'use client';
 
+import { useMemo } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Crown, Loader2, Trophy } from "lucide-react";
@@ -16,6 +17,15 @@ const getRankIcon = (rank: number) => {
   return <span className="font-bold text-sm w-5 text-center">{rank + 1}</span>;
 };
 
+// Ready-made scores for demonstration
+const readyMadeScores = [
+  { id: 'user-1', name: 'Alex', photoURL: 'https://images.unsplash.com/photo-1542596594-649edbc13630?q=80&w=600', highestScore: 250 },
+  { id: 'user-2', name: 'Maria', photoURL: 'https://images.unsplash.com/photo-1635131902146-6957477a4ff4?q=80&w=600', highestScore: 220 },
+  { id: 'user-3', name: 'Sam', photoURL: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=600', highestScore: 190 },
+  { id: 'user-4', name: 'Jordan', photoURL: 'https://images.unsplash.com/photo-1590086782792-42dd2350140d?q=80&w=600', highestScore: 150 },
+  { id: 'user-5', name: 'Chloe', photoURL: 'https://images.unsplash.com/photo-1607990281513-2c110a25bd8c?q=80&w=600', highestScore: 120 },
+];
+
 export function Leaderboard() {
   const { user: currentUser } = useUser();
   const firestore = useFirestore();
@@ -24,6 +34,22 @@ export function Leaderboard() {
   const leaderboardQuery = useMemoFirebase(() => query(leaderboardRef, orderBy('highestScore', 'desc'), limit(10)), [leaderboardRef]);
 
   const { data: leaderboardData, isLoading } = useCollection(leaderboardQuery);
+
+  const combinedLeaderboard = useMemo(() => {
+    const allScores = [...readyMadeScores, ...(leaderboardData || [])];
+    
+    // Remove duplicates, giving preference to real data from Firebase
+    const uniqueScores = allScores.reduce((acc, current) => {
+        if (!acc.find(item => item.id === current.id)) {
+            acc.push(current);
+        }
+        return acc;
+    }, [] as typeof allScores);
+
+    // Sort by score and take the top 10
+    return uniqueScores.sort((a, b) => b.highestScore - a.highestScore).slice(0, 10);
+  }, [leaderboardData]);
+
 
   return (
     <Card className="bg-muted/50">
@@ -50,7 +76,7 @@ export function Leaderboard() {
             ))
           )}
 
-          {!isLoading && leaderboardData && leaderboardData.map((player, index) => {
+          {!isLoading && combinedLeaderboard && combinedLeaderboard.map((player, index) => {
              const isCurrentUser = currentUser?.uid === player.id;
             return (
               <div 
