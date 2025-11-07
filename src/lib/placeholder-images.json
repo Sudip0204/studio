@@ -14,9 +14,9 @@
     },
     {
       "id": "impact-map",
-      "description": "A digital world map with glowing data points, representing global connections and impact.",
-      "imageUrl": "https://images.unsplash.com/photo-1534237710431-e2fc698436d0?q=80&w=1974&auto=format&fit=crop",
-      "imageHint": "global data"
+      "description": "A diverse group of people planting trees in a field, representing community environmental action.",
+      "imageUrl": "https://i.postimg.cc/9FnXQb5C/Environment-Community2.jpg",
+      "imageHint": "community planting"
     },
     {
       "id": "testimonial-1",
@@ -141,13 +141,13 @@
     {
       "id": "quiz-coffee-cup",
       "description": "Image of a disposable coffee cup",
-      "imageUrl": "https://images.unsplash.com/photo-1653296586997-73f61ed69720?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwYXBlciUyMGNvZmZlZSUyMGN1cHxlbnwwfHx8fDE3NjI0Njg3MzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1653296586997-73f61ed69720?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxwYXBlciUyMGNvZmZlZSUyMGN1cHxlbnwwfHx8fDE3NjI0Njg3MzB8MA&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "paper coffee cup"
     },
     {
       "id": "quiz-textiles",
       "description": "Image of old, torn clothes",
-      "imageUrl": "https://images.unsplash.com/photo-1698586252650-f0d15ff0c8da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxjbG90aGVzJTIwcGlsZXxlbnwwfHx8fDE3NjI0NjMyNzZ8MA&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1698586252650-f0d15ff0c8da?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxjbG90aGVzJTIwcGlsZXxlbnwwfHx8fDE3NjI0NjMyNzZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "clothes pile"
     },
     {
@@ -171,7 +171,7 @@
     {
       "id": "symbol-ldpe",
       "description": "Recycling symbol 4 for LDPE",
-      "imageUrl": "https://images.unsplash.com/photo-1652658379315-9ff6d19d8929?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cmVjeWNsaW5nJTIwc3ltYm9sfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1652658379315-9ff6d19d8929?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8cmVjeWNsaW5nJTIwc3ltYm9sfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "recycling symbol"
     },
     {
@@ -195,7 +195,7 @@
     {
       "id": "waste-plastic",
       "description": "A plastic bottle as waste for the game.",
-      "imageUrl": "https://images.unsplash.com/photo-1586041828039-b8d193d6d1dc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwbGFzdGljJTIwYm90dGxlfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1586041828039-b8d193d6d1dc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwbGFzdGljJTIwYm90dGxlfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "plastic bottle"
     },
     {
@@ -207,13 +207,13 @@
     {
       "id": "waste-can",
       "description": "An aluminum can for the game.",
-      "imageUrl": "https://images.unsplash.com/photo-1696739696228-eee49592ff07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxzb2RhJTIwY2FufGVufDB8fHx8MTc2MjM5NjYzMHww&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1696739696228-eee49592ff07?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxzb2RhJTIwY2FufGVufDB8fHx8MTc2MjM5NjYzMHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "soda can"
     },
     {
       "id": "carbon-emissions-info",
       "description": "An image representing carbon emissions, like factory smoke.",
-      "imageUrl": "https://images.unsplash.com/photo-1729858346171-5180c0d4e727?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxmYWN0b3J5JTIwZW1pc3Npb25zfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1729858346171-5180c0d4e727?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxmYWN0b3J5JTIwZW1pc3Npb25zfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "factory emissions"
     },
     {
