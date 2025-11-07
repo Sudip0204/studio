@@ -2,15 +2,16 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { MapPin, Search, Star, Clock, Phone, Heart, Globe, Home, Loader2 } from "lucide-react";
+import { MapPin, Search, Star, Clock, Phone, Heart, Globe, Home, Loader2, Navigation, Info } from "lucide-react";
 import { recyclingCenters, RecyclingCenter } from './data';
 import Image from 'next/image';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
 
 // Haversine formula to calculate distance between two lat/lng points
 const haversineDistance = (
@@ -40,9 +41,7 @@ export default function RecyclingCentersPage() {
   const [isLocating, setIsLocating] = useState(false);
   const { toast } = useToast();
   
-  // For demonstration, we'll use a hardcoded address input that resolves to a known location.
-  // In a real app, this would use a Geocoding API.
-  const [manualAddress, setManualAddress] = useState("New York, NY"); 
+  const [manualAddress, setManualAddress] = useState(""); 
 
   const toggleFavorite = (id: string) => {
     setFavorites(prev => 
@@ -66,14 +65,14 @@ export default function RecyclingCentersPage() {
         const { latitude, longitude } = position.coords;
         setUserLocation({ lat: latitude, lng: longitude });
         setManualAddress("Your Current Location");
-        toast({ title: "Location Found", description: "Searching for centers near you."});
+        toast({ title: "Location Found", description: "Showing centers sorted by distance."});
         setIsLocating(false);
       },
       (error) => {
         toast({
             variant: 'destructive',
             title: 'Location Access Denied',
-            description: 'Please enable location permissions to use this feature.',
+            description: 'Please enable location permissions or search manually.',
         });
         setIsLocating(false);
       }
@@ -81,37 +80,48 @@ export default function RecyclingCentersPage() {
   }, [toast]);
   
   const handleManualSearch = () => {
+      if (!manualAddress || manualAddress === "Your Current Location") {
+        toast({ variant: 'destructive', title: "Invalid Address", description: "Please enter a location to search."});
+        return;
+      }
       // In a real app, you'd use a geocoding API to convert `manualAddress` to lat/lng.
-      // For this prototype, we'll simulate it by setting a fixed location.
-      if (manualAddress.toLowerCase().includes("new york")) {
-        setUserLocation({ lat: 40.7128, lng: -74.0060 });
+      // For this prototype, we'll simulate it by setting a fixed location if it contains a known city.
+      if (manualAddress.toLowerCase().includes("vashi")) {
+        setUserLocation({ lat: 19.07, lng: 73.0 });
         toast({ title: "Location Set", description: `Searching for centers near ${manualAddress}`});
-      } else {
-        toast({ variant: 'destructive', title: "Location not found", description: "Please enter a valid address like 'New York, NY'."});
+      } else if (manualAddress.toLowerCase().includes("andheri")) {
+        setUserLocation({ lat: 19.11, lng: 72.86 });
+        toast({ title: "Location Set", description: `Searching for centers near ${manualAddress}`});
+      }
+      else {
+        toast({ title: "Showing All Centers", description: "Could not pinpoint location, showing all available centers."});
+        setUserLocation(null);
       }
   }
 
   useEffect(() => {
-    // Automatically try to fetch location on initial load
     handleFetchLocation();
   }, [handleFetchLocation]);
 
-  const nearbyCenters = useMemo(() => {
-    if (!userLocation) {
-      return recyclingCenters; // Return all if no location is set
+  const sortedCenters = useMemo(() => {
+    let centers = [...recyclingCenters];
+    if (userLocation) {
+      centers.sort((a, b) => {
+        const distanceA = haversineDistance(userLocation, a.location);
+        const distanceB = haversineDistance(userLocation, b.location);
+        return distanceA - distanceB;
+      });
     }
-    return recyclingCenters.filter(center => {
-      const distance = haversineDistance(userLocation, center.location);
-      return distance <= 3; // Filter within 3km radius
-    });
+    return centers;
   }, [userLocation]);
 
   const filteredCenters = useMemo(() => {
-    return nearbyCenters.filter(center =>
+    return sortedCenters.filter(center =>
       center.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      center.address.toLowerCase().includes(searchQuery.toLowerCase())
+      center.address.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      center.acceptedMaterials.some(m => m.toLowerCase().includes(searchQuery.toLowerCase()))
     );
-  }, [searchQuery, nearbyCenters]);
+  }, [searchQuery, sortedCenters]);
 
   return (
     <div className="bg-background">
@@ -129,97 +139,105 @@ export default function RecyclingCentersPage() {
         </div>
       </section>
 
-      <div className="container mx-auto py-12 px-4">
-        <div className="grid lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-1 space-y-6">
-            <Card>
-              <CardHeader>
+      <div className="container mx-auto py-12 px-4 max-w-7xl">
+        <Card className="mb-8">
+            <CardHeader>
                 <CardTitle className="flex items-center gap-2 font-headline">
-                  <Home className="text-primary"/> Your Location
+                    <Search className="text-primary"/> Search for a Center
                 </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex gap-2">
-                  <Input 
-                    value={manualAddress}
-                    onChange={(e) => setManualAddress(e.target.value)}
-                    placeholder="Enter address e.g. New York, NY"
-                    disabled={isLocating}
-                    onKeyDown={(e) => e.key === 'Enter' && handleManualSearch()}
-                  />
-                  <Button variant="outline" size="icon" onClick={handleFetchLocation} disabled={isLocating}>
-                    {isLocating ? <Loader2 className="animate-spin" /> : <Globe />}
-                  </Button>
+            </CardHeader>
+            <CardContent className="grid sm:grid-cols-3 gap-4">
+                <div className="sm:col-span-2">
+                    <label htmlFor="location-search" className="text-sm font-medium">Your Location</label>
+                     <div className="flex gap-2 mt-2">
+                        <Input 
+                            id="location-search"
+                            value={manualAddress}
+                            onChange={(e) => setManualAddress(e.target.value)}
+                            placeholder="Enter address e.g. Andheri, Mumbai"
+                            disabled={isLocating}
+                            onKeyDown={(e) => e.key === 'Enter' && handleManualSearch()}
+                        />
+                        <Button variant="outline" size="icon" onClick={handleFetchLocation} disabled={isLocating}>
+                            {isLocating ? <Loader2 className="animate-spin" /> : <Globe />}
+                        </Button>
+                    </div>
                 </div>
-                 <Button onClick={handleManualSearch} className="w-full mt-3">Search Manually</Button>
-                <p className="text-xs text-muted-foreground mt-2">Allow location access or enter an address manually and search.</p>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader>
-                 <CardTitle className="font-headline">Nearby Centers</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="relative">
-                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input 
-                      placeholder="Filter results..." 
-                      className="pl-10" 
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                    />
+                <div>
+                     <label htmlFor="filter-search" className="text-sm font-medium">Filter by Name or Material</label>
+                     <div className="relative mt-2">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input 
+                            id="filter-search"
+                            placeholder="e.g., Green-First or E-waste" 
+                            className="pl-10" 
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                        />
+                    </div>
                 </div>
-                <div className="space-y-4 max-h-[600px] overflow-y-auto pr-2">
-                    {userLocation && filteredCenters.length === 0 && (
-                       <Alert>
-                        <AlertTitle>No Centers Found</AlertTitle>
-                        <AlertDescription>
-                          No recycling centers were found within a 3km radius of your location. Try searching a different area.
-                        </AlertDescription>
-                      </Alert>
-                    )}
-                    {filteredCenters.map((center) => (
-                        <div key={center.id} className="border p-4 rounded-lg hover:bg-muted/50 transition-colors">
-                           <div className="flex justify-between items-start">
-                             <div>
-                                <h3 className="font-semibold">{center.name}</h3>
-                                <p className="text-sm text-muted-foreground">{center.address}</p>
-                                {userLocation && (
-                                   <p className="text-xs font-bold text-primary mt-1">
-                                      {haversineDistance(userLocation, center.location).toFixed(2)} km away
-                                   </p>
-                                )}
-                             </div>
+            </CardContent>
+        </Card>
+        
+        {filteredCenters.length === 0 && !isLocating && (
+            <div className="text-center py-16">
+                <p className="text-muted-foreground">No recycling centers found matching your criteria.</p>
+            </div>
+        )}
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+            {filteredCenters.map(center => (
+                <Card key={center.id} className="flex flex-col">
+                    <CardHeader>
+                        <div className="flex justify-between items-start">
+                            <CardTitle className="font-headline">{center.name}</CardTitle>
                              <Button size="icon" variant="ghost" onClick={() => toggleFavorite(center.id)}>
                                 <Heart className={cn("h-5 w-5", favorites.includes(center.id) ? "text-red-500 fill-current" : "text-muted-foreground")} />
                              </Button>
-                           </div>
-                           <div className="flex items-center gap-1 text-sm mt-2 text-amber-500">
-                                <Star className="h-4 w-4 fill-current" />
-                                <span>{center.rating.toFixed(1)}</span>
-                                <span className="text-muted-foreground text-xs">({center.reviews} reviews)</span>
-                           </div>
                         </div>
-                    ))}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="lg:col-span-2">
-            <Card className="h-[400px] lg:h-full">
-               <CardContent className="p-0 h-full rounded-lg overflow-hidden relative flex items-center justify-center bg-muted">
-                    <Image 
-                      src="https://picsum.photos/seed/mapview/1200/800" 
-                      alt="Map of recycling centers"
-                      fill
-                      className="object-cover"
-                      data-ai-hint="map satellite"
-                    />
-               </CardContent>
-            </Card>
-          </div>
+                        <CardDescription className="flex items-start gap-2 pt-2">
+                            <MapPin className="h-4 w-4 mt-1 flex-shrink-0" />
+                            <span>{center.address}, {center.pincode}</span>
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="flex-grow space-y-4">
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Phone className="h-4 w-4" />
+                            <span>{center.phone}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Clock className="h-4 w-4" />
+                            <span>{center.hours.open} - {center.hours.close}</span>
+                        </div>
+                         <div className="flex items-center gap-1 text-sm text-amber-500">
+                            <Star className="h-4 w-4 fill-current" />
+                            <span className="font-bold">{center.rating.toFixed(1)}</span>
+                            <span className="text-muted-foreground text-xs">({center.reviews} reviews)</span>
+                        </div>
+                        <div>
+                            <h4 className="text-sm font-semibold mb-2">Accepts:</h4>
+                            <div className="flex flex-wrap gap-2">
+                                {center.acceptedMaterials.map(material => (
+                                    <Badge key={material} variant="secondary">{material}</Badge>
+                                ))}
+                            </div>
+                        </div>
+                    </CardContent>
+                    <CardFooter className="flex justify-between items-center">
+                        {userLocation && (
+                            <div className="text-sm font-bold text-primary">
+                                {haversineDistance(userLocation, center.location).toFixed(1)} km away
+                            </div>
+                        )}
+                        <Button asChild variant="outline">
+                            <a href={`https://www.google.com/maps/search/?api=1&query=${center.name}, ${center.address}`} target="_blank" rel="noopener noreferrer">
+                                <Navigation className="mr-2 h-4 w-4" />
+                                Get Directions
+                            </a>
+                        </Button>
+                    </CardFooter>
+                </Card>
+            ))}
         </div>
       </div>
     </div>
