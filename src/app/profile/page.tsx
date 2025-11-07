@@ -15,6 +15,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import RewardsPage from './rewards/page';
 import { AccountSettings } from './account-settings';
 import { MyOrders } from './my-orders';
+import { SellerDashboard } from './seller-dashboard';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
@@ -182,11 +183,12 @@ export default function ProfilePage() {
           </CardHeader>
           <CardContent className="p-0">
              <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-                <TabsList className="grid w-full grid-cols-1 sm:grid-cols-5 rounded-none">
+                <TabsList className="grid w-full grid-cols-1 sm:grid-cols-6 rounded-none">
                     <TabsTrigger value="personal-info">Personal Information</TabsTrigger>
                     <TabsTrigger value="my-orders">My Orders</TabsTrigger>
                     <TabsTrigger value="addresses">Manage Addresses</TabsTrigger>
                     <TabsTrigger value="rewards">My Rewards</TabsTrigger>
+                    <TabsTrigger value="seller-dashboard">Seller Dashboard</TabsTrigger>
                     <TabsTrigger value="settings">Account Settings</TabsTrigger>
                 </TabsList>
 
@@ -204,6 +206,10 @@ export default function ProfilePage() {
 
                  <TabsContent value="rewards">
                     <RewardsPage />
+                </TabsContent>
+
+                <TabsContent value="seller-dashboard">
+                    <SellerDashboard user={user} />
                 </TabsContent>
                 
                  <TabsContent value="settings">
