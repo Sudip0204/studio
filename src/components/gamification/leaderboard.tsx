@@ -3,29 +3,28 @@
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Crown, Shield, Trophy } from "lucide-react";
+import { Crown, Loader2, Trophy } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
-
-const leaderboardData = [
-  { rank: 1, name: "EcoWarrior", score: 12580, avatarId: "testimonial-1" },
-  { rank: 2, name: "GreenGuardian", score: 11230, avatarId: "testimonial-2" },
-  { rank: 3, name: "RecycleRex", score: 9840, avatarId: "user-3" },
-  { rank: 4, name: "You", score: 8500, avatarId: "user-you" },
-  { rank: 5, name: "CaptainPlanet", score: 7600, avatarId: "user-5" },
-  { rank: 6, name: "SortMaster", score: 6210, avatarId: "user-6" },
-  { rank: 7, name: "WasteWatcher", score: 5550, avatarId: "user-7" },
-];
+import { useUser, useCollection, useFirestore, useMemoFirebase } from "@/firebase";
+import { collection, query, orderBy, limit } from "firebase/firestore";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const getRankIcon = (rank: number) => {
-  if (rank === 1) return <Crown className="h-5 w-5 text-amber-400" />;
-  if (rank === 2) return <Crown className="h-5 w-5 text-slate-400" />;
-  if (rank === 3) return <Crown className="h-5 w-5 text-amber-600" />;
-  return <span className="font-bold text-sm w-5 text-center">{rank}</span>;
+  if (rank === 0) return <Crown className="h-5 w-5 text-amber-400" />;
+  if (rank === 1) return <Crown className="h-5 w-5 text-slate-400" />;
+  if (rank === 2) return <Crown className="h-5 w-5 text-amber-600" />;
+  return <span className="font-bold text-sm w-5 text-center">{rank + 1}</span>;
 };
 
-
 export function Leaderboard() {
+  const { user: currentUser } = useUser();
+  const firestore = useFirestore();
+
+  const usersRef = useMemoFirebase(() => collection(firestore, 'users'), [firestore]);
+  const leaderboardQuery = useMemoFirebase(() => query(usersRef, orderBy('highestScore', 'desc'), limit(10)), [usersRef]);
+
+  const { data: leaderboardData, isLoading } = useCollection(leaderboardQuery);
+
   return (
     <Card className="bg-muted/50">
       <CardHeader className="text-center">
@@ -37,31 +36,44 @@ export function Leaderboard() {
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
-          {leaderboardData.map((player, index) => {
-             const avatarImage = PlaceHolderImages.find(p => p.id === player.avatarId);
-             const isCurrentUser = player.name === "You";
+          {isLoading && (
+            [...Array(5)].map((_, i) => (
+                <div key={i} className="flex items-center gap-4 p-3 rounded-lg bg-background">
+                    <Skeleton className="w-6 h-6" />
+                    <Skeleton className="h-10 w-10 rounded-full" />
+                    <div className="flex-grow space-y-2">
+                        <Skeleton className="h-4 w-24" />
+                        <Skeleton className="h-3 w-16" />
+                    </div>
+                    <Skeleton className="h-6 w-12" />
+                </div>
+            ))
+          )}
+
+          {!isLoading && leaderboardData && leaderboardData.map((player, index) => {
+             const isCurrentUser = currentUser?.uid === player.id;
             return (
               <div 
-                key={index} 
+                key={player.id} 
                 className={cn(
                   "flex items-center gap-4 p-3 rounded-lg transition-all",
                   isCurrentUser ? "bg-primary/20 border-2 border-primary" : "bg-background"
                 )}
               >
                 <div className="w-6 flex justify-center items-center">
-                  {getRankIcon(player.rank)}
+                  {getRankIcon(index)}
                 </div>
                 <Avatar className="h-10 w-10 border-2 border-muted">
-                    {avatarImage && <AvatarImage src={avatarImage.imageUrl} alt={player.name} data-ai-hint={avatarImage.imageHint} />}
+                    {player.photoURL && <AvatarImage src={player.photoURL} alt={player.name} />}
                    <AvatarFallback>{player.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="flex-grow">
-                  <p className={cn("font-semibold", isCurrentUser && "text-primary-foreground")}>{player.name}</p>
+                  <p className={cn("font-semibold", isCurrentUser && "text-primary-foreground")}>{isCurrentUser ? 'You' : player.name}</p>
                    <p className={cn("text-xs text-muted-foreground", isCurrentUser && "text-primary-foreground/80")}>Eco-Warrior</p>
                 </div>
                 <div className="flex items-center gap-2 font-bold text-primary">
                     <Trophy className="h-4 w-4 text-amber-500"/>
-                    <span>{player.score.toLocaleString()}</span>
+                    <span>{(player.highestScore || 0).toLocaleString()}</span>
                 </div>
               </div>
             )

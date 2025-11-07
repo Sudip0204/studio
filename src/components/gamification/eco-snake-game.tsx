@@ -7,6 +7,8 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { Award, Play, RotateCw, Maximize, Minimize } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useUser, useFirestore, useDoc, updateDocumentNonBlocking, useMemoFirebase } from '@/firebase';
+import { doc } from 'firebase/firestore';
 
 // Game constants
 const GRID_SIZE = 20;
@@ -40,11 +42,13 @@ const wastePoints = {
 };
 
 export function EcoSnakeGame() {
+  const { user } = useUser();
+  const firestore = useFirestore();
+
   const [snake, setSnake] = useState<Snake>([{ x: 10, y: 10 }]);
   const [food, setFood] = useState<Food>({ ...getRandomCoordinate(), type: getRandomWasteType() });
   const [direction, setDirection] = useState<Direction>('RIGHT');
   const [score, setScore] = useState(0);
-  const [highScore, setHighScore] = useState(0);
   const [isGameOver, setIsGameOver] = useState(false);
   const [isGameStarted, setIsGameStarted] = useState(false);
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -53,6 +57,11 @@ export function EcoSnakeGame() {
   const gameLoopRef = useRef<NodeJS.Timeout | null>(null);
   const gameContainerRef = useRef<HTMLDivElement>(null);
   const gameBoardRef = useRef<HTMLDivElement>(null);
+  
+  const userProfileRef = useMemoFirebase(() => user ? doc(firestore, 'users', user.uid) : null, [user, firestore]);
+  const { data: userProfile } = useDoc(userProfileRef);
+
+  const highScore = userProfile?.highestScore ?? 0;
 
 
   const updateTileSize = useCallback(() => {
@@ -108,13 +117,6 @@ export function EcoSnakeGame() {
     setScore(0);
     setIsGameOver(false);
     setIsGameStarted(true);
-  }, []);
-
-  useEffect(() => {
-    const storedHighScore = localStorage.getItem('ecoSnakeHighScore');
-    if (storedHighScore) {
-      setHighScore(parseInt(storedHighScore, 10));
-    }
   }, []);
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
@@ -201,16 +203,17 @@ export function EcoSnakeGame() {
   }, [gameTick, isGameStarted, isGameOver]);
 
   useEffect(() => {
-    if (isGameOver) {
-      if (score > highScore) {
-        setHighScore(score);
-        localStorage.setItem('ecoSnakeHighScore', score.toString());
-      }
-      if (gameLoopRef.current) {
-        clearInterval(gameLoopRef.current);
-      }
+    if (isGameOver && userProfileRef) {
+        const updateData = { lastRunScore: score, lastRunTimestamp: new Date() };
+        if (score > highScore) {
+            Object.assign(updateData, { highestScore: score });
+        }
+        updateDocumentNonBlocking(userProfileRef, updateData);
+        if (gameLoopRef.current) {
+            clearInterval(gameLoopRef.current);
+        }
     }
-  }, [isGameOver, score, highScore]);
+  }, [isGameOver, score, highScore, userProfileRef]);
 
   const renderGrid = () => {
     const tiles = [];

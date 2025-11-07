@@ -10,8 +10,6 @@ export interface UserProfile {
     createdAt?: Timestamp;
     // privacySettings?: object; // Define further if needed
     rewardPoints?: number;
-    ecoPoints?: number;
-    level?: string;
     highestScore?: number;
     lastRunScore?: number;
     lastRunTimestamp?: Timestamp;
