@@ -204,27 +204,31 @@ export default function MarketplacePage() {
   };
 
   const handleDeleteProduct = (productId: number) => {
-    // Update state
+    // Update component state first for immediate UI feedback
     const updatedProductsState = products.filter(p => p.id !== productId);
     setProducts(updatedProductsState);
-
-    // Update localStorage for user-added products
+  
+    // Then, update localStorage
     try {
-        const storedProducts = JSON.parse(localStorage.getItem('userProducts') || '[]');
-        const updatedStoredProducts = storedProducts.filter((p: any) => p.id !== productId);
-        localStorage.setItem('userProducts', JSON.stringify(updatedStoredProducts));
-
-        toast({
-            title: "Product Deleted",
-            description: "Your item has been removed from the marketplace.",
-        });
+      // We need to check both initial products and user-added products
+      // But we only want to remove from user-added products storage
+      const storedProducts = JSON.parse(localStorage.getItem('userProducts') || '[]');
+      const updatedStoredProducts = storedProducts.filter((p: any) => p.id !== productId);
+      localStorage.setItem('userProducts', JSON.stringify(updatedStoredProducts));
+  
+      toast({
+        title: "Product Deleted",
+        description: "Your item has been removed from the marketplace.",
+      });
     } catch (error) {
-        console.error("Failed to delete product from localStorage", error);
-        toast({
-            variant: "destructive",
-            title: "Error",
-            description: "Could not remove the product from storage.",
-        });
+      console.error("Failed to delete product from localStorage", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Could not remove the product from storage.",
+      });
+      // Optional: Revert state if localStorage fails, though less common
+      // setProducts(products); // Re-adds the product to the view
     }
   };
 
@@ -361,5 +365,6 @@ export default function MarketplacePage() {
     </div>
   );
 }
+    
 
     
