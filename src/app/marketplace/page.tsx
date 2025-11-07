@@ -49,6 +49,7 @@ const initialProducts = [
   { id: 5, name: "Bamboo Toothbrush Set", price: 960, description: "A set of four eco-friendly bamboo toothbrushes. A great alternative to plastic.", image: "https://i.postimg.cc/Sx4wfzh0/Bamboo-Toothbrush-Set.webp", seller: "EcoEssentials", sellerId: "system", dataAiHint: "bamboo toothbrush", category: "Personal Care", condition: "New", location: "Thane" },
   { id: 6, name: "Second-hand Novel Set", price: 1440, description: "A collection of five popular, pre-loved novels in excellent condition for your reading pleasure.", image: "https://i.postimg.cc/HkLtmp0Y/Second-hand-Novel-Set.jpg", seller: "BookCycle", sellerId: "system", dataAiHint: "books pile", category: "Books", condition: "Used", location: "Colaba" },
   { id: 7, name: "Refurbished Smartphone", price: 12000, description: "A high-quality, professionally refurbished smartphone with a new battery and a 6-month warranty.", image: "https://i.postimg.cc/v86kRvYr/Refurbished-Smartphone.webp", seller: "GadgetCycle", sellerId: "system", dataAiHint: "smartphone hand", category: "Electronics", condition: "Good", location: "Goregaon" },
+  { id: 8, name: "Upcycled Tire Chair", price: 3000, description: "A unique and comfortable chair made from a recycled car tire. A real conversation starter!", image: "https://i.postimg.cc/R0k1wKk0/Upcycled-Tire-Chair.jpg", seller: "CreativeRecycles", sellerId: "system", dataAiHint: "tire chair", category: "Furniture", condition: "New", location: "Chembur" },
 ];
 
 const categories = ["Electronics", "Furniture", "Clothing", "Books", "Home Decor", "Kitchenware", "Accessories", "Personal Care"];
@@ -375,3 +376,4 @@ export default function MarketplacePage() {
     
 
     
+
