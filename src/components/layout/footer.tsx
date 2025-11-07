@@ -7,7 +7,7 @@ import { Facebook, Twitter, Instagram, Linkedin } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="bg-muted text-muted-foreground">
+    <footer className="bg-muted text-muted-foreground z-20">
       <div className="container mx-auto max-w-7xl px-4 py-12 md:px-6">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           <div className="flex flex-col gap-4">
@@ -40,9 +40,10 @@ export function Footer() {
           <div>
             <h3 className="font-headline text-sm font-semibold uppercase tracking-wider text-foreground">About & Legal</h3>
             <ul className="mt-4 space-y-2 text-sm">
+              <li><Link href="/about/mission" className="hover:text-primary">Our Mission</Link></li>
+              <li><Link href="/about/partners" className="hover:text-primary">Partners</Link></li>
               <li><Link href="/about/contact" className="hover:text-primary">Contact Us</Link></li>
-              <li><Link href="/about/contact" className="hover:text-primary">Feedback</Link></li>
-              <li><Link href="/about/privacy" className="hover:text-primary">Policies</Link></li>
+              <li><Link href="/about/privacy" className="hover:text-primary">Privacy Policy</Link></li>
               <li><Link href="/about/terms" className="hover:text-primary">Terms & Conditions</Link></li>
             </ul>
           </div>
