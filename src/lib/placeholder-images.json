@@ -2,19 +2,19 @@
   "placeholderImages": [
     {
       "id": "hero-background",
-      "description": "A striking image of hands holding a plant in a recycled bottle, symbolizing reuse and growth.",
-      "imageUrl": "https://i.postimg.cc/sg7zfcDM/Home-1.jpg",
-      "imageHint": "recycle plant"
+      "description": "An inspiring image of hands holding a small plant with the earth in the background, symbolizing global care.",
+      "imageUrl": "https://images.unsplash.com/photo-1542601906-8b3a41285259?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxlYXJ0aCUyMGluJTIwaGFuZHN8ZW58MHx8fHwxNzYyNTM4MDAwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "earth hands"
     },
     {
       "id": "about-mission",
-      "description": "An image showing a group of volunteers cleaning up a beach, representing community action for the environment.",
-      "imageUrl": "https://images.unsplash.com/photo-1617936307373-5b8a53c0d8b5?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb21tdW5pdHklMjBjbGVhbnVwfGVufDB8fHx8MTc2MjUzNzI0NHww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "community cleanup"
+      "description": "An image showing a group of diverse volunteers planting trees together in a field, representing community action for the environment.",
+      "imageUrl": "https://images.unsplash.com/photo-1509397669482-d71e4b9718f9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwbGFudGluZyUyMHRyZWVzfGVufDB8fHx8MTc2MjUzNzI0NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "planting trees"
     },
     {
       "id": "impact-map",
-      "description": "An image of a person sorting different types of waste into labeled recycling bins, demonstrating proper waste segregation.",
+      "description": "An image showing a person sorting different types of waste into labeled recycling bins, demonstrating proper waste segregation.",
       "imageUrl": "https://images.unsplash.com/photo-1574974671999-d5b944f59b2c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx3YXN0ZSUyMHNlZ3JlZ2F0aW9ufGVufDB8fHx8MTc2MjUzNzI0NHww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "waste segregation"
     },
@@ -57,25 +57,25 @@
     {
       "id": "user-7",
       "description": "Avatar for a leaderboard user.",
-      "imageUrl": "https://images.unsplash.com/photo-1648218943004-5ec604ef627a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwZXJzb24lMjBnbGFzc2VzfGVufDB8fHx8MTc2MjM5NzQ3NXww&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1648218943004-5ec604ef627a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxwZXJzb24lMjBnbGFzc2VzfGVufDB8fHx8MTc2MjM5NzQ3NXww&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "person glasses"
     },
     {
       "id": "recycling-guide-hero",
       "description": "An inspiring image about recycling for the guide page hero.",
-      "imageUrl": "https://images.unsplash.com/photo-1579756423478-02bc82a97679?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxyZWN5Y2xpbmclMjBpdGVtc3xlbnwwfHx8fDE3NjI0Njg3MzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1579756423478-02bc82a97679?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxyZWN5Y2xpbmclMjBpdGVtc3xlbnwwfHx8fDE3NjI0Njg3MzB8MA&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "recycling items"
     },
     {
       "id": "organic-waste",
       "description": "Image of organic waste like fruit peels and food scraps.",
-      "imageUrl": "https://images.unsplash.com/photo-1719399924262-ebb6f2a8de80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjb21wb3N0JTIwcGlsZXxlbnwwfHx8fDE3NjI0Njg3MzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1719399924262-ebb6f2a8de80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjb21wb3N0JTIwcGlsZXxlbnwwfHx8fDE3NjI0Njg3MzB8MA&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "compost pile"
     },
     {
       "id": "plastic-waste",
       "description": "Image of various plastic bottles and containers.",
-      "imageUrl": "https://images.unsplash.com/photo-1571727153934-b9e0059b7ab2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwbGFzdGljJTIwYm90dGxlc3xlbnwwfHx8fDE3NjI0MzMwNTZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1571727153934-b9e0059b7ab2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxwbGFzdGljJTIwYm90dGxlc3xlbnwwfHx8fDE3NjI0MzMwNTZ8MA&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "plastic bottles"
     },
     {
@@ -213,7 +213,7 @@
     {
       "id": "carbon-emissions-info",
       "description": "An image representing carbon emissions, like factory smoke.",
-      "imageUrl": "https://images.unsplash.com/photo-1729858346171-5180c0d4e727?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxmYWN0b3J5JTIwZW1pc3Npb25zfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1729858346171-5180c0d4e727?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxmYWN0b3J5JTIwZW1pc3Npb25zfGVufDB8fHx8MTc2MjQ2ODczMHww&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "factory emissions"
     },
     {
@@ -225,7 +225,7 @@
     {
       "id": "global-issue-info",
       "description": "An image representing the global nature of climate change.",
-      "imageUrl": "https://images.unsplash.com/photo-1624412175968-c0cd30bea6ea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxlYXJ0aCUyMHdhcm1pbmd8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1624412175968-c0cd30bea6ea?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxlYXJ0aCUyMHdhcm1pbmd8ZW58MHx8fHwxNzYyNDY4NzMwfDA&ixlib-rb-4.1.0&q=80&w=1080",
       "imageHint": "earth warming"
     }
   ]
