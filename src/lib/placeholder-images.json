@@ -2,21 +2,21 @@
   "placeholderImages": [
     {
       "id": "hero-background",
-      "description": "An inspiring image of hands holding a small plant with the earth in the background, symbolizing global care.",
-      "imageUrl": "https://images.unsplash.com/photo-1542601906-8b3a41285259?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxlYXJ0aCUyMGluJTIwaGFuZHN8ZW58MHx8fHwxNzYyNTM4MDAwfDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "earth hands"
+      "description": "Dramatic landscape view of mountains and a lake, representing the planet we need to protect.",
+      "imageUrl": "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?q=80&w=2070&auto=format&fit=crop",
+      "imageHint": "mountain landscape"
     },
     {
       "id": "about-mission",
-      "description": "An image showing a group of diverse volunteers planting trees together in a field, representing community action for the environment.",
-      "imageUrl": "https://images.unsplash.com/photo-1509397669482-d71e4b9718f9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwbGFudGluZyUyMHRyZWVzfGVufDB8fHx8MTc2MjUzNzI0NHww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "planting trees"
+      "description": "A group of volunteers sorting plastic waste into bags, showing community action.",
+      "imageUrl": "https://images.unsplash.com/photo-1611289041352-6a84a4a15a89?q=80&w=2070&auto=format&fit=crop",
+      "imageHint": "community recycling"
     },
     {
       "id": "impact-map",
-      "description": "An image showing a person sorting different types of waste into labeled recycling bins, demonstrating proper waste segregation.",
-      "imageUrl": "https://images.unsplash.com/photo-1574974671999-d5b944f59b2c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHx3YXN0ZSUyMHNlZ3JlZ2F0aW9ufGVufDB8fHx8MTc2MjUzNzI0NHww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "waste segregation"
+      "description": "Abstract image of a glowing world map with data points, representing global reach and data-driven impact.",
+      "imageUrl": "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?q=80&w=2071&auto=format&fit=crop",
+      "imageHint": "global data"
     },
     {
       "id": "testimonial-1",
@@ -69,7 +69,7 @@
     {
       "id": "organic-waste",
       "description": "Image of organic waste like fruit peels and food scraps.",
-      "imageUrl": "https://images.unsplash.com/photo-1719399924262-ebb6f2a8de80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjb21wb3N0JTIwcGlsZXxlbnwwfHx8fDE3NjI0Njg3MzB8MA&ixlib-rb-4.1.0&q=80&w=1080",
+      "imageUrl": "https://images.unsplash.com/photo-1719399924262-ebb6f2a8de80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxjb21wb3N0JTIwcGlsZXxlbnwwfHx8fDE3NjI0Njg3MzB8MA&ixlib=rb-4.1.0&q=80&w=1080",
       "imageHint": "compost pile"
     },
     {
