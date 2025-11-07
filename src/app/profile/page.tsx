@@ -17,7 +17,7 @@ import { AccountSettings } from './account-settings';
 import { MyOrders } from './my-orders';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { getStorage, ref, uploadString, getDownloadURL, deleteObject } from 'firebase/storage';
+import { getStorage, ref, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { updateProfile } from 'firebase/auth';
 import { doc } from 'firebase/firestore';
 
@@ -55,33 +55,29 @@ export default function ProfilePage() {
     if (!file) return;
 
     setIsUploading(true);
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = async () => {
-        const dataUrl = reader.result as string;
-        const storage = getStorage();
-        const storageRef = ref(storage, `profile-pictures/${user.uid}`);
-        
-        try {
-            await uploadString(storageRef, dataUrl, 'data_url');
-            const photoURL = await getDownloadURL(storageRef);
+    const storage = getStorage();
+    const storageRef = ref(storage, `profile-pictures/${user.uid}`);
+    
+    try {
+        // Upload the file directly, which is more efficient
+        await uploadBytes(storageRef, file);
+        const photoURL = await getDownloadURL(storageRef);
 
-            // Update Auth user profile
-            await updateProfile(user, { photoURL });
+        // Update Auth user profile
+        await updateProfile(user, { photoURL });
 
-            // Update Firestore user profile
-            const userDocRef = doc(auth.app.firestore!, 'users', user.uid);
-            setDocumentNonBlocking(userDocRef, { photoURL }, { merge: true });
+        // Update Firestore user profile
+        const userDocRef = doc(auth.app.firestore!, 'users', user.uid);
+        setDocumentNonBlocking(userDocRef, { photoURL }, { merge: true });
 
-            toast({ title: "Profile picture updated!" });
-            setIsPhotoDialogOpen(false);
-        } catch (error) {
-            console.error("Error uploading photo: ", error);
-            toast({ variant: "destructive", title: "Upload Failed", description: "Could not upload your profile picture." });
-        } finally {
-            setIsUploading(false);
-        }
-    };
+        toast({ title: "Profile picture updated!" });
+        setIsPhotoDialogOpen(false);
+    } catch (error) {
+        console.error("Error uploading photo: ", error);
+        toast({ variant: "destructive", title: "Upload Failed", description: "Could not upload your profile picture." });
+    } finally {
+        setIsUploading(false);
+    }
   };
 
   const handleRemovePhoto = async () => {
@@ -91,30 +87,24 @@ export default function ProfilePage() {
     const storageRef = ref(storage, `profile-pictures/${user.uid}`);
 
     try {
-        // Delete from Storage
-        await deleteObject(storageRef);
+        // Attempt to delete from Storage, but don't fail if it's already gone
+        await deleteObject(storageRef).catch((error) => {
+            if (error.code !== 'storage/object-not-found') {
+                throw error; // Re-throw other errors
+            }
+        });
 
-        // Update Auth user profile
+        // Always update Auth and Firestore profiles to remove the URL
         await updateProfile(user, { photoURL: null });
 
-        // Update Firestore user profile
         const userDocRef = doc(auth.app.firestore!, 'users', user.uid);
         setDocumentNonBlocking(userDocRef, { photoURL: null }, { merge: true });
 
         toast({ title: "Profile picture removed." });
         setIsPhotoDialogOpen(false);
-    } catch (error: any) {
-        if (error.code !== 'storage/object-not-found') {
-             console.error("Error removing photo: ", error);
-             toast({ variant: "destructive", title: "Removal Failed", description: "Could not remove profile picture." });
-        } else {
-             // If object doesn't exist, just clear it locally
-            await updateProfile(user, { photoURL: null });
-            const userDocRef = doc(auth.app.firestore!, 'users', user.uid);
-            setDocumentNonBlocking(userDocRef, { photoURL: null }, { merge: true });
-            toast({ title: "Profile picture removed." });
-            setIsPhotoDialogOpen(false);
-        }
+    } catch (error) {
+        console.error("Error removing photo: ", error);
+        toast({ variant: "destructive", title: "Removal Failed", description: "Could not remove profile picture." });
     } finally {
         setIsUploading(false);
     }
