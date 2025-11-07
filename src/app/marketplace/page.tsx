@@ -163,23 +163,15 @@ export default function MarketplacePage() {
 
 
   useEffect(() => {
-    const allProducts = [...initialProducts];
+    let allProducts = [...initialProducts];
     
-    // Add the "Upcycled Tire Chair" if it's in localStorage from a previous session
     try {
         const storedProducts = JSON.parse(localStorage.getItem('userProducts') || '[]');
-        const chair = storedProducts.find((p: any) => p.name === "Upcycled Tire Chair");
-        if (chair && !allProducts.some(p => p.id === chair.id)) {
-            allProducts.push({
-                ...chair,
-                image: "https://i.postimg.cc/R0k1wKk0/Upcycled-Tire-Chair.jpg"
-            });
-        }
         
-        // Combine initial products with any other user-added products
+        // Combine initial products with any other user-added products, filtering out the chair
         const existingIds = new Set(allProducts.map(p => p.id));
         for (const p of storedProducts) {
-            if (!existingIds.has(p.id)) {
+            if (!existingIds.has(p.id) && p.name !== "Upcycled Tire Chair") {
                 allProducts.push(p);
             }
         }
@@ -377,6 +369,8 @@ export default function MarketplacePage() {
     </div>
   );
 }
+    
+
     
 
     
