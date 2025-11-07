@@ -20,8 +20,8 @@ export function Leaderboard() {
   const { user: currentUser } = useUser();
   const firestore = useFirestore();
 
-  const usersRef = useMemoFirebase(() => collection(firestore, 'users'), [firestore]);
-  const leaderboardQuery = useMemoFirebase(() => query(usersRef, orderBy('highestScore', 'desc'), limit(10)), [usersRef]);
+  const leaderboardRef = useMemoFirebase(() => collection(firestore, 'leaderboard'), [firestore]);
+  const leaderboardQuery = useMemoFirebase(() => query(leaderboardRef, orderBy('highestScore', 'desc'), limit(10)), [leaderboardRef]);
 
   const { data: leaderboardData, isLoading } = useCollection(leaderboardQuery);
 

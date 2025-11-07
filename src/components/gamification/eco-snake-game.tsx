@@ -7,7 +7,7 @@ import { PlaceHolderImages } from '@/lib/placeholder-images';
 import Image from 'next/image';
 import { Award, Play, RotateCw, Maximize, Minimize } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useUser, useFirestore, useDoc, updateDocumentNonBlocking, useMemoFirebase } from '@/firebase';
+import { useUser, useFirestore, useDoc, updateDocumentNonBlocking, setDocumentNonBlocking, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 
 // Game constants
@@ -203,17 +203,24 @@ export function EcoSnakeGame() {
   }, [gameTick, isGameStarted, isGameOver]);
 
   useEffect(() => {
-    if (isGameOver && userProfileRef) {
-        const updateData = { lastRunScore: score, lastRunTimestamp: new Date() };
+    if (isGameOver && userProfileRef && user) {
+        const userUpdateData = { lastRunScore: score, lastRunTimestamp: new Date() };
         if (score > highScore) {
-            Object.assign(updateData, { highestScore: score });
+            Object.assign(userUpdateData, { highestScore: score });
+            const leaderboardRef = doc(firestore, 'leaderboard', user.uid);
+            const leaderboardData = {
+                name: userProfile?.name || user.displayName || 'Anonymous',
+                photoURL: userProfile?.photoURL || user.photoURL || '',
+                highestScore: score,
+            };
+            setDocumentNonBlocking(leaderboardRef, leaderboardData, { merge: true });
         }
-        updateDocumentNonBlocking(userProfileRef, updateData);
+        updateDocumentNonBlocking(userProfileRef, userUpdateData);
         if (gameLoopRef.current) {
             clearInterval(gameLoopRef.current);
         }
     }
-  }, [isGameOver, score, highScore, userProfileRef]);
+  }, [isGameOver, score, highScore, userProfileRef, user, firestore, userProfile]);
 
   const renderGrid = () => {
     const tiles = [];
@@ -297,7 +304,7 @@ export function EcoSnakeGame() {
             <div className="absolute inset-0 bg-black/70 z-10 flex flex-col items-center justify-center text-white p-4 col-span-full row-span-full">
                 <h3 className="font-headline text-3xl mb-2">Game Over</h3>
                 <p className="text-lg mb-4">Your final score is {score}</p>
-                {score > 0 && score === highScore && (
+                {score > 0 && score > highScore && (
                     <div className="flex items-center text-amber-400 mb-6">
                         <Award className="mr-2" />
                         <span>New High Score!</span>

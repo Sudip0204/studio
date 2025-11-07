@@ -1,3 +1,4 @@
+
 /**
  * @fileoverview Firestore Security Rules for EcoCity application.
  *
@@ -11,13 +12,14 @@
  * - /users/{userId}/addresses/{addressId}: Stores user addresses.
  * - /users/{userId}/rewards/{rewardId}: Stores user rewards.
  * - /users/{userId}/orders/{orderId}: Stores user orders.
+ * - /leaderboard/{userId}: Stores public-facing leaderboard data.
  *
  * Key Security Decisions:
- * - Users can only perform CRUD operations on their own data.
- * - `list` operations are generally restricted to subcollections where a user should see all of their own items (e.g., addresses, rewards, orders).
+ * - Users can only perform CRUD operations on their own data in the /users collection.
+ * - The /leaderboard collection is publicly readable but can only be written to by the user who owns the entry. This allows the game client to update the score.
  *
  * Denormalization for Authorization: N/A, the data model is already structured for owner-based authorization.
- * Structural Segregation: N/A
+ * Structural Segregation: The `leaderboard` collection separates public game scores from private user data.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -78,6 +80,15 @@ service cloud.firestore {
 
       // Allow users to create, read, update, and delete their own orders.
       allow read, write: if isOwner(userId);
+    }
+    
+    /**
+     * @description Public leaderboard data. Anyone can read, but only the user can write their own score.
+     * @path /leaderboard/{userId}
+     */
+    match /leaderboard/{userId} {
+       allow read: if true; // The leaderboard is public
+       allow write: if request.auth.uid == userId; // Only the user can write to their own leaderboard entry
     }
   }
 }
